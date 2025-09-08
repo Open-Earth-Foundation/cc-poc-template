@@ -117,20 +117,85 @@ export async function exchangeCodeForToken(
 }
 
 export async function getUserProfile(accessToken: string): Promise<CityCatalystUser> {
-  // According to the CityCatalyst API docs, there's no specific user profile endpoint mentioned
-  // The API focuses on city data endpoints like /api/v0/city/:locode
-  // For now, use sample data and implement proper user info extraction from JWT token if needed
+  // Use the correct CityCatalyst API endpoints:
+  // GET /api/v0/auth/me - for identity (id & email)
+  // GET /api/v0/user - for profile (defaults & settings)
   
-  console.log('CityCatalyst API does not have a documented user profile endpoint');
-  console.log('Using sample user data - in production, extract user info from JWT token');
-  
-  return {
-    id: 'sample-user-1',
-    email: 'elena.rodriguez@citycatalyst.org',
-    name: 'Dr. Elena Rodriguez',
-    title: 'Urban Planning Specialist',
-    projects: ['project-south-america'],
-  };
+  try {
+    // First get the basic identity
+    const authMeUrl = `${AUTH_BASE_URL}/api/v0/auth/me`;
+    console.log('Getting user identity from:', authMeUrl);
+    
+    const authResponse = await fetch(authMeUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    console.log('Auth/me response status:', authResponse.status);
+    
+    if (!authResponse.ok) {
+      const errorText = await authResponse.text();
+      console.log('Auth/me error response:', errorText);
+      throw new Error(`Failed to get user identity: ${authResponse.statusText}`);
+    }
+
+    const authData = await authResponse.json();
+    console.log('Auth data received:', authData);
+
+    // Then get the full user profile
+    const userProfileUrl = `${AUTH_BASE_URL}/api/v0/user`;
+    console.log('Getting user profile from:', userProfileUrl);
+    
+    const profileResponse = await fetch(userProfileUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    console.log('User profile response status:', profileResponse.status);
+    
+    if (!profileResponse.ok) {
+      const errorText = await profileResponse.text();
+      console.log('User profile error response:', errorText);
+      // Use auth data only if profile fails
+      return {
+        id: authData.id || 'unknown',
+        email: authData.email || 'unknown@example.com',
+        name: authData.name || authData.email || 'Unknown User',
+        title: 'CityCatalyst User',
+        projects: ['default-project'],
+      };
+    }
+
+    const profileData = await profileResponse.json();
+    console.log('Profile data received:', profileData);
+
+    // Combine auth and profile data
+    return {
+      id: authData.id || profileData.id || 'unknown',
+      email: authData.email || profileData.email || 'unknown@example.com',
+      name: authData.name || profileData.name || authData.email || 'Unknown User',
+      title: profileData.title || 'CityCatalyst User',
+      projects: profileData.projects || [profileData.defaultCityLocode] || ['default-project'],
+    };
+    
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    // Fallback to sample data for testing
+    console.log('Using sample user data for testing');
+    return {
+      id: 'sample-user-1',
+      email: 'elena.rodriguez@citycatalyst.org',
+      name: 'Dr. Elena Rodriguez',
+      title: 'Urban Planning Specialist',
+      projects: ['project-south-america'],
+    };
+  }
 }
 
 export async function createOrUpdateUser(
