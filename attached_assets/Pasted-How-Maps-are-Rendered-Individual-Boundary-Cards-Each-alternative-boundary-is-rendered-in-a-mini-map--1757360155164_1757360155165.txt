@@ -1,0 +1,60 @@
+How Maps are Rendered
+Individual Boundary Cards
+Each alternative boundary is rendered in a mini-map within a card layout. Based on the UI specification document, here's how it works:
+
+Grid Layout: The boundaries are displayed in a 2x3 or 3x2 grid (1 current boundary + 5 alternatives)
+Mini-Maps: Each card contains a small map (typically 200x150px) showing the boundary outline
+Pigeon Maps Integration: Each mini-map uses the Pigeon Maps <Map> component with <GeoJson> overlays
+Map Features Used
+From the existing CityMap.tsx component, you can see the standard pattern:
+
+<Map
+  height={height}
+  center={center}
+  zoom={zoom}
+  onBoundsChanged={onBoundsChanged}
+  attributionPrefix={false}
+>
+  <GeoJson
+    svgAttributes={{
+      fill: "#648bff99",
+      strokeWidth: "3",
+      stroke: "#648bff",
+    }}
+  >
+    {data?.data && (
+      <GeoJsonFeature feature={{ type: "Feature", geometry: data.data }} />
+    )}
+  </GeoJson>
+</Map>
+Styling and Visual Design
+The maps use consistent styling:
+
+Boundary Fill: Semi-transparent blue (#648bff99)
+Boundary Stroke: Solid blue (#648bff)
+Stroke Width: 3px
+No Attribution: attributionPrefix={false} for cleaner look
+Tile Sources
+Pigeon Maps uses OpenStreetMap tiles by default, which aligns with your OSM data integration approach.
+
+Geometry Processing
+The app uses Turf.js for geometry calculations:
+
+import { area, centroid, bbox } from '@turf/turf';
+This helps with:
+
+Calculating boundary areas
+Finding map centers
+Determining zoom levels based on bounding boxes
+Processing GeoJSON geometries from OSM
+Map Utilities
+The getBoundsZoomLevel utility function (from @/util/geojson) is used to automatically fit maps to boundary extents, ensuring each mini-map shows the complete boundary at an appropriate zoom level.
+
+Alternative Boundary Rendering Flow
+Data Fetch: OSM boundaries fetched via /api/v0/enhanced-boundaries
+Grid Layout: React renders 6 cards (current + 5 alternatives)
+Individual Maps: Each card contains a Pigeon Maps instance
+Geometry Overlay: GeoJSON boundary rendered as <GeoJsonFeature>
+Auto-fit: Map automatically zooms/centers to show full boundary
+Interaction: Click handlers for boundary selection
+This setup provides a clean, interactive way to compare multiple boundary options visually while maintaining consistent styling across all maps.
