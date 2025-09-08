@@ -1,0 +1,75 @@
+You actually did get a token (200 on /api/v0/token/). The reason your next call to GET https://citycatalyst.openearth.dev/api/v0/auth/me comes back as HTML is almost certainly that your request got redirected to a web page (login/Next.js app), which Node’s fetch followed automatically—so you ended up with a 200 HTML document instead of JSON.
+
+Here’s how to fix and bullet-proof it:
+
+Send the token correctly + ask for JSON
+
+Always include the header exactly like this:
+
+Authorization: Bearer <access_token>
+Accept: application/json
+
+
+Call the documented dev endpoint: GET https://citycatalyst.openearth.dev/api/v0/auth/me (this returns a JSON user object when authenticated). 
+GitHub
+
+Detect (and stop) silent redirects
+By default fetch follows 302/303 to the UI, which is why you saw HTML. Force manual redirects and inspect:
+
+const r = await fetch("https://citycatalyst.openearth.dev/api/v0/auth/me", {
+  headers: {
+    Authorization: `Bearer ${accessToken}`,
+    Accept: "application/json",
+    "User-Agent": "cc-boundary-picker/1.0"
+  },
+  redirect: "manual"
+});
+
+if (r.status >= 300 && r.status < 400) {
+  console.error("Redirected to:", r.headers.get("location"));
+  // This means your token was missing/invalid or you hit the wrong origin/path.
+}
+
+const ct = r.headers.get("content-type") || "";
+if (!ct.includes("application/json")) {
+  const text = await r.text();
+  throw new Error("Auth API returned non-JSON (likely HTML redirect):\n" + text.slice(0, 300));
+}
+
+const me = await r.json();
+
+
+Double-check you’re using the right token field
+
+Some servers return OAuth-style { access_token, token_type, expires_in }; others (Django/SimpleJWT style) return { access, refresh }. Log the token exchange JSON and confirm you’re passing the access token field in the Authorization header.
+
+Do not send the authorization code or an id_token here—use the access token.
+
+Confirm exact API paths
+
+Identity: GET /api/v0/auth/me
+
+Profile/defaults: GET /api/v0/user (and PATCH /api/v0/user to update).
+Both are on the same dev origin and return JSON when called with a valid bearer token. 
+GitHub
+
+Protect your callback against restarts/replays
+Your Replit log shows “system: received signal terminated” between initiate and callback. If your server restarts, in-memory code_verifier/state evaporates and your callback may fall back or re-trigger flows that end up unauthenticated.
+
+Store code_verifier keyed by state in a signed cookie or Redis/KV, not memory.
+
+In the callback, exchange once, then immediately 302 to a clean page (Cache-Control: no-store) so refreshes don’t re-hit /token/.
+
+Quick checklist
+
+✅ Token exchange returns JSON; extract access token.
+
+✅ Store token server-side (httpOnly cookie / session).
+
+✅ When calling /api/v0/auth/me, set Authorization: Bearer … + Accept: application/json.
+
+✅ Use redirect: "manual" to catch any 30x and log Location.
+
+✅ If you still see HTML, print response.url and confirm you’re on citycatalyst.openearth.dev/api/v0/... (dev) and not a front-end route.
+
+If you paste the exact token response JSON you’re getting, I’ll point to the correct property to use in Authorization and adjust your handler on the spot.

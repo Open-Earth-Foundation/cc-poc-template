@@ -137,10 +137,19 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Accept': 'application/json',
+        'User-Agent': 'cc-boundary-picker/1.0',
       },
+      redirect: 'manual', // Prevent automatic redirect following
     });
 
     console.log('Auth/me response status:', authResponse.status);
+    
+    // Check for redirects (3xx status codes)
+    if (authResponse.status >= 300 && authResponse.status < 400) {
+      const redirectLocation = authResponse.headers.get('location');
+      console.log('API redirected to:', redirectLocation);
+      throw new Error(`Auth API redirected to web page: ${redirectLocation} - This indicates token authentication failed`);
+    }
     
     if (!authResponse.ok) {
       const errorText = await authResponse.text();
@@ -148,30 +157,36 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
       throw new Error(`Failed to get user identity: ${authResponse.statusText}`);
     }
 
+    // Check content type before parsing
+    const contentType = authResponse.headers.get('content-type') || '';
+    console.log('Auth response content-type:', contentType);
+    
+    if (!contentType.includes('application/json')) {
+      const authText = await authResponse.text();
+      console.log('=== CITYCATALYST AUTH API RESPONSE DEBUG ===');
+      console.log('Request URL:', authMeUrl);
+      console.log('Request Headers:', {
+        'Authorization': `Bearer ${accessToken.substring(0, 20)}...`,
+        'Accept': 'application/json',
+      });
+      console.log('Response Status:', authResponse.status);
+      console.log('Response Headers:', Object.fromEntries(authResponse.headers.entries()));
+      console.log('Response Body Length:', authText.length);
+      console.log('Expected JSON but got:', contentType);
+      console.log('This indicates the API call was redirected to CityCatalyst web app');
+      console.log('=== END DEBUG ===');
+      
+      throw new Error(`Auth API returned ${contentType} instead of JSON - likely redirected to web app`);
+    }
+    
     const authText = await authResponse.text();
-    
-    // Detailed logging for troubleshooting CityCatalyst API
-    console.log('=== CITYCATALYST AUTH API RESPONSE DEBUG ===');
-    console.log('Request URL:', authMeUrl);
-    console.log('Request Headers:', {
-      'Authorization': `Bearer ${accessToken.substring(0, 20)}...`,
-      'Accept': 'application/json',
-    });
-    console.log('Response Status:', authResponse.status);
-    console.log('Response Headers:', Object.fromEntries(authResponse.headers.entries()));
-    console.log('Response Body Length:', authText.length);
-    console.log('Response Body (first 500 chars):', authText.substring(0, 500));
-    console.log('Response Body (full - for debugging):', authText);
-    console.log('=== END DEBUG ===');
-    
     let authData;
     try {
       authData = JSON.parse(authText);
       console.log('Auth data received:', authData);
     } catch (parseError) {
-      console.log('Auth response is not valid JSON, likely HTML error page');
-      console.log('Parse error:', parseError);
-      throw new Error(`Auth API returned HTML instead of JSON`);
+      console.log('Failed to parse JSON response:', parseError);
+      throw new Error(`Auth API returned invalid JSON`);
     }
 
     // Then get the full user profile
