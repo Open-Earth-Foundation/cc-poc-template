@@ -55,8 +55,8 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
   
   console.log(`🔍 Searching boundaries for ${cityName}, ${country} (${countryCode})`);
   
-  // Stage 1: Use exact working format from curl test
-  const searchQuery = `[out:json][timeout:15];rel["name"="Buenos Aires"];out tags;`;
+  // Stage 1: Dynamic query using the actual cityName parameter
+  const searchQuery = `[out:json][timeout:25];(rel["boundary"="administrative"]["name"~"${cityName}",i];rel["place"]["name"~"${cityName}",i];way["boundary"="administrative"]["name"~"${cityName}",i];);out tags;`;
 
   try {
     // Step 1: Get boundary metadata
