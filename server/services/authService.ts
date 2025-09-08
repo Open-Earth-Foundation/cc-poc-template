@@ -119,15 +119,26 @@ export async function exchangeCodeForToken(
 export async function getUserProfile(accessToken: string): Promise<CityCatalystUser> {
   const profileUrl = `${AUTH_BASE_URL}/api/v0/user/profile/`;
   
+  console.log('User profile request:');
+  console.log('URL:', profileUrl);
+  console.log('Token length:', accessToken?.length);
+  
   const response = await fetch(profileUrl, {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
     },
   });
 
+  console.log('User profile response status:', response.status);
+  console.log('User profile response headers:', Object.fromEntries(response.headers.entries()));
+
   if (!response.ok) {
+    const errorText = await response.text();
+    console.log('User profile error response:', errorText);
+    
     // For development, return sample user data
     if (process.env.NODE_ENV === 'development') {
+      console.log('Using sample user data for development');
       return {
         id: 'sample-user-1',
         email: 'elena.rodriguez@citycatalyst.org',
@@ -136,7 +147,7 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
         projects: ['project-south-america'],
       };
     }
-    throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+    throw new Error(`Failed to fetch user profile: ${response.statusText} - ${errorText}`);
   }
 
   return await response.json();
