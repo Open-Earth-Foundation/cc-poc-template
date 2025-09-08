@@ -4,7 +4,8 @@ import {
   initiateOAuth, 
   handleOAuthCallback, 
   refreshToken, 
-  getUserProfile 
+  getUserProfile,
+  generateSessionToken
 } from './services/authService';
 import { 
   getUserAccessibleCities, 
@@ -17,17 +18,37 @@ import {
 import { POST as enhancedBoundariesPOST, GET as enhancedBoundariesGET } from './routes/enhanced-boundaries';
 
 export function setupRoutes(app: express.Application) {
-  // Middleware to check authentication
-  const requireAuth = (req: any, res: any, next: any) => {
+  // Middleware to check authentication (supports both Bearer token and session cookie)
+  const requireAuth = async (req: any, res: any, next: any) => {
+    // Check for Bearer token first
     const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Not authenticated' });
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      req.token = authHeader.substring(7);
+      return next();
+    }
+    
+    // Check for session cookie
+    const sessionToken = req.cookies?.sessionToken;
+    if (sessionToken) {
+      try {
+        const session = await storage.getSessionByToken(sessionToken);
+        if (session && session.expiresAt > new Date()) {
+          // Get user by session
+          const user = await storage.getUserById(session.userId);
+          if (user && user.accessToken) {
+            req.token = user.accessToken;
+            return next();
+          }
+        } else if (session) {
+          // Expired session, clean it up
+          await storage.deleteSession(session.id);
+        }
+      } catch (error) {
+        console.error('Session validation error:', error);
+      }
     }
 
-    const token = authHeader.substring(7);
-    req.token = token;
-    next();
+    return res.status(401).json({ message: 'Not authenticated' });
   };
 
   // Extract user from token middleware
@@ -68,6 +89,29 @@ export function setupRoutes(app: express.Application) {
       }
       
       const result = await handleOAuthCallback(code as string, state as string);
+      
+      // Create a session for the authenticated user
+      const user = await storage.getUserByEmail(result.user.email);
+      if (user) {
+        const sessionToken = generateSessionToken();
+        
+        // Create session in storage
+        await storage.createSession({
+          token: sessionToken,
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+        });
+        
+        // Set HTTP-only session cookie
+        res.cookie('sessionToken', sessionToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+        
+        console.log(`✅ Session created for user: ${user.email}`);
+      }
       
       // Redirect to frontend callback page with success
       res.redirect('/auth/callback?success=true');

@@ -1,0 +1,64 @@
+09-08 17:57:46
+8:57:46 PM [express] GET /api/cities 401 in 1ms :: {"message":"Not authenticated"}
+09-08 17:57:52
+8:57:52 PM [express] GET /api/auth/oauth/initiate 200 in 1ms :: {"codeVerifier":"Z7ZJAxahaDxa0SzrCpI…
+09-08 17:57:55
+=== CITYCATALYST TOKEN EXCHANGE DEBUG ===
+09-08 17:57:55
+URL: https://citycatalyst.openearth.dev/api/v0/token/
+09-08 17:57:55
+Body: grant_type=authorization_code&client_id=kIzoXFLTxmzu_L3FnL_CxMlDkI2cSm-L8rJ1LWn-hROvA4dQMK97aFC6ahOJd_CQ&code=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiJrSXpvWEZMVHhtenVfTDNGbkxfQ3hNbERrSTJjU20tTDhySjFMV24taFJPdkE0ZFFNSzk3YUZDNmFoT0pkX0NRIiwicmVkaXJlY3RfdXJpIjoiaHR0cHM6Ly9jYy1ib3VuZGFyeS1waWNrZXIucmVwbGl0LmFwcC9hcGkvYXV0aC9vYXV0aC9jYWxsYmFjayIsInNjb3BlIjoicmVhZCB3cml0ZSIsImNvZGVfY2hhbGxlbmdlIjoicksxbTNsc1FLWXUyVU5HbG95MUlkdVl5NGJBLUVTS0p1cUhjeEFlaUZYOCIsImlhdCI6MTc1NzM2NTA3NCwiZXhwIjoxNzU3MzY1Mzc0LCJhdWQiOiJodHRwczovL2NpdHljYXRhbHlzdC5vcGVuZWFydGguZGV2IiwiaXNzIjoiaHR0cHM6Ly9jaXR5Y2F0YWx5c3Qub3BlbmVhcnRoLmRldiIsInN1YiI6IjFkNTNmNWI2LWZmYTMtNGUyNy05MjRhLTM0NzRmZGIxNmZmMyIsImp0aSI6Ijc3NjVkOWM2LTI1OWYtNDg0Yy05OWMwLTgzZmIzYmY5MjdhMSJ9.G9GNfp7UfWiK0IZhkNoa6Vu3G1mpzBQ_BxKpxVu-3m0&redirect_uri=https%3A%2F%2Fcc-boundary-picker.replit.app%2Fapi%2Fauth%2Foauth%2Fcallback&code_verifier=Z7ZJAxahaDxa0SzrCpIdSEI8BiF2yBbpLL3kOdi9WrU
+09-08 17:57:55
+Client ID: kIzoXFLTxmzu_L3FnL_CxMlDkI2cSm-L8rJ1LWn-hROvA4dQMK97aFC6ahOJd_CQ
+09-08 17:57:55
+Redirect URI: https://cc-boundary-picker.replit.app/api/auth/oauth/callback
+09-08 17:57:55
+Code (first 50 chars): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfa...
+09-08 17:57:55
+Code Verifier (first 20 chars): Z7ZJAxahaDxa0SzrCpId...
+09-08 17:57:55
+Token exchange response status: 400
+09-08 17:57:55
+Token exchange response headers: {
+09-08 17:57:55
+'access-control-allow-credentials': 'false',
+09-08 17:57:55
+'access-control-allow-headers': 'Content-Type, Authorization',
+09-08 17:57:55
+'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+09-08 17:57:55
+'access-control-allow-origin': '*',
+09-08 17:57:55
+connection: 'keep-alive',
+09-08 17:57:55
+'content-type': 'application/json',
+09-08 17:57:55
+date: 'Mon, 08 Sep 2025 20:57:55 GMT',
+09-08 17:57:55
+'transfer-encoding': 'chunked',
+09-08 17:57:55
+vary: 'rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch'
+09-08 17:57:55
+}
+09-08 17:57:55
+Token exchange error response: {"error":{"message":"Single-use code."}}
+09-08 17:57:55
+=== END TOKEN EXCHANGE DEBUG ===
+09-08 17:57:55
+OAuth callback error: Error: Token exchange failed: Bad Request - {"error":{"message":"Single-use code."}}
+09-08 17:57:55
+at exchangeCodeForToken (file:///home/runner/workspace/dist/index.js:312:11)
+09-08 17:57:55
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+09-08 17:57:55
+at async handleOAuthCallback (file:///home/runner/workspace/dist/index.js:502:25)
+09-08 17:57:55
+at async file:///home/runner/workspace/dist/index.js:883:22
+09-08 17:57:55
+8:57:55 PM [express] GET /api/auth/oauth/callback 302 in 142ms
+09-08 17:57:55
+8:57:55 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"Not authenticated"}
+09-08 17:58:08
+8:58:08 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"Not authenticated"}
+09-08 17:58:10
+system: received signal terminated

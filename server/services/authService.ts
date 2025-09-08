@@ -360,7 +360,11 @@ export async function handleOAuthCallback(code: string, state: string): Promise<
   }
 
   // Exchange code for token
-  const tokenResponse = await exchangeCodeForToken(code, session.codeVerifier);
+  const codeVerifier = session.codeVerifier;
+  if (!codeVerifier) {
+    throw new Error('Missing code verifier in session');
+  }
+  const tokenResponse = await exchangeCodeForToken(code, codeVerifier);
   
   // Get user profile
   const cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
