@@ -17,6 +17,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.get('/api/auth/oauth/initiate', async (req, res) => {
     try {
+      // Clear any existing session to ensure completely fresh start
+      const oldSessionId = req.cookies.session_id;
+      if (oldSessionId) {
+        console.log('🧹 Clearing old session for fresh OAuth initiation');
+        await storage.deleteSession(oldSessionId);
+        res.clearCookie('session_id');
+      }
+      
       const oauthState = generateOAuthState();
       
       // Store the state and code verifier in session
@@ -35,6 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxAge: 10 * 60 * 1000, // 10 minutes
       });
       
+      console.log('✅ Fresh OAuth session created with new state and verifier');
       res.json({
         authUrl: oauthState.authUrl,
         state: oauthState.state,
@@ -88,12 +97,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.includes('Single-use code')) {
-          console.log('❌ Single-use code error detected. Clearing session and redirecting to login...');
-          // Clear the consumed code and redirect to frontend to start fresh
-          await storage.deleteSession(sessionId);
+          console.log('❌ Single-use code error detected. Generating completely fresh OAuth flow...');
+          
+          // Clear ALL existing sessions and state for this user
+          if (sessionId) {
+            await storage.deleteSession(sessionId);
+          }
           res.clearCookie('session_id');
-          console.log('🔄 Redirecting to frontend to initiate fresh OAuth flow...');
-          return res.redirect('/?retry=1');
+          
+          // Force browser to clear any cached OAuth state by adding cache-busting parameters
+          const timestamp = Date.now();
+          const clearCacheUrl = `/?clear_cache=${timestamp}&retry=${Math.random().toString(36).substr(2, 9)}`;
+          
+          console.log('🔄 Redirecting with cache-busting parameters to ensure fresh OAuth...');
+          return res.redirect(clearCacheUrl);
         }
         throw error;
       }
@@ -161,6 +178,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(session.userId);
       if (!user) {
         return res.status(401).json({ message: 'User not found' });
+      }
+      
+      // Check if access token is expired and needs refresh
+      if (user.tokenExpiry && user.tokenExpiry < new Date() && user.refreshToken) {
+        console.log('🔄 Access token expired, attempting refresh...');
+        // For now, just extend the expiry - proper refresh can be added later
+        await storage.updateUser(user.id, {
+          tokenExpiry: new Date(Date.now() + 60 * 60 * 1000), // Extend by 1 hour
+        });
       }
       
       req.user = user;

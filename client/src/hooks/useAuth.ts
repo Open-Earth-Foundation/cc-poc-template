@@ -37,19 +37,39 @@ export function useAuth(): AuthState & {
     },
   });
 
-  // Auto-retry OAuth on single-use code error
+  // Auto-retry OAuth on single-use code error with complete cache clearing
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('retry') === '1' && !user && !isLoading) {
-      console.log('🔄 Auto-retrying OAuth due to single-use code error...');
-      // Clear the retry parameter
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('retry');
-      window.history.replaceState({}, '', newUrl.toString());
-      // Initiate fresh OAuth
-      initiateCityCatalystAuth();
+    const hasRetryParam = urlParams.get('retry') || urlParams.get('clear_cache');
+    
+    if (hasRetryParam && !user && !isLoading) {
+      console.log('🔄 Auto-retrying OAuth with fresh state due to single-use code error...');
+      
+      // Clear ALL browser cache and OAuth state
+      const clearBrowserCache = () => {
+        // Clear URL parameters
+        const newUrl = new URL(window.location.href);
+        newUrl.search = '';
+        newUrl.hash = '';
+        window.history.replaceState({}, '', newUrl.toString());
+        
+        // Clear any OAuth-related session storage
+        sessionStorage.removeItem('oauth_state');
+        sessionStorage.removeItem('code_verifier');
+        
+        // Clear React Query cache for auth-related queries
+        queryClient.clear();
+        
+        // Force a small delay to ensure clean state, then initiate fresh OAuth
+        setTimeout(() => {
+          console.log('✨ Initiating completely fresh OAuth flow...');
+          initiateCityCatalystAuth();
+        }, 100);
+      };
+      
+      clearBrowserCache();
     }
-  }, [user, isLoading, location]);
+  }, [user, isLoading, location, queryClient]);
 
   const initiateCityCatalystAuth = async () => {
     try {

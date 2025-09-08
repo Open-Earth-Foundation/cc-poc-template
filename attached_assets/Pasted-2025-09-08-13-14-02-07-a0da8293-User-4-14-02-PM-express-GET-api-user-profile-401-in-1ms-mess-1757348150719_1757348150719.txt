@@ -1,0 +1,104 @@
+2025-09-08 13:14:02.07
+a0da8293
+User
+4:14:02 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"Not authenticated"}
+2025-09-08 13:14:02.27
+a0da8293
+User
+4:14:02 PM [express] GET /api/auth/oauth/initiate 200 in 1ms :: {"authUrl":"https://citycatalyst.ope…
+2025-09-08 13:14:05.50
+a0da8293
+User
+Exchanging code for token...
+2025-09-08 13:14:05.50
+a0da8293
+User
+=== CITYCATALYST TOKEN EXCHANGE DEBUG ===
+2025-09-08 13:14:05.50
+a0da8293
+User
+URL: https://citycatalyst.openearth.dev/api/v0/token/
+2025-09-08 13:14:05.50
+a0da8293
+User
+Body: grant_type=authorization_code&client_id=kIzoXFLTxmzu_L3FnL_CxMlDkI2cSm-L8rJ1LWn-hROvA4dQMK97aFC6ahOJd_CQ&code=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiJrSXpvWEZMVHhtenVfTDNGbkxfQ3hNbERrSTJjU20tTDhySjFMV24taFJPdkE0ZFFNSzk3YUZDNmFoT0pkX0NRIiwicmVkaXJlY3RfdXJpIjoiaHR0cHM6Ly9jYy1ib3VuZGFyeS1waWNrZXIucmVwbGl0LmFwcC9hcGkvYXV0aC9vYXV0aC9jYWxsYmFjayIsInNjb3BlIjoicmVhZCB3cml0ZSIsImNvZGVfY2hhbGxlbmdlIjoiZ2ZkVmFBcTRPMWdrYWFhc1V2cGZBenlHR2FoRzFCdktIbnhBNUxSYm12YyIsImlhdCI6MTc1NzM0ODA0NSwiZXhwIjoxNzU3MzQ4MzQ1LCJhdWQiOiJodHRwczovL2NpdHljYXRhbHlzdC5vcGVuZWFydGguZGV2IiwiaXNzIjoiaHR0cHM6Ly9jaXR5Y2F0YWx5c3Qub3BlbmVhcnRoLmRldiIsInN1YiI6IjFkNTNmNWI2LWZmYTMtNGUyNy05MjRhLTM0NzRmZGIxNmZmMyIsImp0aSI6IjllYmFmNDUyLTk3ZDAtNGE5Ni1iYjA4LTg2NmNjYjc1ZWE3ZCJ9.QSQQ-jayVRdUgqOvXgsNCwZDOb1nvQLpluFgtSxi9qA&redirect_uri=https%3A%2F%2Fcc-boundary-picker.replit.app%2Fapi%2Fauth%2Foauth%2Fcallback&code_verifier=E68gzNOvPgG82buraomWUp-SiCdNWAIdKZFkw9BZTFc
+2025-09-08 13:14:05.50
+a0da8293
+User
+Client ID: kIzoXFLTxmzu_L3FnL_CxMlDkI2cSm-L8rJ1LWn-hROvA4dQMK97aFC6ahOJd_CQ
+2025-09-08 13:14:05.50
+a0da8293
+User
+Redirect URI: https://cc-boundary-picker.replit.app/api/auth/oauth/callback
+2025-09-08 13:14:05.50
+a0da8293
+User
+Code (first 50 chars): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfa...
+2025-09-08 13:14:05.50
+a0da8293
+User
+Code Verifier (first 20 chars): E68gzNOvPgG82buraomW...
+2025-09-08 13:14:05.64
+a0da8293
+User
+Token exchange response status: 400
+2025-09-08 13:14:05.64
+a0da8293
+User
+Token exchange response headers: {
+2025-09-08 13:14:05.64
+a0da8293
+User
+'access-control-allow-credentials': 'false',
+2025-09-08 13:14:05.64
+a0da8293
+User
+'access-control-allow-headers': 'Content-Type, Authorization',
+2025-09-08 13:14:05.64
+a0da8293
+User
+'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+2025-09-08 13:14:05.64
+a0da8293
+User
+'access-control-allow-origin': '*',
+2025-09-08 13:14:05.64
+a0da8293
+User
+connection: 'keep-alive',
+2025-09-08 13:14:05.64
+a0da8293
+User
+'content-type': 'application/json',
+2025-09-08 13:14:05.64
+a0da8293
+User
+date: 'Mon, 08 Sep 2025 16:14:05 GMT',
+2025-09-08 13:14:05.64
+a0da8293
+User
+'transfer-encoding': 'chunked',
+2025-09-08 13:14:05.64
+a0da8293
+User
+vary: 'rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch'
+2025-09-08 13:14:05.64
+a0da8293
+User
+}
+2025-09-08 13:14:05.64
+a0da8293
+User
+Token exchange error response: {"error":{"message":"Single-use code."}}
+2025-09-08 13:14:05.64
+a0da8293
+User
+=== END TOKEN EXCHANGE DEBUG ===
+2025-09-08 13:14:05.64
+a0da8293
+User
+❌ Single-use code error detected. Clearing session and redirecting to login...
+2025-09-08 13:14:05.64
+a0da8293
+User
+🔄 Redirecting to frontend to initiate fresh OAuth flow...
