@@ -90,6 +90,12 @@ export async function exchangeCodeForToken(
     code_verifier: codeVerifier,
   });
 
+  console.log('Token exchange request:');
+  console.log('URL:', tokenUrl);
+  console.log('Body:', body.toString());
+  console.log('Client ID:', CLIENT_ID);
+  console.log('Redirect URI:', REDIRECT_URI);
+
   const response = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
@@ -98,8 +104,13 @@ export async function exchangeCodeForToken(
     body: body.toString(),
   });
 
+  console.log('Token exchange response status:', response.status);
+  console.log('Token exchange response headers:', Object.fromEntries(response.headers.entries()));
+  
   if (!response.ok) {
-    throw new Error(`Token exchange failed: ${response.statusText}`);
+    const errorText = await response.text();
+    console.log('Token exchange error response:', errorText);
+    throw new Error(`Token exchange failed: ${response.statusText} - ${errorText}`);
   }
 
   return await response.json();
