@@ -18,18 +18,18 @@ export function MiniMap({ boundary, onLoad }: MiniMapProps) {
         // Calculate map bounds and center from geometry
         const bounds = bbox(boundary.geometry);
         const center = centroid(boundary.geometry);
-        
+
         const lat = center.geometry.coordinates[1];
         const lng = center.geometry.coordinates[0];
-        
+
         // Set map center (note: Pigeon Maps uses [lat, lng] format)
         setMapCenter([lat, lng]);
-        
+
         // Calculate appropriate zoom level based on bounds
         const latDiff = bounds[3] - bounds[1]; // maxLat - minLat
         const lngDiff = bounds[2] - bounds[0]; // maxLng - minLng
         const maxDiff = Math.max(latDiff, lngDiff);
-        
+
         // Simple zoom calculation (adjust as needed)
         let zoom = 10;
         if (maxDiff < 0.01) zoom = 14;
@@ -38,7 +38,7 @@ export function MiniMap({ boundary, onLoad }: MiniMapProps) {
         else if (maxDiff < 0.5) zoom = 9;
         else if (maxDiff < 1) zoom = 8;
         else zoom = 7;
-        
+
         setMapZoom(zoom);
         setMapLoaded(true);
         onLoad();

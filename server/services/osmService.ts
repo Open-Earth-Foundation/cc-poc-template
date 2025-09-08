@@ -159,10 +159,9 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
     [out:json][timeout:30];
     area["ISO3166-1:alpha2"="${countryCode}"]->.country;
     (
-      rel(area.country)["boundary"~"^(administrative|political)$"]["name"~"^${escapeRegex(cityName)}$",i];
-      way(area.country)["boundary"~"^(administrative|political)$"]["name"~"^${escapeRegex(cityName)}$",i];
-      rel(area.country)["place"~"^(city|town|municipality)$"]["name"~"^${escapeRegex(cityName)}$",i];
-      way(area.country)["place"~"^(city|town|municipality)$"]["name"~"^${escapeRegex(cityName)}$",i];
+      rel(area.country)["boundary"="administrative"]["admin_level"~"^(4|5|6|7|8|9|10)$"]["name"~"^${escapeRegex(cityName)}$",i];
+      way(area.country)["boundary"="administrative"]["admin_level"~"^(4|5|6|7|8|9|10)$"]["name"~"^${escapeRegex(cityName)}$",i];
+      rel(area.country)["place"~"^(city|town|municipality|village)$"]["name"~"^${escapeRegex(cityName)}$",i];
     );
     out tags;
   `;
@@ -403,9 +402,19 @@ function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string, count
   // 8. Penalize very high admin levels (country/state level)
   if (adminLevel > 0 && adminLevel <= 4) score -= 5;
   
-  // 9. Country validation bonus (since we're filtering by country already)
-  if (countryCode && tags['ISO3166-1:alpha2'] === countryCode) {
-    score += 5;
+  // 9. Country validation bonus and penalty for wrong country
+  if (countryCode) {
+    if (tags['ISO3166-1:alpha2'] === countryCode) {
+      score += 5;
+    } else if (tags['ISO3166-1:alpha2'] && tags['ISO3166-1:alpha2'] !== countryCode) {
+      // Strong penalty for boundaries from different countries
+      score -= 20;
+    }
+  }
+  
+  // Also check addr:country tag
+  if (countryCode && tags['addr:country'] && tags['addr:country'] !== countryCode) {
+    score -= 15;
   }
   
   // 10. Prefer boundaries with explicit boundary tags
