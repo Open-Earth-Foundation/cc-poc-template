@@ -18,62 +18,22 @@ import {
 import { POST as enhancedBoundariesPOST, GET as enhancedBoundariesGET } from './routes/enhanced-boundaries';
 
 export function setupRoutes(app: express.Application) {
-  // Middleware to check authentication (supports both Bearer token and session cookie)
-  const requireAuth = async (req: any, res: any, next: any) => {
-    // Check for Bearer token first
+  // Simple authentication middleware (Bearer token only)
+  const requireAuth = (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      req.token = authHeader.substring(7);
-      return next();
-    }
-    
-    // Check for session cookie
-    const sessionToken = req.cookies?.sessionToken;
-    if (sessionToken) {
-      try {
-        const session = await storage.getSessionByToken(sessionToken);
-        if (session && session.expiresAt > new Date()) {
-          // Get user by session
-          const user = await storage.getUserById(session.userId);
-          if (user && user.accessToken) {
-            req.token = user.accessToken;
-            return next();
-          }
-        } else if (session) {
-          // Expired session, clean it up
-          await storage.deleteSession(session.id);
-        }
-      } catch (error) {
-        console.error('Session validation error:', error);
-      }
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Not authenticated' });
     }
 
-    return res.status(401).json({ message: 'Not authenticated' });
+    const token = authHeader.substring(7);
+    req.token = token;
+    next();
   };
 
-  // Extract user from token middleware
+  // Extract user from token middleware (simplified)
   const extractUser = async (req: any, res: any, next: any) => {
     try {
-      // If we have a session, get the local user from the session
-      const sessionToken = req.cookies?.sessionToken;
-      if (sessionToken) {
-        const session = await storage.getSessionByToken(sessionToken);
-        if (session && session.expiresAt > new Date()) {
-          const localUser = await storage.getUserById(session.userId);
-          if (localUser) {
-            req.user = {
-              id: localUser.id, // Use local user ID
-              email: localUser.email,
-              name: localUser.name,
-              title: localUser.title,
-              projects: localUser.projects,
-            };
-            return next();
-          }
-        }
-      }
-      
-      // Fallback: get profile from CityCatalyst API
       const profile = await getUserProfile(req.token);
       req.user = profile;
       next();
@@ -94,13 +54,12 @@ export function setupRoutes(app: express.Application) {
     }
   });
 
-  // OAuth callback - GET request from CityCatalyst
+  // OAuth callback - GET request from CityCatalyst (simplified)
   app.get('/api/auth/oauth/callback', async (req, res) => {
     try {
       const { code, state, error } = req.query;
       
       if (error) {
-        // Redirect to frontend with error
         return res.redirect(`/auth/callback?error=${encodeURIComponent(error as string)}`);
       }
       
@@ -108,33 +67,13 @@ export function setupRoutes(app: express.Application) {
         return res.redirect('/auth/callback?error=Missing authorization code or state');
       }
       
+      // Process OAuth and get user data
       const result = await handleOAuthCallback(code as string, state as string);
       
-      // Create a session for the authenticated user
-      const user = await storage.getUserByEmail(result.user.email);
-      if (user) {
-        const sessionToken = generateSessionToken();
-        
-        // Create session in storage
-        await storage.createSession({
-          token: sessionToken,
-          userId: user.id,
-          expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
-        });
-        
-        // Set HTTP-only session cookie
-        res.cookie('sessionToken', sessionToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 15 * 60 * 1000, // 15 minutes
-        });
-        
-        console.log(`✅ Session created for user: ${user.email}`);
-      }
+      // Redirect to frontend with user data in URL (temporary, for simple flow)
+      const userData = encodeURIComponent(JSON.stringify(result.user));
+      res.redirect(`/auth/callback?success=true&user=${userData}`);
       
-      // Redirect to frontend callback page with success
-      res.redirect('/auth/callback?success=true');
     } catch (error) {
       console.error('OAuth callback error:', error);
       const errorMessage = error instanceof Error ? error.message : 'OAuth callback failed';

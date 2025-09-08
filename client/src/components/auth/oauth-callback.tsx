@@ -13,7 +13,7 @@ export function OAuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const { success, error } = extractOAuthParams();
+      const { success, error, user: userParam } = extractOAuthParams();
       
       if (error) {
         toast({
@@ -25,19 +25,23 @@ export function OAuthCallback() {
         return;
       }
       
-      if (success === 'true') {
+      if (success === 'true' && userParam) {
         try {
-          await refetch(); // Refetch user profile to confirm authentication
+          // Store user data from OAuth callback
+          const userData = JSON.parse(decodeURIComponent(userParam));
+          localStorage.setItem('citycatalyst_user', JSON.stringify(userData));
+          localStorage.setItem('auth_token', userData.accessToken || '');
+          
           toast({
             title: "Welcome!",
             description: "You have been successfully authenticated.",
           });
           setLocation("/cities");
         } catch (error: any) {
-          console.error("Profile fetch error after callback:", error);
+          console.error("OAuth callback processing error:", error);
           toast({
             title: "Authentication Issue",
-            description: "Login succeeded but failed to load profile. Please try again.",
+            description: "Failed to process login data. Please try again.",
             variant: "destructive",
           });
           setLocation("/login");
