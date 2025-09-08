@@ -33,6 +33,8 @@ function getCountryCode(country: string): string {
     'Colombia': 'CO',
     'Mexico': 'MX',
     'United States': 'US',
+    'United States of America': 'US', // Common variation
+    'USA': 'US',
     'Canada': 'CA',
     'Peru': 'PE',
     'Venezuela': 'VE',
@@ -43,6 +45,8 @@ function getCountryCode(country: string): string {
     
     // Europe
     'United Kingdom': 'GB',
+    'UK': 'GB', // Common variation
+    'Great Britain': 'GB', // Common variation
     'France': 'FR',
     'Germany': 'DE',
     'Spain': 'ES',
@@ -66,8 +70,10 @@ function getCountryCode(country: string): string {
     // Asia
     'Japan': 'JP',
     'China': 'CN',
+    'People\'s Republic of China': 'CN', // Official name
     'India': 'IN',
     'South Korea': 'KR',
+    'Korea': 'KR', // Common variation
     'Thailand': 'TH',
     'Vietnam': 'VN',
     'Indonesia': 'ID',
