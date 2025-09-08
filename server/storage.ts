@@ -27,6 +27,10 @@ export interface IStorage {
   createSession(session: InsertSession): Promise<Session>;
   updateSession(id: string, updates: Partial<Session>): Promise<Session | undefined>;
   deleteSession(id: string): Promise<void>;
+  
+  // OAuth code tracking methods (to prevent "Single-use code" errors)
+  isCodeConsumed(code: string): Promise<boolean>;
+  markCodeAsConsumed(code: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -34,12 +38,14 @@ export class MemStorage implements IStorage {
   private cities: Map<string, City>;
   private boundaries: Map<string, Boundary>;
   private sessions: Map<string, Session>;
+  private consumedCodes: Set<string>;
 
   constructor() {
     this.users = new Map();
     this.cities = new Map();
     this.boundaries = new Map();
     this.sessions = new Map();
+    this.consumedCodes = new Set();
     
     // Initialize with sample data for Ciudad Autónoma de Buenos Aires
     this.initializeSampleData();
@@ -202,6 +208,15 @@ export class MemStorage implements IStorage {
 
   async deleteSession(id: string): Promise<void> {
     this.sessions.delete(id);
+  }
+  
+  // OAuth code tracking methods
+  async isCodeConsumed(code: string): Promise<boolean> {
+    return this.consumedCodes.has(code);
+  }
+  
+  async markCodeAsConsumed(code: string): Promise<void> {
+    this.consumedCodes.add(code);
   }
 }
 

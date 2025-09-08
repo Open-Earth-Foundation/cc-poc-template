@@ -117,52 +117,20 @@ export async function exchangeCodeForToken(
 }
 
 export async function getUserProfile(accessToken: string): Promise<CityCatalystUser> {
-  // Try different possible endpoints for user profile
-  const possibleUrls = [
-    `${AUTH_BASE_URL}/api/v0/user/profile/`,
-    `${AUTH_BASE_URL}/api/v0/user/profile`,
-    `${AUTH_BASE_URL}/api/v0/user/`,
-    `${AUTH_BASE_URL}/api/v0/user`,
-    `${AUTH_BASE_URL}/api/v0/me/`,
-    `${AUTH_BASE_URL}/api/v0/me`,
-    `${AUTH_BASE_URL}/api/user/profile/`,
-    `${AUTH_BASE_URL}/api/user/`,
-    `${AUTH_BASE_URL}/api/me/`,
-  ];
+  // According to the CityCatalyst API docs, there's no specific user profile endpoint mentioned
+  // The API focuses on city data endpoints like /api/v0/city/:locode
+  // For now, use sample data and implement proper user info extraction from JWT token if needed
   
-  console.log('Trying user profile endpoints...');
+  console.log('CityCatalyst API does not have a documented user profile endpoint');
+  console.log('Using sample user data - in production, extract user info from JWT token');
   
-  for (const profileUrl of possibleUrls) {
-    console.log('Trying URL:', profileUrl);
-    
-    const response = await fetch(profileUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-
-  console.log('User profile response status:', response.status);
-  console.log('User profile response headers:', Object.fromEntries(response.headers.entries()));
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.log('User profile error response:', errorText);
-    
-    // Always use sample user data when profile fetch fails
-    console.log('Profile fetch failed, using sample user data for testing');
-    return {
-      id: 'sample-user-1',
-      email: 'elena.rodriguez@citycatalyst.org',
-      name: 'Dr. Elena Rodriguez',
-      title: 'Urban Planning Specialist',
-      projects: ['project-south-america'],
-    };
-  }
-
-  return await response.json();
+  return {
+    id: 'sample-user-1',
+    email: 'elena.rodriguez@citycatalyst.org',
+    name: 'Dr. Elena Rodriguez',
+    title: 'Urban Planning Specialist',
+    projects: ['project-south-america'],
+  };
 }
 
 export async function createOrUpdateUser(

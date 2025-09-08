@@ -1,0 +1,103 @@
+“Method Not Allowed” (HTTP 405) on your “user profile” call means you’re hitting a valid path with the wrong HTTP verb (or the wrong path entirely).
+
+From the CityCatalyst API docs, the “who am I / profile” family is split into two resources with specific verbs:
+
+Auth identity (minimal: id & email)
+
+GET /api/v0/auth/me – read current authenticated user.
+
+PATCH /api/v0/auth/me – update identity fields (e.g., email). 
+GitHub
+
+User account profile (defaults & settings)
+
+GET /api/v0/user – read the current user’s profile (defaultCityLocode, defaultInventoryYear, etc.).
+
+PATCH /api/v0/user – update those profile fields.
+
+GET /api/v0/user/me/settings / PATCH /api/v0/user/me/settings
+
+GET /api/v0/user/me/settings/{name} / PUT /api/v0/user/me/settings/{name}. 
+GitHub
+
+There is no /api/user/profile route in the spec, and using the wrong verb (e.g., POST to /api/v0/user) will return 405.
+
+Quick fixes
+
+Call a real endpoint with the right verb
+
+To get identity:
+
+GET https://citycatalyst.openearth.dev/api/v0/auth/me
+Authorization: Bearer <access_token>
+Accept: application/json
+
+
+To get profile (defaults):
+
+GET https://citycatalyst.openearth.dev/api/v0/user
+Authorization: Bearer <access_token>
+Accept: application/json
+
+
+To update defaults:
+
+PATCH https://citycatalyst.openearth.dev/api/v0/user
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{ "defaultCityLocode": "DE_BER", "defaultInventoryYear": 2023 }
+
+
+(Note the PATCH, not PUT/POST.) 
+GitHub
+
+Ensure the versioned prefix (/api/v0/). A missing v0 often routes to a different handler that returns 405. 
+GitHub
+
+Don’t use a non-spec path (/api/user/profile). Map your UI call to the spec:
+
+“User profile” → GET /api/v0/user (or GET /api/v0/auth/me if you only need id/email). 
+GitHub
+
+Include the token. A 401 (“Session expired”) means your bearer token is missing/expired. After you fix 405, make sure you’re sending Authorization: Bearer … obtained via OAuth2 PKCE (/authorize → /api/v0/token/). 
+GitHub
+
+Tiny Node fetch examples
+// identity (id, email)
+const r1 = await fetch(
+  "https://citycatalyst.openearth.dev/api/v0/auth/me",
+  { headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" } }
+);
+
+// profile (defaults)
+const r2 = await fetch(
+  "https://citycatalyst.openearth.dev/api/v0/user",
+  { headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" } }
+);
+
+// update profile
+await fetch(
+  "https://citycatalyst.openearth.dev/api/v0/user",
+  {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ defaultCityLocode: "AR_BA", defaultInventoryYear: 2025 })
+  }
+);
+
+Common reasons you’ll see 405 here
+
+Hitting /api/user/profile (not in the API) instead of /api/v0/user or /api/v0/auth/me. 
+GitHub
+
+Using POST where the API expects GET or PATCH. 
+GitHub
+
+Missing /api/v0/ prefix. 
+GitHub
+
+Switch to the documented endpoints + verbs above and the 405 will go away.

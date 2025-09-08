@@ -60,6 +60,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.redirect('/login?error=Missing authorization code or state');
       }
       
+      // Check if code was already consumed (prevent "Single-use code" error)
+      const codeStr = code as string;
+      if (await storage.isCodeConsumed(codeStr)) {
+        console.log('OAuth code already consumed, redirecting to success');
+        return res.redirect('/cities');
+      }
+      
+      // Mark code as consumed immediately to prevent race conditions
+      await storage.markCodeAsConsumed(codeStr);
+      
       const sessionId = req.cookies.session_id;
       if (!sessionId) {
         return res.redirect('/login?error=No session found');
@@ -72,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Exchange code for token
       console.log('Exchanging code for token...');
-      const tokenResponse = await exchangeCodeForToken(code as string, session.codeVerifier!);
+      const tokenResponse = await exchangeCodeForToken(codeStr, session.codeVerifier!);
       console.log('Token exchange successful, getting user profile...');
       
       // Get user profile
