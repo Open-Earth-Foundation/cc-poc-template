@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OSMBoundary } from "../../types/boundary";
 import { City } from "@shared/schema";
 import { downloadGeoJSON } from "@/utils/geojson";
+import { MiniMap } from "./mini-map";
 
 interface BoundaryModalProps {
   isOpen: boolean;
@@ -21,79 +22,7 @@ export function BoundaryModal({
   type, 
   onChoose 
 }: BoundaryModalProps) {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen || !mapRef.current || !boundary) return;
-
-    // Dynamically import Leaflet for modal map
-    import('leaflet').then((L) => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-      }
-
-      // Create full-size map
-      const map = L.map(mapRef.current!).setView([-34.6118, -58.3960], 10);
-      mapInstanceRef.current = map;
-
-      // Add tile layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      // Add boundary geometry
-      if (type === 'alternative' && 'geometry' in boundary && boundary.geometry) {
-        try {
-          const geoJsonLayer = L.geoJSON(boundary.geometry, {
-            style: {
-              color: '#3B82F6',
-              weight: 3,
-              opacity: 0.8,
-              fillOpacity: 0.3,
-            }
-          }).addTo(map);
-
-          // Fit map to boundary
-          const bounds = geoJsonLayer.getBounds();
-          if (bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [20, 20] });
-          }
-        } catch (error) {
-          console.error('Error rendering boundary on modal map:', error);
-        }
-      } else if (type === 'current' && 'currentBoundary' in boundary && boundary.currentBoundary) {
-        try {
-          const geoJsonLayer = L.geoJSON(boundary.currentBoundary, {
-            style: {
-              color: '#059669',
-              weight: 3,
-              opacity: 0.8,
-              fillOpacity: 0.3,
-            }
-          }).addTo(map);
-
-          // Fit map to boundary
-          const bounds = geoJsonLayer.getBounds();
-          if (bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [20, 20] });
-          }
-        } catch (error) {
-          console.error('Error rendering current boundary on modal map:', error);
-        }
-      }
-
-      setMapLoaded(true);
-    });
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [isOpen, boundary, type]);
 
   if (!boundary) return null;
 
@@ -125,8 +54,15 @@ export function BoundaryModal({
   };
 
   const handleDownload = () => {
-    if (type === 'alternative' && 'geometry' in boundary) {
+    if (type === 'alternative' && 'geometry' in boundary && boundary.geometry) {
       const osmBoundary = boundary as OSMBoundary;
+      
+      // Ensure we have valid geometry with coordinates
+      if (!osmBoundary.geometry || !osmBoundary.geometry.coordinates) {
+        console.error('No geometry coordinates available for download');
+        return;
+      }
+      
       const geoJson = {
         type: 'FeatureCollection',
         features: [{
@@ -138,15 +74,24 @@ export function BoundaryModal({
             name: osmBoundary.name,
             admin_level: osmBoundary.adminLevel,
             boundary: osmBoundary.boundaryType,
+            area: osmBoundary.area,
             ...osmBoundary.tags,
           },
           geometry: osmBoundary.geometry,
         }],
       };
       
+      console.log('Downloading GeoJSON:', geoJson);
       downloadGeoJSON(geoJson, `${osmBoundary.name}-boundary.geojson`);
-    } else if (type === 'current' && 'currentBoundary' in boundary) {
+    } else if (type === 'current' && 'currentBoundary' in boundary && boundary.currentBoundary) {
       const city = boundary as City;
+      
+      // Ensure we have valid current boundary geometry
+      if (!city.currentBoundary || !city.currentBoundary.coordinates) {
+        console.error('No current boundary coordinates available for download');
+        return;
+      }
+      
       const geoJson = {
         type: 'FeatureCollection',
         features: [{
@@ -157,12 +102,16 @@ export function BoundaryModal({
             name: city.name,
             country: city.country,
             locode: city.locode,
+            area: city.metadata?.area || null,
           },
           geometry: city.currentBoundary,
         }],
       };
       
+      console.log('Downloading current boundary GeoJSON:', geoJson);
       downloadGeoJSON(geoJson, `${city.name}-current-boundary.geojson`);
+    } else {
+      console.error('No valid boundary data available for download');
     }
   };
 
@@ -183,9 +132,24 @@ export function BoundaryModal({
         <div className="space-y-4">
           {/* Map */}
           <div className="relative h-96 bg-gray-100 rounded overflow-hidden">
-            <div ref={mapRef} className="w-full h-full" />
-            {!mapLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
+            {boundary && (type === 'current' ? 
+              ('currentBoundary' in boundary && boundary.currentBoundary) : 
+              ('geometry' in boundary && boundary.geometry)
+            ) ? (
+              <MiniMap 
+                boundary={type === 'current' ? 
+                  { geometry: (boundary as City).currentBoundary } : 
+                  boundary
+                }
+                onLoad={() => setMapLoaded(true)} 
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <span className="text-gray-500">No boundary data available</span>
+              </div>
+            )}
+            {!mapLoaded && boundary && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             )}

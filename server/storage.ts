@@ -60,8 +60,21 @@ export class MemStorage implements IStorage {
       country: "Argentina",
       locode: "AR_BAI",
       projectId: "project-south-america",
-      currentBoundary: null,
-      metadata: {},
+      currentBoundary: {
+        type: 'Polygon',
+        coordinates: [[
+          [-58.5319, -34.5268],
+          [-58.3350, -34.5268],  
+          [-58.3350, -34.7051],
+          [-58.5319, -34.7051],
+          [-58.5319, -34.5268],
+        ]],
+      },
+      metadata: {
+        area: 203.5,
+        population: 3075646,
+        region: "Capital Federal"
+      },
       createdAt: new Date(),
     };
     this.cities.set(sampleCity.id, sampleCity);

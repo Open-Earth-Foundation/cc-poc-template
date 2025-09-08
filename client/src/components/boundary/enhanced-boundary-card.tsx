@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OSMBoundary } from "../../types/boundary";
 import { City } from "@shared/schema";
+import { MiniMap } from "./mini-map";
 
 interface EnhancedBoundaryCardProps {
   type: 'current' | 'alternative';
@@ -24,88 +25,7 @@ export function EnhancedBoundaryCard({
   onViewDetails,
   index
 }: EnhancedBoundaryCardProps) {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-
-  useEffect(() => {
-    if (!mapRef.current || !boundary) return;
-
-    // Dynamically import Leaflet for mini map
-    import('leaflet').then((L) => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-      }
-
-      // Create mini map
-      const map = L.map(mapRef.current!, {
-        dragging: false,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        keyboard: false,
-        zoomControl: false,
-        attributionControl: false,
-      }).setView([-34.6118, -58.3960], 8);
-
-      mapInstanceRef.current = map;
-
-      // Add tile layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      // Add boundary geometry if available
-      if (type === 'alternative' && 'geometry' in boundary && boundary.geometry) {
-        try {
-          const geoJsonLayer = L.geoJSON(boundary.geometry, {
-            style: {
-              color: '#3B82F6',
-              weight: 2,
-              opacity: 0.8,
-              fillOpacity: 0.3,
-            }
-          }).addTo(map);
-
-          // Fit map to boundary
-          const bounds = geoJsonLayer.getBounds();
-          if (bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [5, 5] });
-          }
-        } catch (error) {
-          console.error('Error rendering boundary on mini map:', error);
-        }
-      } else if (type === 'current' && 'currentBoundary' in boundary && boundary.currentBoundary) {
-        try {
-          const geoJsonLayer = L.geoJSON(boundary.currentBoundary, {
-            style: {
-              color: '#059669',
-              weight: 2,
-              opacity: 0.8,
-              fillOpacity: 0.3,
-            }
-          }).addTo(map);
-
-          // Fit map to boundary
-          const bounds = geoJsonLayer.getBounds();
-          if (bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [5, 5] });
-          }
-        } catch (error) {
-          console.error('Error rendering current boundary on mini map:', error);
-        }
-      }
-
-      setMapLoaded(true);
-    });
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [boundary, type]);
 
   if (!boundary) {
     return (
@@ -182,9 +102,24 @@ export function EnhancedBoundaryCard({
 
         {/* Mini Map */}
         <div className="relative h-40 mb-3 bg-gray-100 rounded overflow-hidden">
-          <div ref={mapRef} className="w-full h-full" />
-          {!mapLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center">
+          {boundary && (type === 'current' ? 
+            ('currentBoundary' in boundary && boundary.currentBoundary) : 
+            ('geometry' in boundary && boundary.geometry)
+          ) ? (
+            <MiniMap 
+              boundary={type === 'current' ? 
+                { geometry: (boundary as City).currentBoundary } : 
+                boundary
+              }
+              onLoad={() => setMapLoaded(true)} 
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <span className="text-gray-500 text-sm">No boundary data</span>
+            </div>
+          )}
+          {!mapLoaded && boundary && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             </div>
           )}
