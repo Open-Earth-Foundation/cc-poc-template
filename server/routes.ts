@@ -241,7 +241,7 @@ export function setupRoutes(app: express.Application) {
         selectedBy: req.user.id,
       };
 
-      await storage.storeBoundary(boundary);
+      await storage.createBoundary(boundary);
 
       res.json({ success: true, boundary });
     } catch (error) {
@@ -262,7 +262,7 @@ export function setupRoutes(app: express.Application) {
         return res.status(403).json({ message: 'Access denied' });
       }
 
-      const boundaries = await storage.getBoundariesByCity(cityId);
+      const boundaries = await storage.getBoundariesByCityId(cityId);
       res.json({ boundaries });
     } catch (error) {
       console.error('Failed to get city boundaries:', error);

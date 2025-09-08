@@ -290,7 +290,11 @@ export class MemStorage implements IStorage {
   }): Promise<void> {
     // Clean up old sessions (older than 1 hour)
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    this.sessions = new Map([...this.sessions.entries()].filter(([_, s]) => s.createdAt > oneHourAgo));
+    for (const [id, session] of this.sessions.entries()) {
+      if (session.createdAt && session.createdAt <= oneHourAgo) {
+        this.sessions.delete(id);
+      }
+    }
 
     // Store new session
     const newSession: Session = {
@@ -300,6 +304,7 @@ export class MemStorage implements IStorage {
       codeVerifier: session.codeVerifier,
       state: session.state,
       createdAt: session.createdAt,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour expiry
     };
     this.sessions.set(newSession.id, newSession);
   }
