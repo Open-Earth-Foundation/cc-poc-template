@@ -182,12 +182,20 @@ async function getUserCities(accessToken: string): Promise<string[]> {
       console.log(`Trying cities endpoint: ${url}`);
       const citiesData = await fetchJSON(url, accessToken);
       console.log(`✅ Success! Got cities data from: ${url}`);
-      console.log('Cities data:', citiesData);
+      console.log('Raw cities data:', JSON.stringify(citiesData, null, 2));
       
       // Handle different response formats
       const cities = citiesData.cities || citiesData.data || citiesData;
       if (Array.isArray(cities)) {
-        return cities.map((city: any) => city.cityId || city.id || city.defaultCityId).filter(Boolean);
+        // Handle nested city objects: { city: { cityId: "..." }, years: [...] }
+        return cities.map((item: any) => {
+          // Extract from nested structure
+          if (item.city) {
+            return item.city.cityId || item.city.id || item.city.locode;
+          }
+          // Direct city object
+          return item.cityId || item.id || item.defaultCityId;
+        }).filter(Boolean);
       }
       
       return [];
