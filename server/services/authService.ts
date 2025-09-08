@@ -117,17 +117,32 @@ export async function exchangeCodeForToken(
 }
 
 export async function getUserProfile(accessToken: string): Promise<CityCatalystUser> {
-  const profileUrl = `${AUTH_BASE_URL}/api/v0/user/profile/`;
+  // Try different possible endpoints for user profile
+  const possibleUrls = [
+    `${AUTH_BASE_URL}/api/v0/user/profile/`,
+    `${AUTH_BASE_URL}/api/v0/user/profile`,
+    `${AUTH_BASE_URL}/api/v0/user/`,
+    `${AUTH_BASE_URL}/api/v0/user`,
+    `${AUTH_BASE_URL}/api/v0/me/`,
+    `${AUTH_BASE_URL}/api/v0/me`,
+    `${AUTH_BASE_URL}/api/user/profile/`,
+    `${AUTH_BASE_URL}/api/user/`,
+    `${AUTH_BASE_URL}/api/me/`,
+  ];
   
-  console.log('User profile request:');
-  console.log('URL:', profileUrl);
-  console.log('Token length:', accessToken?.length);
+  console.log('Trying user profile endpoints...');
   
-  const response = await fetch(profileUrl, {
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  });
+  for (const profileUrl of possibleUrls) {
+    console.log('Trying URL:', profileUrl);
+    
+    const response = await fetch(profileUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
 
   console.log('User profile response status:', response.status);
   console.log('User profile response headers:', Object.fromEntries(response.headers.entries()));
