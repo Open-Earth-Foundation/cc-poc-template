@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/header";
-import { BoundaryList } from "@/components/boundary/boundary-list";
-import { BoundaryMap } from "@/components/boundary/boundary-map";
-import { BoundaryDetails } from "@/components/boundary/boundary-details";
+import { EnhancedBoundaryCard } from "@/components/boundary/enhanced-boundary-card";
+import { BoundaryModal } from "@/components/boundary/boundary-modal";
 import { useAuth } from "@/hooks/useAuth";
 import { useCity } from "@/hooks/useCities";
 import { useBoundarySearch, useBoundarySelection } from "@/hooks/useBoundaries";
 import { OSMBoundary } from "@/types/boundary";
+import { City } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 export default function BoundaryEditor() {
@@ -19,7 +19,11 @@ export default function BoundaryEditor() {
   
   const cityId = params.cityId;
   const { data: cityData, isLoading: cityLoading } = useCity(cityId);
-  const [selectedBoundary, setSelectedBoundary] = useState<OSMBoundary | undefined>();
+  const [selectedBoundary, setSelectedBoundary] = useState<OSMBoundary | City | null>(null);
+  const [selectedBoundaryType, setSelectedBoundaryType] = useState<'current' | 'alternative'>('current');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalBoundary, setModalBoundary] = useState<OSMBoundary | City | null>(null);
+  const [modalType, setModalType] = useState<'current' | 'alternative'>('current');
   
   // Search boundaries for the city
   const searchParams = cityData?.city ? {
@@ -38,16 +42,21 @@ export default function BoundaryEditor() {
     }
   }, [authLoading, isAuthenticated, setLocation]);
 
-  // Set first boundary as selected by default
+  // Set current boundary as selected by default
   useEffect(() => {
-    if (boundariesData?.boundaries && boundariesData.boundaries.length > 0 && !selectedBoundary) {
-      setSelectedBoundary(boundariesData.boundaries[0]);
+    if (cityData?.city && !selectedBoundary) {
+      const city = cityData.city as City;
+      setSelectedBoundary(city);
+      setSelectedBoundaryType('current');
     }
-  }, [boundariesData, selectedBoundary]);
+  }, [cityData, selectedBoundary]);
 
-  const handleSelectBoundary = async (boundary: OSMBoundary) => {
+  const handleSelectBoundary = (boundary: OSMBoundary | City, type: 'current' | 'alternative') => {
     setSelectedBoundary(boundary);
-    
+    setSelectedBoundaryType(type);
+  };
+
+  const handleChooseBoundary = async (boundary: OSMBoundary) => {
     if (!cityId) return;
     
     try {
@@ -56,6 +65,10 @@ export default function BoundaryEditor() {
         osmId: boundary.osmId,
         osmType: boundary.osmType,
       });
+      
+      // Update selected boundary to the chosen one
+      setSelectedBoundary(boundary);
+      setSelectedBoundaryType('alternative');
       
       toast({
         title: "Boundary Selected",
@@ -68,6 +81,12 @@ export default function BoundaryEditor() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleViewDetails = (boundary: OSMBoundary | City, type: 'current' | 'alternative') => {
+    setModalBoundary(boundary);
+    setModalType(type);
+    setModalOpen(true);
   };
 
   const handleRefreshBoundaries = () => {
@@ -181,32 +200,74 @@ export default function BoundaryEditor() {
           </div>
         </div>
         
-        {/* Boundary Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Panel - Boundary List */}
-          <div className="lg:col-span-1">
-            <BoundaryList
-              boundaries={boundaries}
-              selectedBoundary={selectedBoundary}
-              onSelectBoundary={handleSelectBoundary}
-              isLoading={boundariesLoading}
-            />
-          </div>
-          
-          {/* Right Panel - Map Display */}
-          <div className="lg:col-span-2">
-            <BoundaryMap
-              boundaries={boundaries}
-              selectedBoundary={selectedBoundary}
-              height="600px"
-            />
-            
-            {/* Selected Boundary Details */}
-            <div className="mt-6">
-              <BoundaryDetails boundary={selectedBoundary || null} />
-            </div>
+        {/* How it works info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <h2 className="text-lg font-semibold text-blue-900 mb-2">How it works</h2>
+          <div className="space-y-2 text-sm text-blue-800">
+            <p>• The first card shows your current boundary from our database</p>
+            <p>• The next 5 cards show alternative boundaries from OpenStreetMap</p>
+            <p>• Click "Choose Boundary" to select and download an alternative</p>
+            <p>• Use "Restore Original" to return to the default boundary</p>
           </div>
         </div>
+
+        {/* Enhanced Boundary Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Current Boundary Card */}
+          {cityData?.city && (
+            <EnhancedBoundaryCard
+              type="current"
+              boundary={cityData.city as City}
+              isSelected={selectedBoundaryType === 'current'}
+              onSelect={() => handleSelectBoundary(cityData.city as City, 'current')}
+              onChoose={() => {}}
+              onViewDetails={() => handleViewDetails(cityData.city as City, 'current')}
+            />
+          )}
+          
+          {/* Alternative Boundary Cards */}
+          {boundariesLoading ? (
+            // Loading skeleton cards
+            Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+                  <div className="h-40 bg-gray-200 animate-pulse rounded"></div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                    <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+                  </div>
+                  <div className="h-10 bg-gray-200 animate-pulse rounded"></div>
+                </div>
+              </div>
+            ))
+          ) : (
+            boundaries.slice(0, 5).map((boundary, index) => (
+              <EnhancedBoundaryCard
+                key={boundary.osmId}
+                type="alternative"
+                boundary={boundary}
+                isSelected={selectedBoundaryType === 'alternative' && 
+                           selectedBoundary && 
+                           'osmId' in selectedBoundary && 
+                           selectedBoundary.osmId === boundary.osmId}
+                onSelect={() => handleSelectBoundary(boundary, 'alternative')}
+                onChoose={() => handleChooseBoundary(boundary)}
+                onViewDetails={() => handleViewDetails(boundary, 'alternative')}
+                index={index + 1}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Boundary Detail Modal */}
+        <BoundaryModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          boundary={modalBoundary}
+          type={modalType}
+          onChoose={modalBoundary && modalType === 'alternative' ? () => handleChooseBoundary(modalBoundary as OSMBoundary) : undefined}
+        />
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OSMBoundary } from "../../types/boundary";
 import { City } from "@shared/schema";
-import { downloadGeoJSON } from "@/lib/utils";
+import { downloadGeoJSON } from "@/utils/geojson";
 
 interface BoundaryModalProps {
   isOpen: boolean;
