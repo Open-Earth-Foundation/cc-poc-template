@@ -191,13 +191,16 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
         console.log(`✅ Success! Got profile data from: ${url}`);
         console.log('Profile data:', profileData);
         
+        // Handle nested data structure from CityCatalyst API
+        const userData = profileData.data || profileData;
+        
         // Convert to our expected format
         return {
-          id: profileData.id || profileData.sub || 'unknown',
-          email: profileData.email || 'unknown@example.com',
-          name: profileData.name || profileData.display_name || profileData.email || 'Unknown User',
-          title: profileData.title || profileData.role || 'CityCatalyst User',
-          projects: profileData.projects || [profileData.defaultCityLocode] || ['default-project'],
+          id: userData.userId || userData.id || userData.sub || 'unknown',
+          email: userData.email || 'unknown@example.com',
+          name: userData.name || userData.display_name || userData.email || 'Unknown User',
+          title: userData.title || userData.role || 'CityCatalyst User',
+          projects: userData.projects || [userData.defaultCityId] || ['default-project'],
         };
       } catch (error) {
         console.log(`❌ Failed ${url}:`, error instanceof Error ? error.message : error);
