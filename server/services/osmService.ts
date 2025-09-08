@@ -38,10 +38,109 @@ function getCountryCode(country: string): string {
     'Germany': 'DE',
     'Spain': 'ES',
     'Italy': 'IT',
-    // Add more mappings as needed
+    'Australia': 'AU',
+    'Japan': 'JP',
+    'China': 'CN',
+    'India': 'IN',
+    'South Africa': 'ZA',
+    'Netherlands': 'NL',
+    'Belgium': 'BE',
+    'Portugal': 'PT',
+    'Greece': 'GR',
+    'Poland': 'PL',
+    'Sweden': 'SE',
+    'Norway': 'NO',
+    'Denmark': 'DK',
+    'Finland': 'FI',
+    'Ireland': 'IE',
+    'Switzerland': 'CH',
+    'Austria': 'AT',
+    'Czech Republic': 'CZ',
+    'Hungary': 'HU',
+    'Romania': 'RO',
+    'Bulgaria': 'BG',
+    'Croatia': 'HR',
+    'Serbia': 'RS',
+    'Turkey': 'TR',
+    'Russia': 'RU',
+    'Ukraine': 'UA',
+    'South Korea': 'KR',
+    'Thailand': 'TH',
+    'Vietnam': 'VN',
+    'Indonesia': 'ID',
+    'Malaysia': 'MY',
+    'Singapore': 'SG',
+    'Philippines': 'PH',
+    'New Zealand': 'NZ',
+    'Egypt': 'EG',
+    'Morocco': 'MA',
+    'Nigeria': 'NG',
+    'Kenya': 'KE',
+    'Ghana': 'GH',
+    'Ethiopia': 'ET',
+    'Israel': 'IL',
+    'Lebanon': 'LB',
+    'Jordan': 'JO',
+    'Saudi Arabia': 'SA',
+    'United Arab Emirates': 'AE',
+    'Qatar': 'QA',
+    'Kuwait': 'KW',
+    'Bahrain': 'BH',
+    'Oman': 'OM',
+    'Iran': 'IR',
+    'Iraq': 'IQ',
+    'Pakistan': 'PK',
+    'Bangladesh': 'BD',
+    'Sri Lanka': 'LK',
+    'Nepal': 'NP',
+    'Myanmar': 'MM',
+    'Cambodia': 'KH',
+    'Laos': 'LA',
+    'Mongolia': 'MN',
+    'Kazakhstan': 'KZ',
+    'Uzbekistan': 'UZ',
+    'Afghanistan': 'AF',
+    'Armenia': 'AM',
+    'Azerbaijan': 'AZ',
+    'Georgia': 'GE',
+    'Moldova': 'MD',
+    'Belarus': 'BY',
+    'Lithuania': 'LT',
+    'Latvia': 'LV',
+    'Estonia': 'EE',
+    'Slovenia': 'SI',
+    'Slovakia': 'SK',
+    'Bosnia and Herzegovina': 'BA',
+    'Montenegro': 'ME',
+    'North Macedonia': 'MK',
+    'Albania': 'AL',
+    'Cyprus': 'CY',
+    'Malta': 'MT',
+    'Iceland': 'IS',
+    'Luxembourg': 'LU',
+    'Monaco': 'MC',
+    'Andorra': 'AD',
+    'San Marino': 'SM',
+    'Vatican City': 'VA',
+    'Liechtenstein': 'LI'
   };
   
-  return countryMap[country] || 'AR';
+  // Try exact match first
+  if (countryMap[country]) {
+    return countryMap[country];
+  }
+  
+  // Try case-insensitive match
+  const lowerCountry = country.toLowerCase();
+  for (const [key, value] of Object.entries(countryMap)) {
+    if (key.toLowerCase() === lowerCountry) {
+      return value;
+    }
+  }
+  
+  // Default fallback - log warning
+  console.warn(`⚠️ Unknown country: ${country}, defaulting to AR`);
+  return 'AR';
 }
 
 // Helper function to escape regex special characters
@@ -55,15 +154,25 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
   
   console.log(`🔍 Searching boundaries for ${cityName}, ${country} (${countryCode})`);
   
-  // Stage 1: Use exact working format from curl test
-  const searchQuery = `[out:json][timeout:15];rel["name"="Buenos Aires"];out tags;`;
+  // Stage 1: Build dynamic query with country filtering
+  const searchQuery = `
+    [out:json][timeout:30];
+    area["ISO3166-1:alpha2"="${countryCode}"]->.country;
+    (
+      rel(area.country)["boundary"~"^(administrative|political)$"]["name"~"^${escapeRegex(cityName)}$",i];
+      way(area.country)["boundary"~"^(administrative|political)$"]["name"~"^${escapeRegex(cityName)}$",i];
+      rel(area.country)["place"~"^(city|town|municipality)$"]["name"~"^${escapeRegex(cityName)}$",i];
+      way(area.country)["place"~"^(city|town|municipality)$"]["name"~"^${escapeRegex(cityName)}$",i];
+    );
+    out tags;
+  `;
 
   try {
     // Step 1: Get boundary metadata
-    console.log(`📡 Query: ${searchQuery}`);
-    console.log(`📡 Fetching boundary metadata for ${cityName}...`);
+    console.log(`📡 Query: ${searchQuery.trim()}`);
+    console.log(`📡 Fetching boundary metadata for ${cityName} in ${country}...`);
     const requestBody = `data=${encodeURIComponent(searchQuery)}`;
-    console.log(`📡 Request body: ${requestBody.substring(0, 200)}...`);
+    console.log(`📡 Request body length: ${requestBody.length}`);
     
     const searchResponse = await fetch(OVERPASS_API_URL, {
       method: 'POST',
@@ -104,7 +213,7 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
           area: 0,
           geometry: null,
           score: 0
-        }, cityName)
+        }, cityName, countryCode)
       }))
       .sort((a: any, b: any) => b.score - a.score)
       .slice(0, limit);
@@ -241,7 +350,7 @@ function calculateSimplePolygonArea(coords: number[][]): number {
 }
 
 
-function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string): number {
+function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string, countryCode?: string): number {
   let score = 0;
   const { tags } = boundary;
 
@@ -260,10 +369,25 @@ function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string): numb
   if (tags.place === 'town') score += 6;
   if (tags.place === 'municipality') score += 7;
   
-  // 4. Name matching
+  // 4. Name matching (improved)
   const name = tags.name?.toLowerCase() || '';
-  if (name === searchTerm.toLowerCase()) score += 15; // Exact match
-  if (name.includes(searchTerm.toLowerCase())) score += 10; // Partial match
+  const searchLower = searchTerm.toLowerCase();
+  if (name === searchLower) score += 20; // Exact match
+  if (name.includes(searchLower)) score += 15; // Partial match
+  
+  // Check alternative names
+  const altNames = [
+    tags['name:en'],
+    tags['official_name'],
+    tags['short_name'],
+    tags['alt_name']
+  ].filter(Boolean);
+  
+  for (const altName of altNames) {
+    const altLower = altName?.toLowerCase() || '';
+    if (altLower === searchLower) score += 18;
+    else if (altLower.includes(searchLower)) score += 12;
+  }
   
   // 5. Area-based scoring (reasonable city size)
   const areaSqKm = boundary.area || 0;
@@ -278,6 +402,16 @@ function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string): numb
   
   // 8. Penalize very high admin levels (country/state level)
   if (adminLevel > 0 && adminLevel <= 4) score -= 5;
+  
+  // 9. Country validation bonus (since we're filtering by country already)
+  if (countryCode && tags['ISO3166-1:alpha2'] === countryCode) {
+    score += 5;
+  }
+  
+  // 10. Prefer boundaries with explicit boundary tags
+  if (tags.boundary && (tags.boundary === 'administrative' || tags.boundary === 'political')) {
+    score += 2;
+  }
 
   return score;
 }
