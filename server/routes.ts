@@ -88,12 +88,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.includes('Single-use code')) {
-          console.log('❌ Single-use code error detected. Attempting retry with fresh OAuth flow...');
-          // Clear the consumed code and redirect to fresh authorization
+          console.log('❌ Single-use code error detected. Clearing session and redirecting to login...');
+          // Clear the consumed code and redirect to frontend to start fresh
           await storage.deleteSession(sessionId);
           res.clearCookie('session_id');
-          console.log('🔄 Redirecting to fresh OAuth authorization...');
-          return res.redirect('/api/auth/oauth/initiate');
+          console.log('🔄 Redirecting to frontend to initiate fresh OAuth flow...');
+          return res.redirect('/?retry=1');
         }
         throw error;
       }
