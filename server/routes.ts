@@ -45,22 +45,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/auth/oauth/callback', async (req, res) => {
+  app.get('/api/auth/oauth/callback', async (req, res) => {
     try {
-      const { code, state } = req.body;
-      const sessionId = req.cookies.session_id;
+      const { code, state, error, error_description } = req.query;
       
+      // Handle OAuth errors
+      if (error) {
+        console.error('OAuth error:', error, error_description);
+        return res.redirect(`/login?error=${encodeURIComponent(error_description as string || error as string)}`);
+      }
+      
+      // Validate required parameters
+      if (!code || !state) {
+        return res.redirect('/login?error=Missing authorization code or state');
+      }
+      
+      const sessionId = req.cookies.session_id;
       if (!sessionId) {
-        return res.status(400).json({ message: 'No session found' });
+        return res.redirect('/login?error=No session found');
       }
       
       const session = await storage.getSession(sessionId);
       if (!session || session.state !== state) {
-        return res.status(400).json({ message: 'Invalid state parameter' });
+        return res.redirect('/login?error=Invalid state parameter');
       }
       
       // Exchange code for token
-      const tokenResponse = await exchangeCodeForToken(code, session.codeVerifier!);
+      const tokenResponse = await exchangeCodeForToken(code as string, session.codeVerifier!);
       
       // Get user profile
       const cityCatalystUser = await getUserProfile(tokenResponse.access_token);
@@ -85,18 +96,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
       });
       
-      res.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          title: user.title,
-          projects: user.projects,
-        },
-      });
+      // Redirect to cities page after successful authentication
+      res.redirect('/cities');
     } catch (error) {
       console.error('OAuth callback error:', error);
-      res.status(500).json({ message: 'OAuth authentication failed' });
+      res.redirect('/login?error=Authentication failed');
     }
   });
 
