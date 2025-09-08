@@ -55,8 +55,16 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
   
   console.log(`🔍 Searching boundaries for ${cityName}, ${country} (${countryCode})`);
   
-  // Stage 1: Dynamic query using the actual cityName parameter
-  const searchQuery = `[out:json][timeout:25];(rel["boundary"="administrative"]["name"~"${cityName}",i];rel["place"]["name"~"${cityName}",i];way["boundary"="administrative"]["name"~"${cityName}",i];);out tags;`;
+  // Stage 1: Use reference implementation query strategy with country scoping
+  const searchQuery = `
+    [out:json][timeout:60];
+    area["ISO3166-1:alpha2"~"^${countryCode}$"]->.country;
+    (
+      rel(area.country)["boundary"="administrative"]["name"~"${escapeRegex(cityName)}",i];
+      way(area.country)["boundary"="administrative"]["name"~"${escapeRegex(cityName)}",i];
+    );
+    out ids tags bb;
+  `;
 
   try {
     // Step 1: Get boundary metadata
@@ -87,13 +95,15 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
       return [];
     }
 
-    // Process and score boundaries
+    // Process and score boundaries (from reference implementation approach)
     const candidateBoundaries = searchData.elements
       .filter((element: any) => element.tags && element.tags.name)
       .map((element: any) => ({
         id: element.id,
         type: element.type,
         tags: element.tags,
+        bbox: element.bbox, // Include bounding box from reference implementation
+        _area_deg2: element.bbox ? calculateBoundingBoxArea(element.bbox) : 0, // Calculate area like reference
         score: calculateBoundaryScore({
           osmId: element.id.toString(),
           osmType: element.type,
@@ -101,7 +111,7 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
           adminLevel: element.tags.admin_level,
           boundaryType: element.tags.boundary,
           tags: element.tags,
-          area: 0,
+          area: element.bbox ? calculateBoundingBoxArea(element.bbox) : 0,
           geometry: null,
           score: 0
         }, cityName)
@@ -240,43 +250,51 @@ function calculateSimplePolygonArea(coords: number[][]): number {
   return Math.abs(area) * 12.4; // Rough conversion factor
 }
 
+// Add bounding box area calculation from reference implementation
+function calculateBoundingBoxArea(bbox: any): number {
+  if (!bbox) return 0;
+  const { minlat, maxlat, minlon, maxlon } = bbox;
+  return (maxlat - minlat) * (maxlon - minlon);
+}
+
 
 function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string): number {
   let score = 0;
   const { tags } = boundary;
 
-  // 1. Boundary type preference  
-  if (tags.boundary === 'administrative') score += 10;
-  if (tags.boundary === 'political') score += 8;
+  // Enhanced scoring based on reference implementation
   
-  // 2. Administrative level scoring (city-level boundaries)
+  // 1. Administrative boundary preference (from reference)
+  if (tags.boundary === 'administrative') score += 10;
+  
+  // 2. Admin level preference (6-10 are typically city-level) - from reference
   const adminLevel = parseInt(tags.admin_level || '0');
-  if (adminLevel >= 6 && adminLevel <= 10) {
-    score += (11 - adminLevel); // Higher score for more specific levels
+  if (adminLevel >= 6 && adminLevel <= 10) score += 5;
+  
+  // 3. Area-based scoring (avoid too small/large boundaries) - from reference  
+  const area = boundary.area || 0;
+  if (area > 0.001 && area < 1) score += 3; // Reference implementation logic
+  
+  // 4. Name similarity (from reference)
+  if (tags.name?.toLowerCase().includes(searchTerm.toLowerCase())) {
+    score += 8;
   }
   
-  // 3. Place type preference
+  // 5. Exact name match bonus
+  if (tags.name?.toLowerCase() === searchTerm.toLowerCase()) score += 15;
+  
+  // 6. Place type preferences
   if (tags.place === 'city') score += 8;
   if (tags.place === 'town') score += 6;
   if (tags.place === 'municipality') score += 7;
   
-  // 4. Name matching
-  const name = tags.name?.toLowerCase() || '';
-  if (name === searchTerm.toLowerCase()) score += 15; // Exact match
-  if (name.includes(searchTerm.toLowerCase())) score += 10; // Partial match
-  
-  // 5. Area-based scoring (reasonable city size)
-  const areaSqKm = boundary.area || 0;
-  if (areaSqKm > 50 && areaSqKm < 5000) score += 5; // Reasonable city size
-  if (areaSqKm > 5 && areaSqKm < 50) score += 3; // Small city/district
-  
-  // 6. Population data bonus
-  if (tags.population) score += 3;
-  
   // 7. Type preference - relations are typically better for boundaries
   if (boundary.osmType === 'relation') score += 3;
   
-  // 8. Penalize very high admin levels (country/state level)
+  // 8. Population data bonus
+  if (tags.population) score += 3;
+  
+  // 9. Penalize very high admin levels (country/state level)
   if (adminLevel > 0 && adminLevel <= 4) score -= 5;
 
   return score;
