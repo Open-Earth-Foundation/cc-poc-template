@@ -54,6 +54,26 @@ export function setupRoutes(app: express.Application) {
   // Extract user from token middleware
   const extractUser = async (req: any, res: any, next: any) => {
     try {
+      // If we have a session, get the local user from the session
+      const sessionToken = req.cookies?.sessionToken;
+      if (sessionToken) {
+        const session = await storage.getSessionByToken(sessionToken);
+        if (session && session.expiresAt > new Date()) {
+          const localUser = await storage.getUserById(session.userId);
+          if (localUser) {
+            req.user = {
+              id: localUser.id, // Use local user ID
+              email: localUser.email,
+              name: localUser.name,
+              title: localUser.title,
+              projects: localUser.projects,
+            };
+            return next();
+          }
+        }
+      }
+      
+      // Fallback: get profile from CityCatalyst API
       const profile = await getUserProfile(req.token);
       req.user = profile;
       next();
