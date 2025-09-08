@@ -23,9 +23,10 @@ export interface BoundarySearchParams {
 
 const OVERPASS_API_URL = process.env.OVERPASS_API_URL || 'https://overpass-api.de/api/interpreter';
 
-// Helper function to get country code from country name
+// Helper function to get country code from country name - comprehensive mapping
 function getCountryCode(country: string): string {
   const countryMap: Record<string, string> = {
+    // Americas
     'Argentina': 'AR',
     'Brazil': 'BR',
     'Chile': 'CL',
@@ -33,15 +34,129 @@ function getCountryCode(country: string): string {
     'Mexico': 'MX',
     'United States': 'US',
     'Canada': 'CA',
+    'Peru': 'PE',
+    'Venezuela': 'VE',
+    'Ecuador': 'EC',
+    'Bolivia': 'BO',
+    'Paraguay': 'PY',
+    'Uruguay': 'UY',
+    
+    // Europe
     'United Kingdom': 'GB',
     'France': 'FR',
     'Germany': 'DE',
     'Spain': 'ES',
     'Italy': 'IT',
-    // Add more mappings as needed
+    'Netherlands': 'NL',
+    'Belgium': 'BE',
+    'Switzerland': 'CH',
+    'Austria': 'AT',
+    'Portugal': 'PT',
+    'Poland': 'PL',
+    'Czech Republic': 'CZ',
+    'Hungary': 'HU',
+    'Romania': 'RO',
+    'Greece': 'GR',
+    'Norway': 'NO',
+    'Sweden': 'SE',
+    'Denmark': 'DK',
+    'Finland': 'FI',
+    'Ireland': 'IE',
+    
+    // Asia
+    'Japan': 'JP',
+    'China': 'CN',
+    'India': 'IN',
+    'South Korea': 'KR',
+    'Thailand': 'TH',
+    'Vietnam': 'VN',
+    'Indonesia': 'ID',
+    'Malaysia': 'MY',
+    'Singapore': 'SG',
+    'Philippines': 'PH',
+    'Taiwan': 'TW',
+    'Hong Kong': 'HK',
+    'Bangladesh': 'BD',
+    'Pakistan': 'PK',
+    'Sri Lanka': 'LK',
+    'Myanmar': 'MM',
+    'Cambodia': 'KH',
+    'Laos': 'LA',
+    'Mongolia': 'MN',
+    'Nepal': 'NP',
+    'Bhutan': 'BT',
+    
+    // Africa
+    'South Africa': 'ZA',
+    'Nigeria': 'NG',
+    'Kenya': 'KE',
+    'Ethiopia': 'ET',
+    'Egypt': 'EG',
+    'Morocco': 'MA',
+    'Ghana': 'GH',
+    'Uganda': 'UG',
+    'Tanzania': 'TZ',
+    'Zimbabwe': 'ZW',
+    'Zambia': 'ZM',
+    'Botswana': 'BW',
+    'Rwanda': 'RW',
+    'Tunisia': 'TN',
+    'Algeria': 'DZ',
+    'Libya': 'LY',
+    'Sudan': 'SD',
+    'Madagascar': 'MG',
+    'Cameroon': 'CM',
+    'Ivory Coast': 'CI',
+    'Senegal': 'SN',
+    'Mali': 'ML',
+    'Burkina Faso': 'BF',
+    'Niger': 'NE',
+    'Chad': 'TD',
+    'Angola': 'AO',
+    'Mozambique': 'MZ',
+    'Namibia': 'NA',
+    'Malawi': 'MW',
+    
+    // Oceania
+    'Australia': 'AU',
+    'New Zealand': 'NZ',
+    'Papua New Guinea': 'PG',
+    'Fiji': 'FJ',
+    
+    // Middle East
+    'Turkey': 'TR',
+    'Iran': 'IR',
+    'Iraq': 'IQ',
+    'Saudi Arabia': 'SA',
+    'Israel': 'IL',
+    'Jordan': 'JO',
+    'Lebanon': 'LB',
+    'Syria': 'SY',
+    'Kuwait': 'KW',
+    'UAE': 'AE',
+    'Qatar': 'QA',
+    'Bahrain': 'BH',
+    'Oman': 'OM',
+    'Yemen': 'YE',
+    
+    // Additional
+    'Russia': 'RU',
+    'Ukraine': 'UA',
+    'Belarus': 'BY',
+    'Kazakhstan': 'KZ',
+    'Uzbekistan': 'UZ',
+    'Afghanistan': 'AF',
+    'Georgia': 'GE',
+    'Armenia': 'AM',
+    'Azerbaijan': 'AZ',
   };
   
-  return countryMap[country] || 'AR';
+  const code = countryMap[country];
+  if (!code) {
+    console.warn(`⚠️ Unknown country: ${country}. Add mapping to getCountryCode()`);
+    throw new Error(`Country mapping not found for: ${country}. Please add it to the country codes.`);
+  }
+  return code;
 }
 
 // Helper function to escape regex special characters
