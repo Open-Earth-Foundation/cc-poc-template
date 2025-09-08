@@ -264,7 +264,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`🔍 Fetching enhanced boundaries for ${city}, ${country}`);
       
-      // Return sample boundaries with realistic complex geometry (matching implementation guide)
+      // Use real OSM service to fetch actual boundary data
+      const { searchBoundaries } = await import('./services/osmService');
+      const boundaries = await searchBoundaries({ 
+        cityName: city, 
+        country: country, 
+        limit: 5 
+      });
+      const result = { boundaries };
+      
+      res.json(result);
+      
+    } catch (error) {
+      console.error('Error in enhanced boundaries endpoint:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch enhanced boundaries' 
+      });
+    }
+  });
+
+  // Fallback enhanced boundaries endpoint with sample data (for development/testing)
+  app.post('/api/enhanced-boundaries-sample', async (req: any, res) => {
+    try {
+      const { city, country, locode } = req.body;
+      
+      if (!city || !country) {
+        return res.status(400).json({ 
+          error: 'City and country are required' 
+        });
+      }
+
+      console.log(`🔍 Fetching SAMPLE boundaries for ${city}, ${country}`);
+      
+      // Return sample boundaries with realistic complex geometry (for fallback)
       const sampleBoundaries = [
         {
           osmId: 'relation/1224652',
