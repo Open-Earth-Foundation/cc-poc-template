@@ -122,125 +122,131 @@ export async function exchangeCodeForToken(
   return tokenData;
 }
 
-export async function getUserProfile(accessToken: string): Promise<CityCatalystUser> {
-  // Use the correct CityCatalyst API endpoints:
-  // GET /api/v0/auth/me - for identity (id & email)
-  // GET /api/v0/user - for profile (defaults & settings)
+// JWT decoding helper
+function decodeJWT(token: string): any {
+  try {
+    const [, payload] = token.split('.');
+    // Add padding for base64 decoding
+    const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4);
+    const decoded = Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    return JSON.parse(decoded);
+  } catch (error) {
+    console.log('Failed to decode JWT:', error);
+    return null;
+  }
+}
+
+// Robust JSON fetcher
+async function fetchJSON(url: string, accessToken: string): Promise<any> {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept': 'application/json',
+      'User-Agent': 'cc-boundary-picker/1.0',
+    },
+    redirect: 'manual',
+  });
+
+  // Check for redirects
+  if (response.status >= 300 && response.status < 400) {
+    const location = response.headers.get('location');
+    throw new Error(`API redirected to: ${location} - likely authentication failed`);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+
+  if (!contentType.includes('application/json')) {
+    throw new Error(`Expected JSON but got ${contentType}. Likely hit UI/HTML page. Response: ${text.slice(0, 300)}`);
+  }
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${text}`);
+  }
+
+  return JSON.parse(text);
+}
+
+export async function getUserProfile(accessToken: string, tokenResponse?: any): Promise<CityCatalystUser> {
+  console.log('Attempting to get real user profile data...');
   
   try {
-    // First get the basic identity
-    const authMeUrl = `${AUTH_BASE_URL}/api/v0/auth/me`;
-    console.log('Getting user identity from:', authMeUrl);
-    
-    const authResponse = await fetch(authMeUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/json',
-        'User-Agent': 'cc-boundary-picker/1.0',
-      },
-      redirect: 'manual', // Prevent automatic redirect following
-    });
+    // Strategy 1: Try multiple known profile endpoints
+    const candidateUrls = [
+      `${AUTH_BASE_URL}/api/v0/users/me`,
+      `${AUTH_BASE_URL}/api/v0/users/me/`,
+      `${AUTH_BASE_URL}/api/v0/user/me`,
+      `${AUTH_BASE_URL}/api/v0/user/me/`,
+      `${AUTH_BASE_URL}/api/v0/auth/me`,
+      `${AUTH_BASE_URL}/api/v0/auth/me/`,
+      `${AUTH_BASE_URL}/api/v0/user`,
+      `${AUTH_BASE_URL}/api/v0/user/`,
+    ];
 
-    console.log('Auth/me response status:', authResponse.status);
-    
-    // Check for redirects (3xx status codes)
-    if (authResponse.status >= 300 && authResponse.status < 400) {
-      const redirectLocation = authResponse.headers.get('location');
-      console.log('API redirected to:', redirectLocation);
-      throw new Error(`Auth API redirected to web page: ${redirectLocation} - This indicates token authentication failed`);
-    }
-    
-    if (!authResponse.ok) {
-      const errorText = await authResponse.text();
-      console.log('Auth/me error response:', errorText);
-      throw new Error(`Failed to get user identity: ${authResponse.statusText}`);
+    for (const url of candidateUrls) {
+      try {
+        console.log(`Trying profile endpoint: ${url}`);
+        const profileData = await fetchJSON(url, accessToken);
+        console.log(`✅ Success! Got profile data from: ${url}`);
+        console.log('Profile data:', profileData);
+        
+        // Convert to our expected format
+        return {
+          id: profileData.id || profileData.sub || 'unknown',
+          email: profileData.email || 'unknown@example.com',
+          name: profileData.name || profileData.display_name || profileData.email || 'Unknown User',
+          title: profileData.title || profileData.role || 'CityCatalyst User',
+          projects: profileData.projects || [profileData.defaultCityLocode] || ['default-project'],
+        };
+      } catch (error) {
+        console.log(`❌ Failed ${url}:`, error instanceof Error ? error.message : error);
+        continue; // Try next endpoint
+      }
     }
 
-    // Check content type before parsing
-    const contentType = authResponse.headers.get('content-type') || '';
-    console.log('Auth response content-type:', contentType);
-    
-    if (!contentType.includes('application/json')) {
-      const authText = await authResponse.text();
-      console.log('=== CITYCATALYST AUTH API RESPONSE DEBUG ===');
-      console.log('Request URL:', authMeUrl);
-      console.log('Request Headers:', {
-        'Authorization': `Bearer ${accessToken.substring(0, 20)}...`,
-        'Accept': 'application/json',
-      });
-      console.log('Response Status:', authResponse.status);
-      console.log('Response Headers:', Object.fromEntries(authResponse.headers.entries()));
-      console.log('Response Body Length:', authText.length);
-      console.log('Expected JSON but got:', contentType);
-      console.log('This indicates the API call was redirected to CityCatalyst web app');
-      console.log('=== END DEBUG ===');
+    // Strategy 2: Try to decode ID token if available
+    if (tokenResponse?.id_token) {
+      console.log('Trying to decode ID token...');
+      const claims = decodeJWT(tokenResponse.id_token);
+      if (claims) {
+        console.log('✅ Successfully decoded ID token');
+        console.log('ID token claims:', claims);
+        
+        return {
+          id: claims.sub || 'unknown',
+          email: claims.email || 'unknown@example.com',
+          name: claims.name || claims.given_name && claims.family_name 
+            ? `${claims.given_name} ${claims.family_name}` 
+            : claims.email || 'Unknown User',
+          title: claims.title || claims.role || 'CityCatalyst User',
+          projects: claims.projects || ['default-project'],
+        };
+      }
+    }
+
+    // Strategy 3: Try to decode access token (some APIs encode user info in access tokens)
+    console.log('Trying to decode access token for user info...');
+    const accessClaims = decodeJWT(accessToken);
+    if (accessClaims && (accessClaims.email || accessClaims.sub)) {
+      console.log('✅ Found user info in access token');
+      console.log('Access token claims:', accessClaims);
       
-      throw new Error(`Auth API returned ${contentType} instead of JSON - likely redirected to web app`);
-    }
-    
-    const authText = await authResponse.text();
-    let authData;
-    try {
-      authData = JSON.parse(authText);
-      console.log('Auth data received:', authData);
-    } catch (parseError) {
-      console.log('Failed to parse JSON response:', parseError);
-      throw new Error(`Auth API returned invalid JSON`);
-    }
-
-    // Then get the full user profile
-    const userProfileUrl = `${AUTH_BASE_URL}/api/v0/user`;
-    console.log('Getting user profile from:', userProfileUrl);
-    
-    const profileResponse = await fetch(userProfileUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/json',
-      },
-    });
-
-    console.log('User profile response status:', profileResponse.status);
-    
-    if (!profileResponse.ok) {
-      const errorText = await profileResponse.text();
-      console.log('User profile error response:', errorText);
-      // Use auth data only if profile fails
       return {
-        id: authData.id || 'unknown',
-        email: authData.email || 'unknown@example.com',
-        name: authData.name || authData.email || 'Unknown User',
+        id: accessClaims.sub || 'unknown',
+        email: accessClaims.email || 'unknown@example.com',
+        name: accessClaims.name || accessClaims.email || 'Unknown User',
         title: 'CityCatalyst User',
         projects: ['default-project'],
       };
     }
 
-    const profileText = await profileResponse.text();
-    console.log('Profile response text:', profileText.substring(0, 200) + '...');
-    
-    let profileData;
-    try {
-      profileData = JSON.parse(profileText);
-      console.log('Profile data received:', profileData);
-    } catch (parseError) {
-      console.log('Profile response is not valid JSON, likely HTML error page');
-      throw new Error(`Profile API returned HTML instead of JSON: ${profileText.substring(0, 100)}`);
-    }
-
-    // Combine auth and profile data
-    return {
-      id: authData.id || profileData.id || 'unknown',
-      email: authData.email || profileData.email || 'unknown@example.com',
-      name: authData.name || profileData.name || authData.email || 'Unknown User',
-      title: profileData.title || 'CityCatalyst User',
-      projects: profileData.projects || [profileData.defaultCityLocode] || ['default-project'],
-    };
+    throw new Error('All profile retrieval strategies failed');
     
   } catch (error) {
-    console.error('Error fetching user profile:', error);
-    // Fallback to sample data for testing
-    console.log('Using sample user data for testing');
+    console.error('❌ All real data strategies failed:', error);
+    console.log('🔄 Falling back to sample user data for testing');
+    
     return {
       id: 'sample-user-1',
       email: 'elena.rodriguez@citycatalyst.org',

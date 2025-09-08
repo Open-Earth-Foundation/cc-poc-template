@@ -105,8 +105,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         throw error;
       }
       
-      // Get user profile
-      const cityCatalystUser = await getUserProfile(tokenResponse.access_token);
+      // Get user profile (pass full token response for ID token access)
+      const cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
       console.log('User profile retrieved:', cityCatalystUser.email);
       
       // Create or update user
