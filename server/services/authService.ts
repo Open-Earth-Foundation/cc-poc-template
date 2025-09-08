@@ -142,8 +142,17 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
       throw new Error(`Failed to get user identity: ${authResponse.statusText}`);
     }
 
-    const authData = await authResponse.json();
-    console.log('Auth data received:', authData);
+    const authText = await authResponse.text();
+    console.log('Auth response text:', authText.substring(0, 200) + '...');
+    
+    let authData;
+    try {
+      authData = JSON.parse(authText);
+      console.log('Auth data received:', authData);
+    } catch (parseError) {
+      console.log('Auth response is not valid JSON, likely HTML error page');
+      throw new Error(`Auth API returned HTML instead of JSON: ${authText.substring(0, 100)}`);
+    }
 
     // Then get the full user profile
     const userProfileUrl = `${AUTH_BASE_URL}/api/v0/user`;
@@ -172,8 +181,17 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
       };
     }
 
-    const profileData = await profileResponse.json();
-    console.log('Profile data received:', profileData);
+    const profileText = await profileResponse.text();
+    console.log('Profile response text:', profileText.substring(0, 200) + '...');
+    
+    let profileData;
+    try {
+      profileData = JSON.parse(profileText);
+      console.log('Profile data received:', profileData);
+    } catch (parseError) {
+      console.log('Profile response is not valid JSON, likely HTML error page');
+      throw new Error(`Profile API returned HTML instead of JSON: ${profileText.substring(0, 100)}`);
+    }
 
     // Combine auth and profile data
     return {
