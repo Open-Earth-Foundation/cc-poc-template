@@ -53,7 +53,7 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
   
   console.log(`🔍 Searching boundaries for ${cityName}, ${country} (${countryCode})`);
   
-  // Step 1: Get boundary IDs and metadata only (no geometry yet)
+  // Single comprehensive query with geometry - matching implementation guide
   const query = `
     [out:json][timeout:60];
     area["ISO3166-1:alpha2"="${countryCode}"]->.country;
@@ -64,8 +64,15 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
       way(area.country)
         ["boundary"~"^(administrative|political)$"]
         ["name"~"^${escapeRegex(cityName)}$",i];
+      rel(area.country)
+        ["boundary"="administrative"]
+        ["admin_level"~"^[6-10]$"]
+        ["name"~"${escapeRegex(cityName)}"];
+      rel(area.country)
+        ["place"~"^(city|town|municipality)$"]
+        ["name"~"${escapeRegex(cityName)}"];
     );
-    out ids tags bb;
+    out geom;
   `;
 
   try {
@@ -84,39 +91,18 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
     const data = await response.json();
     console.log(`📊 Found ${data.elements?.length || 0} potential boundaries`);
     
-    // Process response to get boundary metadata without geometry
-    const boundaryMetadata = await processOverpassMetadata(data, cityName);
+    // Process OSM data to boundaries
+    const boundaries = await processOverpassResponse(data, cityName);
     
     // Sort by score and take top results
-    const topBoundaries = boundaryMetadata
+    const topBoundaries = boundaries
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);
       
     console.log(`🏆 Top ${topBoundaries.length} boundaries selected:`, 
       topBoundaries.map(b => `${b.name} (score: ${b.score})`));
     
-    // Step 2: Load geometry for top boundaries in parallel
-    const boundariesWithGeometry = await Promise.all(
-      topBoundaries.map(async (boundary) => {
-        try {
-          console.log(`📐 Loading geometry for ${boundary.name} (${boundary.osmType}.${boundary.osmId})`);
-          const geometry = await getBoundaryGeometry(boundary.osmId, boundary.osmType);
-          if (geometry) {
-            const area = calculatePolygonArea(geometry);
-            return {
-              ...boundary,
-              geometry,
-              area,
-            };
-          }
-        } catch (error) {
-          console.error(`Failed to load geometry for ${boundary.name}:`, error);
-        }
-        return boundary;
-      })
-    );
-    
-    return boundariesWithGeometry;
+    return topBoundaries;
     
   } catch (error) {
     console.error('Error fetching boundaries from OSM:', error);
@@ -212,10 +198,7 @@ function processBoundaryElement(
   
   if (!tags.boundary || !tags.name) return null;
 
-  // Calculate boundary score
-  const score = calculateBoundaryScore(element, searchTerm);
-  
-  // Build geometry
+  // Build geometry first
   let geometry;
   try {
     if (element.type === 'relation') {
@@ -233,7 +216,8 @@ function processBoundaryElement(
   // Calculate area
   const area = calculatePolygonArea(geometry);
 
-  return {
+  // Create boundary object for scoring
+  const boundary: OSMBoundary = {
     osmId: element.id.toString(),
     osmType: element.type,
     name: tags.name,
@@ -242,37 +226,52 @@ function processBoundaryElement(
     area,
     geometry,
     tags,
-    score,
+    score: 0, // Will be calculated next
   };
+
+  // Calculate boundary score
+  boundary.score = calculateBoundaryScore(boundary, searchTerm);
+
+  return boundary;
 }
 
-function calculateBoundaryScore(element: any, searchTerm: string): number {
+function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string): number {
   let score = 0;
-  const { tags } = element;
+  const { tags } = boundary;
 
-  // Administrative boundary preference
+  // 1. Boundary type preference  
   if (tags.boundary === 'administrative') score += 10;
+  if (tags.boundary === 'political') score += 8;
   
-  // Admin level preference (6-10 are city-level)
+  // 2. Administrative level scoring (city-level boundaries)
   const adminLevel = parseInt(tags.admin_level || '0');
-  if (adminLevel >= 6 && adminLevel <= 10) score += 5;
-  
-  // Exact name match gets highest score
-  if (tags.name?.toLowerCase() === searchTerm.toLowerCase()) {
-    score += 15;
-  } else if (tags.name?.toLowerCase().includes(searchTerm.toLowerCase())) {
-    score += 8;
+  if (adminLevel >= 6 && adminLevel <= 10) {
+    score += (11 - adminLevel); // Higher score for more specific levels
   }
   
-  // Type preference - relations are typically better for boundaries
-  if (element.type === 'relation') score += 3;
+  // 3. Place type preference
+  if (tags.place === 'city') score += 8;
+  if (tags.place === 'town') score += 6;
+  if (tags.place === 'municipality') score += 7;
   
-  // Boost score for common city boundary indicators
-  if (tags.admin_level === '8') score += 3; // Municipality level
-  if (tags.admin_level === '6') score += 2; // District level
+  // 4. Name matching
+  const name = tags.name?.toLowerCase() || '';
+  if (name === searchTerm.toLowerCase()) score += 15; // Exact match
+  if (name.includes(searchTerm.toLowerCase())) score += 10; // Partial match
   
-  // Penalize very high admin levels (country/state level)
-  if (parseInt(tags.admin_level || '0') <= 4) score -= 5;
+  // 5. Area-based scoring (reasonable city size)
+  const areaSqKm = boundary.area || 0;
+  if (areaSqKm > 50 && areaSqKm < 5000) score += 5; // Reasonable city size
+  if (areaSqKm > 5 && areaSqKm < 50) score += 3; // Small city/district
+  
+  // 6. Population data bonus
+  if (tags.population) score += 3;
+  
+  // 7. Type preference - relations are typically better for boundaries
+  if (boundary.osmType === 'relation') score += 3;
+  
+  // 8. Penalize very high admin levels (country/state level)
+  if (adminLevel > 0 && adminLevel <= 4) score -= 5;
 
   return score;
 }

@@ -2,14 +2,13 @@ import { apiRequest } from "@/lib/queryClient";
 import { OSMBoundary, BoundarySearchParams, Boundary } from "@/types/boundary";
 
 export async function searchBoundaries(params: BoundarySearchParams): Promise<{ boundaries: OSMBoundary[] }> {
-  const queryParams = new URLSearchParams({
-    cityName: params.cityName,
+  // Use the POST endpoint to match implementation guide
+  const res = await apiRequest("POST", "/api/enhanced-boundaries", {
+    city: params.cityName,
     country: params.country,
-    ...(params.countryCode && { countryCode: params.countryCode }),
-    ...(params.limit && { limit: params.limit.toString() }),
+    locode: params.countryCode // Use countryCode as locode for now
   });
   
-  const res = await apiRequest("GET", `/api/boundaries/search?${queryParams}`);
   return await res.json();
 }
 
