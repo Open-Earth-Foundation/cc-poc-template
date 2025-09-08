@@ -1,0 +1,88 @@
+# Overview
+
+The Enhanced Boundary Editor is a standalone React + Express web application that allows users to view, explore, and select city boundaries from OpenStreetMap (OSM) data. The application integrates with CityCatalyst's OAuth 2.0 authentication system and provides an interactive mapping interface for boundary visualization and selection.
+
+The system enables urban planners, GIS professionals, and researchers to discover alternative city boundaries beyond official administrative boundaries, visualize them on interactive maps, and export selected boundaries for further use in urban planning and analysis workflows.
+
+# User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+# System Architecture
+
+## Frontend Architecture
+- **React 18+ with TypeScript**: Modern component-based frontend using functional components and hooks
+- **Vite Build System**: Fast development server and optimized production builds
+- **Wouter Routing**: Lightweight client-side routing for single-page application navigation
+- **Tailwind CSS + shadcn/ui**: Utility-first CSS framework with pre-built accessible components
+- **React Query/TanStack Query**: Declarative data fetching, caching, and synchronization
+- **Leaflet Maps**: Interactive mapping library for boundary visualization and selection
+
+## Backend Architecture
+- **Express.js with TypeScript**: RESTful API server with type safety
+- **Session-based Authentication**: OAuth 2.0 PKCE flow with CityCatalyst integration
+- **In-Memory Storage**: Development-ready storage layer with interface for database migration
+- **Middleware Chain**: Request logging, error handling, and security headers
+
+## Data Storage Design
+- **PostgreSQL Schema**: Drizzle ORM with strongly-typed database operations
+- **Entities**: Users, Cities, Boundaries, and Sessions with proper relationships
+- **Storage Interface**: Abstract storage layer allowing seamless transition between in-memory and database implementations
+
+## Authentication & Authorization
+- **OAuth 2.0 PKCE Flow**: Secure authentication with CityCatalyst using Proof Key for Code Exchange
+- **Session Management**: Server-side session storage with secure token handling
+- **Project-based Access Control**: User access to cities based on project membership
+
+## API Design Patterns
+- **RESTful Endpoints**: Standard HTTP methods for resource operations
+- **Error Handling**: Centralized error middleware with proper status codes
+- **Request Validation**: Type-safe request/response validation using Zod schemas
+- **Rate Limiting**: Protection against abuse (configured for production deployment)
+
+## Mapping & GIS Integration
+- **Overpass API Integration**: Query OpenStreetMap data for administrative boundaries
+- **GeoJSON Processing**: Standard geospatial data format for boundary representation
+- **Boundary Scoring**: Algorithm to rank boundary alternatives based on relevance
+- **Interactive Visualization**: Real-time map updates with boundary overlays and selection
+
+## Frontend State Management
+- **React Query Cache**: Server state management with automatic background updates
+- **Local Component State**: UI state managed with React hooks
+- **Form Handling**: React Hook Form with validation for user inputs
+- **Toast Notifications**: User feedback for actions and errors
+
+## Build & Development Setup
+- **Hot Module Replacement**: Fast development iteration with Vite
+- **TypeScript Compilation**: Compile-time type checking across frontend and backend
+- **Path Aliases**: Clean import statements using configured path mapping
+- **Environment Configuration**: Separate development and production configurations
+
+# External Dependencies
+
+## Authentication Service
+- **CityCatalyst OAuth**: OAuth 2.0 provider for user authentication and project access
+- **JWT Token Handling**: Access and refresh token management for API calls
+
+## Geospatial Data Sources
+- **Overpass API**: OpenStreetMap data query service for boundary discovery
+- **OpenStreetMap**: Base map tiles and administrative boundary data
+- **Nominatim API**: Geocoding service for location search (optional enhancement)
+
+## Database
+- **PostgreSQL**: Production database with spatial extensions support
+- **Neon Database**: Cloud PostgreSQL service (based on connection string pattern)
+
+## Build & Deployment
+- **Replit Platform**: Development and hosting environment with integrated tooling
+- **Node.js Runtime**: Server execution environment with ES modules support
+
+## UI Component Libraries
+- **Radix UI**: Accessible, unstyled component primitives
+- **Lucide Icons**: Modern icon library for UI elements
+- **Leaflet**: Open-source mapping library for interactive maps
+
+## Development Tools
+- **Drizzle Kit**: Database migration and introspection tools
+- **TypeScript**: Static type checking for both frontend and backend
+- **ESBuild**: Fast JavaScript/TypeScript bundler for production builds
