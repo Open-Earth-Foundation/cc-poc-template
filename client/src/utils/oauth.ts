@@ -1,4 +1,4 @@
-export function extractOAuthParams(): { code?: string; state?: string; error?: string } {
+export function extractOAuthParams(): { code?: string; state?: string; error?: string; success?: string } {
   if (typeof window === 'undefined') return {};
   
   const urlParams = new URLSearchParams(window.location.search);
@@ -6,6 +6,7 @@ export function extractOAuthParams(): { code?: string; state?: string; error?: s
     code: urlParams.get('code') || undefined,
     state: urlParams.get('state') || undefined,
     error: urlParams.get('error') || undefined,
+    success: urlParams.get('success') || undefined,
   };
 }
 

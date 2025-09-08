@@ -13,45 +13,45 @@ export function OAuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const { code, state, error } = extractOAuthParams();
+      const { success, error } = extractOAuthParams();
       
       if (error) {
         toast({
           title: "Authentication Error",
-          description: error,
+          description: decodeURIComponent(error),
           variant: "destructive",
         });
         setLocation("/login");
         return;
       }
       
-      if (!code || !state) {
-        toast({
-          title: "Authentication Error",
-          description: "Missing authorization code or state",
-          variant: "destructive",
-        });
-        setLocation("/login");
+      if (success === 'true') {
+        try {
+          await refetch(); // Refetch user profile to confirm authentication
+          toast({
+            title: "Welcome!",
+            description: "You have been successfully authenticated.",
+          });
+          setLocation("/cities");
+        } catch (error: any) {
+          console.error("Profile fetch error after callback:", error);
+          toast({
+            title: "Authentication Issue",
+            description: "Login succeeded but failed to load profile. Please try again.",
+            variant: "destructive",
+          });
+          setLocation("/login");
+        }
         return;
       }
       
-      try {
-        await handleOAuthCallback(code, state);
-        await refetch(); // Refetch user profile
-        toast({
-          title: "Welcome!",
-          description: "You have been successfully authenticated.",
-        });
-        setLocation("/cities");
-      } catch (error: any) {
-        console.error("OAuth callback error:", error);
-        toast({
-          title: "Authentication Failed",
-          description: error.message || "Failed to complete authentication",
-          variant: "destructive",
-        });
-        setLocation("/login");
-      }
+      // Fallback - neither success nor error parameter found
+      toast({
+        title: "Authentication Error",
+        description: "Invalid callback parameters",
+        variant: "destructive",
+      });
+      setLocation("/login");
     };
     
     handleCallback();

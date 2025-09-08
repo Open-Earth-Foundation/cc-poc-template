@@ -53,6 +53,32 @@ export function setupRoutes(app: express.Application) {
     }
   });
 
+  // OAuth callback - GET request from CityCatalyst
+  app.get('/api/auth/oauth/callback', async (req, res) => {
+    try {
+      const { code, state, error } = req.query;
+      
+      if (error) {
+        // Redirect to frontend with error
+        return res.redirect(`/auth/callback?error=${encodeURIComponent(error as string)}`);
+      }
+      
+      if (!code || !state) {
+        return res.redirect('/auth/callback?error=Missing authorization code or state');
+      }
+      
+      const result = await handleOAuthCallback(code as string, state as string);
+      
+      // Redirect to frontend callback page with success
+      res.redirect('/auth/callback?success=true');
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'OAuth callback failed';
+      res.redirect(`/auth/callback?error=${encodeURIComponent(errorMessage)}`);
+    }
+  });
+
+  // Legacy POST endpoint for frontend API calls (if needed)
   app.post('/api/auth/oauth/callback', async (req, res) => {
     try {
       const { code, state } = req.body;
