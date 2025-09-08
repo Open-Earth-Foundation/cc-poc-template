@@ -1,19 +1,20 @@
+
 import { Request, Response } from 'express';
-import { searchBoundaries } from '../services/osmService';
+import { searchBoundaries, fetchBoundaryGeometry } from '../services/osmService';
 
 export async function POST(req: Request, res: Response) {
   try {
-    const { city, country, locode } = req.body;
+    const { city, country, locode, cityId } = req.body;
     
     if (!city || !country) {
       return res.status(400).json({ 
-        error: 'City and country are required' 
+        error: 'City and country parameters are required' 
       });
     }
 
     console.log(`🔍 Fetching enhanced boundaries for ${city}, ${country}`);
     
-    // Fetch boundaries using OSM service  
+    // Fetch boundaries using OSM service following reference implementation
     const boundaries = await searchBoundaries({
       cityName: city,
       country: country,
@@ -23,6 +24,42 @@ export async function POST(req: Request, res: Response) {
     console.log(`✅ Found ${boundaries.length} boundaries for ${city}`);
     
     return res.json({
+      city,
+      country,
+      boundaries: boundaries
+    });
+    
+  } catch (error) {
+    console.error('Error in enhanced boundaries endpoint:', error);
+    return res.status(500).json({ 
+      error: 'Failed to fetch enhanced boundaries' 
+    });
+  }
+}
+
+export async function GET(req: Request, res: Response) {
+  try {
+    const { city, country } = req.query;
+    
+    if (!city || !country) {
+      return res.status(400).json({ 
+        error: 'City and country parameters are required' 
+      });
+    }
+
+    console.log(`🔍 Fetching enhanced boundaries for ${city}, ${country}`);
+    
+    const boundaries = await searchBoundaries({
+      cityName: city as string,
+      country: country as string,
+      limit: 5
+    });
+
+    console.log(`✅ Found ${boundaries.length} boundaries for ${city}`);
+    
+    return res.json({
+      city,
+      country,
       boundaries: boundaries
     });
     
