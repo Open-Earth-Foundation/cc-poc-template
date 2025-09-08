@@ -248,7 +248,7 @@ export default function BoundaryEditor() {
                 type="alternative"
                 boundary={boundary}
                 isSelected={selectedBoundaryType === 'alternative' && 
-                           selectedBoundary && 
+                           selectedBoundary !== null && 
                            'osmId' in selectedBoundary && 
                            selectedBoundary.osmId === boundary.osmId}
                 onSelect={() => handleSelectBoundary(boundary, 'alternative')}

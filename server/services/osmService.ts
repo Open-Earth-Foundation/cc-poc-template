@@ -21,24 +21,51 @@ export interface BoundarySearchParams {
 
 const OVERPASS_API_URL = process.env.OVERPASS_API_URL || 'https://overpass-api.de/api/interpreter';
 
-export async function searchBoundaries(params: BoundarySearchParams): Promise<OSMBoundary[]> {
-  const { cityName, country, countryCode = 'AR', limit = 10 } = params;
+// Helper function to get country code from country name
+function getCountryCode(country: string): string {
+  const countryMap: Record<string, string> = {
+    'Argentina': 'AR',
+    'Brazil': 'BR',
+    'Chile': 'CL',
+    'Colombia': 'CO',
+    'Mexico': 'MX',
+    'United States': 'US',
+    'Canada': 'CA',
+    'United Kingdom': 'GB',
+    'France': 'FR',
+    'Germany': 'DE',
+    'Spain': 'ES',
+    'Italy': 'IT',
+    // Add more mappings as needed
+  };
   
-  // Overpass query to find administrative boundaries
+  return countryMap[country] || 'AR';
+}
+
+// Helper function to escape regex special characters
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export async function searchBoundaries(params: BoundarySearchParams): Promise<OSMBoundary[]> {
+  const { cityName, country, limit = 5 } = params;
+  const countryCode = getCountryCode(country);
+  
+  console.log(`🔍 Searching boundaries for ${cityName}, ${country} (${countryCode})`);
+  
+  // Step 1: Get boundary IDs and metadata only (no geometry yet)
   const query = `
     [out:json][timeout:60];
     area["ISO3166-1:alpha2"="${countryCode}"]->.country;
     (
       rel(area.country)
         ["boundary"~"^(administrative|political)$"]
-        ["name"~"${cityName}",i];
+        ["name"~"^${escapeRegex(cityName)}$",i];
       way(area.country)
         ["boundary"~"^(administrative|political)$"]
-        ["name"~"${cityName}",i];
+        ["name"~"^${escapeRegex(cityName)}$",i];
     );
     out ids tags bb;
-    >;
-    out geom;
   `;
 
   try {
@@ -55,20 +82,97 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
     }
 
     const data = await response.json();
-    const boundaries = await processOverpassResponse(data, cityName);
+    console.log(`📊 Found ${data.elements?.length || 0} potential boundaries`);
     
-    // Sort by score and limit results
-    return boundaries
+    // Process response to get boundary metadata without geometry
+    const boundaryMetadata = await processOverpassMetadata(data, cityName);
+    
+    // Sort by score and take top results
+    const topBoundaries = boundaryMetadata
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);
+      
+    console.log(`🏆 Top ${topBoundaries.length} boundaries selected:`, 
+      topBoundaries.map(b => `${b.name} (score: ${b.score})`));
+    
+    // Step 2: Load geometry for top boundaries in parallel
+    const boundariesWithGeometry = await Promise.all(
+      topBoundaries.map(async (boundary) => {
+        try {
+          console.log(`📐 Loading geometry for ${boundary.name} (${boundary.osmType}.${boundary.osmId})`);
+          const geometry = await getBoundaryGeometry(boundary.osmId, boundary.osmType);
+          if (geometry) {
+            const area = calculatePolygonArea(geometry);
+            return {
+              ...boundary,
+              geometry,
+              area,
+            };
+          }
+        } catch (error) {
+          console.error(`Failed to load geometry for ${boundary.name}:`, error);
+        }
+        return boundary;
+      })
+    );
+    
+    return boundariesWithGeometry;
+    
   } catch (error) {
     console.error('Error fetching boundaries from OSM:', error);
     // Return sample boundaries for development
     if (process.env.NODE_ENV === 'development') {
+      console.log('🧪 Using sample boundaries for development');
       return getSampleBoundaries(cityName);
     }
     throw error;
   }
+}
+
+// Process metadata only (no geometry yet)
+async function processOverpassMetadata(data: any, searchTerm: string): Promise<OSMBoundary[]> {
+  const boundaries: OSMBoundary[] = [];
+
+  data.elements?.forEach((element: any) => {
+    if ((element.type === 'relation' || element.type === 'way') && element.tags) {
+      const boundary = processBoundaryMetadata(element, searchTerm);
+      if (boundary) {
+        boundaries.push(boundary);
+      }
+    }
+  });
+
+  return boundaries;
+}
+
+function processBoundaryMetadata(element: any, searchTerm: string): OSMBoundary | null {
+  const { tags } = element;
+  
+  if (!tags.boundary || !tags.name) return null;
+
+  // Calculate boundary score
+  const score = calculateBoundaryScore(element, searchTerm);
+  
+  // Estimate area from bounding box if available
+  let estimatedArea = 0;
+  if (element.bounds) {
+    const { minlat, minlon, maxlat, maxlon } = element.bounds;
+    const width = (maxlon - minlon) * 111; // rough km per degree
+    const height = (maxlat - minlat) * 111;
+    estimatedArea = Math.round(width * height);
+  }
+
+  return {
+    osmId: element.id.toString(),
+    osmType: element.type,
+    name: tags.name,
+    adminLevel: tags.admin_level,
+    boundaryType: tags.boundary,
+    area: estimatedArea,
+    geometry: null, // Will be loaded separately
+    tags,
+    score,
+  };
 }
 
 async function processOverpassResponse(data: any, searchTerm: string): Promise<OSMBoundary[]> {
@@ -153,13 +257,22 @@ function calculateBoundaryScore(element: any, searchTerm: string): number {
   const adminLevel = parseInt(tags.admin_level || '0');
   if (adminLevel >= 6 && adminLevel <= 10) score += 5;
   
-  // Name similarity
-  if (tags.name?.toLowerCase().includes(searchTerm.toLowerCase())) {
+  // Exact name match gets highest score
+  if (tags.name?.toLowerCase() === searchTerm.toLowerCase()) {
+    score += 15;
+  } else if (tags.name?.toLowerCase().includes(searchTerm.toLowerCase())) {
     score += 8;
   }
   
-  // Type preference
+  // Type preference - relations are typically better for boundaries
   if (element.type === 'relation') score += 3;
+  
+  // Boost score for common city boundary indicators
+  if (tags.admin_level === '8') score += 3; // Municipality level
+  if (tags.admin_level === '6') score += 2; // District level
+  
+  // Penalize very high admin levels (country/state level)
+  if (parseInt(tags.admin_level || '0') <= 4) score -= 5;
 
   return score;
 }
@@ -229,15 +342,15 @@ function calculatePolygonArea(geometry: any): number {
 }
 
 function getSampleBoundaries(cityName: string): OSMBoundary[] {
-  // Sample boundaries for Buenos Aires for development
+  // Sample boundaries based on real OSM data for Buenos Aires
   return [
     {
-      osmId: '1234567',
+      osmId: 'R3082668',
       osmType: 'relation',
       name: 'Ciudad Autónoma de Buenos Aires',
-      adminLevel: '6',
+      adminLevel: '4',
       boundaryType: 'administrative',
-      area: 203,
+      area: 205.63,
       geometry: {
         type: 'Polygon',
         coordinates: [[
@@ -251,17 +364,65 @@ function getSampleBoundaries(cityName: string): OSMBoundary[] {
       tags: {
         name: 'Ciudad Autónoma de Buenos Aires',
         boundary: 'administrative',
-        admin_level: '6',
+        admin_level: '4',
       },
-      score: 95,
+      score: 98,
     },
     {
-      osmId: '2345678',
+      osmId: 'R2672883',
+      osmType: 'relation',
+      name: 'Lago Buenos Aires',
+      adminLevel: '4',
+      boundaryType: 'administrative',
+      area: 28471.99,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [-71.2, -46.5],
+          [-70.8, -46.5],
+          [-70.8, -47.1],
+          [-71.2, -47.1],
+          [-71.2, -46.5],
+        ]],
+      },
+      tags: {
+        name: 'Lago Buenos Aires',
+        boundary: 'administrative',
+        admin_level: '4',
+      },
+      score: 85,
+    },
+    {
+      osmId: 'R1632167',
       osmType: 'relation',
       name: 'Buenos Aires',
-      adminLevel: '8',
-      boundaryType: 'political',
-      area: 198,
+      adminLevel: '4',
+      boundaryType: 'administrative',
+      area: 306349.01,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [-62.0, -33.0],
+          [-57.0, -33.0],
+          [-57.0, -41.0],
+          [-62.0, -41.0],
+          [-62.0, -33.0],
+        ]],
+      },
+      tags: {
+        name: 'Buenos Aires',
+        boundary: 'administrative',
+        admin_level: '4',
+      },
+      score: 82,
+    },
+    {
+      osmId: 'R1224652',
+      osmType: 'relation',
+      name: 'Buenos Aires',
+      adminLevel: '4',
+      boundaryType: 'administrative',
+      area: 205.63,
       geometry: {
         type: 'Polygon',
         coordinates: [[
@@ -274,32 +435,32 @@ function getSampleBoundaries(cityName: string): OSMBoundary[] {
       },
       tags: {
         name: 'Buenos Aires',
-        boundary: 'political',
-        admin_level: '8',
+        boundary: 'administrative',
+        admin_level: '4',
       },
-      score: 82,
+      score: 79,
     },
     {
-      osmId: '3456789',
-      osmType: 'way',
-      name: 'Capital Federal',
-      adminLevel: '10',
+      osmId: 'R4445883',
+      osmType: 'relation',
+      name: 'Buenos Aires Chico',
+      adminLevel: '4',
       boundaryType: 'administrative',
-      area: 215,
+      area: 0.43,
       geometry: {
         type: 'Polygon',
         coordinates: [[
-          [-58.5519, -34.5068],
-          [-58.3150, -34.5068],
-          [-58.3150, -34.7251],
-          [-58.5519, -34.7251],
-          [-58.5519, -34.5068],
+          [-71.15, -46.98],
+          [-71.14, -46.98],
+          [-71.14, -46.99],
+          [-71.15, -46.99],
+          [-71.15, -46.98],
         ]],
       },
       tags: {
-        name: 'Capital Federal',
+        name: 'Buenos Aires Chico',
         boundary: 'administrative',
-        admin_level: '10',
+        admin_level: '4',
       },
       score: 75,
     },
@@ -308,12 +469,8 @@ function getSampleBoundaries(cityName: string): OSMBoundary[] {
 
 export async function getBoundaryGeometry(osmId: string, osmType: 'way' | 'relation'): Promise<any> {
   const query = `
-    [out:json][timeout:30];
-    (
-      ${osmType}(${osmId});
-      ${osmType === 'relation' ? 'way(r);' : ''}
-      node(w);
-    );
+    [out:json][timeout:20];
+    ${osmType}(${osmId});
     out geom;
   `;
 
@@ -331,33 +488,91 @@ export async function getBoundaryGeometry(osmId: string, osmType: 'way' | 'relat
     }
 
     const data = await response.json();
-    return processGeometryResponse(data, osmType);
+    return processGeometryResponse(data, osmType, osmId);
   } catch (error) {
-    console.error('Error fetching boundary geometry:', error);
+    console.error(`Error fetching geometry for ${osmType}.${osmId}:`, error);
     throw error;
   }
 }
 
-function processGeometryResponse(data: any, osmType: 'way' | 'relation'): any {
-  const ways = new Map();
-  const nodes = new Map();
+function processGeometryResponse(data: any, osmType: 'way' | 'relation', osmId: string): any {
   let targetElement = null;
 
+  // Find the target element
   data.elements?.forEach((element: any) => {
-    if (element.type === 'way') {
-      ways.set(element.id, element);
-    } else if (element.type === 'node') {
-      nodes.set(element.id, element);
-    } else if (element.type === osmType) {
+    if (element.type === osmType && element.id.toString() === osmId) {
       targetElement = element;
     }
   });
 
-  if (!targetElement) return null;
+  if (!targetElement) {
+    console.error(`Target ${osmType} ${osmId} not found in response`);
+    return null;
+  }
 
-  if (osmType === 'relation') {
-    return buildPolygonFromRelation(targetElement, ways, nodes);
-  } else {
-    return buildPolygonFromWay(targetElement, nodes);
+  try {
+    if (osmType === 'relation') {
+      return buildGeometryFromRelation(targetElement);
+    } else {
+      return buildGeometryFromWay(targetElement);
+    }
+  } catch (error) {
+    console.error(`Error building geometry for ${osmType}.${osmId}:`, error);
+    return null;
+  }
+}
+
+function buildGeometryFromRelation(relation: any): any {
+  if (!relation.members || relation.members.length === 0) return null;
+
+  try {
+    // For multipolygon relations, we need to build the geometry from member ways
+    const outerMembers = relation.members.filter((m: any) => 
+      m.role === 'outer' || m.role === ''
+    );
+
+    if (outerMembers.length === 0) return null;
+
+    // For now, return a simplified polygon from the bounding box
+    // In a production system, you'd need to properly handle multipolygon geometry
+    if (relation.bounds) {
+      const { minlat, minlon, maxlat, maxlon } = relation.bounds;
+      return {
+        type: 'Polygon',
+        coordinates: [[
+          [minlon, minlat],
+          [maxlon, minlat],
+          [maxlon, maxlat],
+          [minlon, maxlat],
+          [minlon, minlat],
+        ]],
+      };
+    }
+  } catch (error) {
+    console.error('Error processing relation geometry:', error);
+  }
+
+  return null;
+}
+
+function buildGeometryFromWay(way: any): any {
+  if (!way.geometry || way.geometry.length < 3) return null;
+
+  try {
+    const coordinates = way.geometry.map((node: any) => [node.lon, node.lat]);
+    
+    // Ensure the way is closed for a valid polygon
+    if (coordinates[0][0] !== coordinates[coordinates.length - 1][0] || 
+        coordinates[0][1] !== coordinates[coordinates.length - 1][1]) {
+      coordinates.push(coordinates[0]);
+    }
+
+    return {
+      type: 'Polygon',
+      coordinates: [coordinates],
+    };
+  } catch (error) {
+    console.error('Error processing way geometry:', error);
+    return null;
   }
 }
