@@ -16,20 +16,11 @@ export function useAuth(): AuthState & {
     queryKey: ['/api/user/profile'],
     queryFn: async () => {
       try {
-        // Check if we have a stored user from OAuth
-        const storedUser = localStorage.getItem('citycatalyst_user');
-        if (storedUser) {
-          return JSON.parse(storedUser);
-        }
-        
         const profile = await getUserProfile();
         return profile;
       } catch (error: any) {
         if (error.message.includes('401')) {
-          // Clear invalid tokens
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('citycatalyst_user');
-          return null;
+          return null; // Not authenticated
         }
         throw error;
       }
@@ -39,12 +30,7 @@ export function useAuth(): AuthState & {
   });
 
   const logoutMutation = useMutation({
-    mutationFn: async () => {
-      await logoutService();
-      // Clear localStorage
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('citycatalyst_user');
-    },
+    mutationFn: logoutService,
     onSuccess: () => {
       queryClient.setQueryData(['/api/user/profile'], null);
       queryClient.clear();

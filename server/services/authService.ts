@@ -338,56 +338,6 @@ export async function createOrUpdateUser(
   return user!;
 }
 
-export async function initiateOAuth(): Promise<OAuthState> {
-  const oauthState = generateOAuthState();
-  
-  // Store the session data for later retrieval in callback
-  await storage.storeOAuthSession({
-    state: oauthState.state,
-    codeVerifier: oauthState.codeVerifier,
-    codeChallenge: oauthState.codeChallenge,
-    createdAt: new Date(),
-  });
-  
-  return oauthState;
-}
-
-export async function handleOAuthCallback(code: string, state: string): Promise<{ user: CityCatalystUser & { accessToken: string } }> {
-  // Get the stored session to retrieve code verifier
-  const session = await storage.getSessionByState(state);
-  if (!session) {
-    throw new Error('Invalid state parameter');
-  }
-
-  // Exchange code for token
-  const codeVerifier = session.codeVerifier;
-  if (!codeVerifier) {
-    throw new Error('Missing code verifier in session');
-  }
-  const tokenResponse = await exchangeCodeForToken(code, codeVerifier);
-  
-  // Get user profile
-  const cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
-  
-  // Create or update user in our system
-  const user = await createOrUpdateUser(
-    cityCatalystUser,
-    tokenResponse.access_token,
-    tokenResponse.refresh_token
-  );
-
-  // Clean up the session
-  await storage.deleteSession(session.token);
-
-  return { user: { ...cityCatalystUser, accessToken: tokenResponse.access_token } };
-}
-
-export async function refreshToken(currentToken: string): Promise<{ access_token: string }> {
-  // For now, just return the current token
-  // In a full implementation, you'd use the refresh token to get a new access token
-  return { access_token: currentToken };
-}
-
 export function generateSessionToken(): string {
   return base64URLEncode(randomBytes(32));
 }

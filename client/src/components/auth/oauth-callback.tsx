@@ -13,55 +13,45 @@ export function OAuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const { success, error, user: userParam } = extractOAuthParams();
+      const { code, state, error } = extractOAuthParams();
       
       if (error) {
         toast({
           title: "Authentication Error",
-          description: decodeURIComponent(error),
+          description: error,
           variant: "destructive",
         });
         setLocation("/login");
         return;
       }
       
-      if (success === 'true' && userParam) {
-        try {
-          // Store user data from OAuth callback
-          const userData = JSON.parse(decodeURIComponent(userParam));
-          console.log('📥 OAuth callback user data:', userData);
-          console.log('🔑 Access token:', userData.accessToken ? 'Present' : 'Missing');
-          
-          localStorage.setItem('citycatalyst_user', JSON.stringify(userData));
-          localStorage.setItem('auth_token', userData.accessToken || '');
-          
-          // Force refetch to update auth state
-          await refetch();
-          
-          toast({
-            title: "Welcome!",
-            description: "You have been successfully authenticated.",
-          });
-          setLocation("/cities");
-        } catch (error: any) {
-          console.error("OAuth callback processing error:", error);
-          toast({
-            title: "Authentication Issue",
-            description: "Failed to process login data. Please try again.",
-            variant: "destructive",
-          });
-          setLocation("/login");
-        }
+      if (!code || !state) {
+        toast({
+          title: "Authentication Error",
+          description: "Missing authorization code or state",
+          variant: "destructive",
+        });
+        setLocation("/login");
         return;
       }
       
-      // Fallback - neither success nor error parameter found
-      toast({
-        title: "Authentication Error",
-        description: "Invalid callback parameters",
-        variant: "destructive",
-      });
-      setLocation("/login");
+      try {
+        await handleOAuthCallback(code, state);
+        await refetch(); // Refetch user profile
+        toast({
+          title: "Welcome!",
+          description: "You have been successfully authenticated.",
+        });
+        setLocation("/cities");
+      } catch (error: any) {
+        console.error("OAuth callback error:", error);
+        toast({
+          title: "Authentication Failed",
+          description: error.message || "Failed to complete authentication",
+          variant: "destructive",
+        });
+        setLocation("/login");
+      }
     };
     
     handleCallback();
