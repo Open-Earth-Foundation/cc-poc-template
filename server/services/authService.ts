@@ -168,6 +168,39 @@ async function fetchJSON(url: string, accessToken: string): Promise<any> {
   return JSON.parse(text);
 }
 
+// Get user's accessible cities from CityCatalyst
+async function getUserCities(accessToken: string): Promise<string[]> {
+  const citiesEndpoints = [
+    `${AUTH_BASE_URL}/api/v0/user/cities`,
+    `${AUTH_BASE_URL}/api/v0/user/cities/`,
+    `${AUTH_BASE_URL}/api/v0/cities/user`, 
+    `${AUTH_BASE_URL}/api/v0/cities/user/`,
+  ];
+
+  for (const url of citiesEndpoints) {
+    try {
+      console.log(`Trying cities endpoint: ${url}`);
+      const citiesData = await fetchJSON(url, accessToken);
+      console.log(`✅ Success! Got cities data from: ${url}`);
+      console.log('Cities data:', citiesData);
+      
+      // Handle different response formats
+      const cities = citiesData.cities || citiesData.data || citiesData;
+      if (Array.isArray(cities)) {
+        return cities.map((city: any) => city.cityId || city.id || city.defaultCityId).filter(Boolean);
+      }
+      
+      return [];
+    } catch (error) {
+      console.log(`❌ Failed cities endpoint ${url}:`, error instanceof Error ? error.message : error);
+      continue;
+    }
+  }
+  
+  console.log('⚠️ All cities endpoints failed, returning empty array');
+  return [];
+}
+
 export async function getUserProfile(accessToken: string, tokenResponse?: any): Promise<CityCatalystUser> {
   console.log('Attempting to get real user profile data...');
   
@@ -194,13 +227,18 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
         // Handle nested data structure from CityCatalyst API
         const userData = profileData.data || profileData;
         
+        // Get user's accessible cities
+        console.log('🏙️ Fetching user cities...');
+        const userCities = await getUserCities(accessToken);
+        console.log('User cities found:', userCities);
+        
         // Convert to our expected format
         return {
           id: userData.userId || userData.id || userData.sub || 'unknown',
           email: userData.email || 'unknown@example.com',
           name: userData.name || userData.display_name || userData.email || 'Unknown User',
           title: userData.title || userData.role || 'CityCatalyst User',
-          projects: userData.projects || [userData.defaultCityId] || ['default-project'],
+          projects: userCities.length > 0 ? userCities : (userData.defaultCityId ? [userData.defaultCityId] : ['default-project']),
         };
       } catch (error) {
         console.log(`❌ Failed ${url}:`, error instanceof Error ? error.message : error);

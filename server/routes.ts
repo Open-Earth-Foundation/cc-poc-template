@@ -88,19 +88,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.includes('Single-use code')) {
-          console.log('Code already used, likely due to app restart. Using sample user for testing.');
-          // Create sample user session and redirect to success
-          const sampleUser = {
-            id: 'sample-user-1',
-            email: 'elena.rodriguez@citycatalyst.org',
-            name: 'Dr. Elena Rodriguez',
-            title: 'Urban Planning Specialist',
-            projects: ['project-south-america'],
-          };
-          
-          const user = await createOrUpdateUser(sampleUser, 'sample-token');
-          await storage.updateSession(sessionId, { userId: user.id });
-          return res.redirect('/cities');
+          console.log('❌ Single-use code error detected. Attempting retry with fresh OAuth flow...');
+          // Clear the consumed code and redirect to fresh authorization
+          await storage.deleteSession(sessionId);
+          res.clearCookie('session_id');
+          console.log('🔄 Redirecting to fresh OAuth authorization...');
+          return res.redirect('/api/auth/oauth/initiate');
         }
         throw error;
       }
