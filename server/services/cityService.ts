@@ -14,6 +14,7 @@ async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): P
 
   for (const url of cityEndpoints) {
     try {
+      console.log(`🌐 Trying CityCatalyst endpoint: ${url}`);
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -21,7 +22,12 @@ async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): P
         },
       });
 
-      if (!response.ok) continue;
+      console.log(`📡 Response status for ${url}: ${response.status}`);
+      
+      if (!response.ok) {
+        console.log(`❌ Non-OK response for ${url}: ${response.status} ${response.statusText}`);
+        continue;
+      }
       
       const contentType = response.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) continue;
@@ -60,22 +66,37 @@ export async function getUserCities(user: User, accessToken?: string): Promise<C
   // If we have access token, try to fetch real cities from CityCatalyst
   if (accessToken) {
     console.log('🏙️ Fetching real city details from CityCatalyst API...');
-    const cityPromises = user.projects.map(cityId => 
-      fetchCityFromCityCatalyst(cityId, accessToken)
-    );
+    console.log('Access token (first 20 chars):', accessToken.substring(0, 20) + '...');
+    console.log('User project IDs to fetch:', user.projects);
+    
+    const cityPromises = user.projects.map(async (cityId) => {
+      console.log(`🔍 Fetching city details for: ${cityId}`);
+      const result = await fetchCityFromCityCatalyst(cityId, accessToken);
+      console.log(`${result ? '✅' : '❌'} City ${cityId}:`, result ? 'Found' : 'Not found');
+      return result;
+    });
     
     const cities = await Promise.all(cityPromises);
     const validCities = cities.filter(Boolean) as City[];
     
+    console.log(`📊 CityCatalyst API results: ${validCities.length}/${user.projects.length} cities retrieved`);
+    
     if (validCities.length > 0) {
       console.log(`✅ Retrieved ${validCities.length} real cities from CityCatalyst`);
+      console.log('City names:', validCities.map(c => c.name));
       return validCities;
+    } else {
+      console.log('⚠️ No cities retrieved from CityCatalyst API');
     }
+  } else {
+    console.log('⚠️ No access token available, skipping CityCatalyst API calls');
   }
   
   // Fallback to local storage
   console.log('🔄 Falling back to local storage cities...');
-  return await storage.getCitiesByProjectIds(user.projects);
+  const localCities = await storage.getCitiesByProjectIds(user.projects);
+  console.log(`📦 Local storage returned ${localCities.length} cities`);
+  return localCities;
 }
 
 export async function getCityById(cityId: string): Promise<City | undefined> {
