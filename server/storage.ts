@@ -64,7 +64,7 @@ export class MemStorage implements IStorage {
         type: 'Polygon',
         coordinates: [[
           [-58.5319, -34.5268],
-          [-58.3350, -34.5268],  
+          [-58.3350, -34.5268],
           [-58.3350, -34.7051],
           [-58.5319, -34.7051],
           [-58.5319, -34.5268],
@@ -91,8 +91,8 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { 
-      ...insertUser, 
+    const user: User = {
+      ...insertUser,
       id,
       title: insertUser.title || null,
       projects: insertUser.projects ? (insertUser.projects as string[]).slice() : [],
@@ -121,7 +121,7 @@ export class MemStorage implements IStorage {
 
   async getCitiesByProjectIds(projectIds: string[]): Promise<City[]> {
     console.log('🔍 Looking for cities with project IDs:', projectIds);
-    const matchingCities = Array.from(this.cities.values()).filter(city => 
+    const matchingCities = Array.from(this.cities.values()).filter(city =>
       projectIds.includes(city.projectId)
     );
     console.log(`📦 Found ${matchingCities.length} cities in local storage`);
@@ -162,8 +162,8 @@ export class MemStorage implements IStorage {
 
   async createCity(insertCity: InsertCity): Promise<City> {
     const id = randomUUID();
-    const city: City = { 
-      ...insertCity, 
+    const city: City = {
+      ...insertCity,
       id,
       locode: insertCity.locode || null,
       currentBoundary: insertCity.currentBoundary || null,
@@ -198,7 +198,7 @@ export class MemStorage implements IStorage {
 
   // Boundary methods
   async getBoundariesByCityId(cityId: string): Promise<Boundary[]> {
-    return Array.from(this.boundaries.values()).filter(boundary => 
+    return Array.from(this.boundaries.values()).filter(boundary =>
       boundary.cityId === cityId
     );
   }
@@ -209,8 +209,8 @@ export class MemStorage implements IStorage {
 
   async createBoundary(insertBoundary: InsertBoundary): Promise<Boundary> {
     const id = randomUUID();
-    const boundary: Boundary = { 
-      ...insertBoundary, 
+    const boundary: Boundary = {
+      ...insertBoundary,
       id,
       adminLevel: insertBoundary.adminLevel || null,
       boundaryType: insertBoundary.boundaryType || null,
@@ -253,8 +253,8 @@ export class MemStorage implements IStorage {
 
   async createSession(insertSession: InsertSession): Promise<Session> {
     const id = randomUUID();
-    const session: Session = { 
-      ...insertSession, 
+    const session: Session = {
+      ...insertSession,
       id,
       codeVerifier: insertSession.codeVerifier || null,
       state: insertSession.state || null,
@@ -275,6 +275,32 @@ export class MemStorage implements IStorage {
 
   async deleteSession(id: string): Promise<void> {
     this.sessions.delete(id);
+  }
+
+  async storeOAuthSession(session: {
+    state: string;
+    codeVerifier: string;
+    codeChallenge: string;
+    createdAt: Date;
+  }): Promise<void> {
+    // Clean up old sessions (older than 1 hour)
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    this.sessions = new Map([...this.sessions.entries()].filter(([_, s]) => s.createdAt > oneHourAgo));
+
+    // Store new session
+    const newSession: Session = {
+      id: randomUUID(), // Generate a unique ID for the session
+      token: session.state, // Use state as token for lookup
+      userId: '', // Will be set later
+      codeVerifier: session.codeVerifier,
+      state: session.state,
+      createdAt: session.createdAt,
+    };
+    this.sessions.set(newSession.id, newSession);
+  }
+
+  async getSessionByState(state: string): Promise<Session | undefined> {
+    return Array.from(this.sessions.values()).find(s => s.state === state);
   }
 
   // OAuth code tracking methods

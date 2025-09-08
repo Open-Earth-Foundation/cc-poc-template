@@ -43,7 +43,7 @@ export function setupRoutes(app: express.Application) {
   };
 
   // Auth routes
-  app.post('/api/auth/oauth/initiate', async (req, res) => {
+  app.get('/api/auth/oauth/initiate', async (req, res) => {
     try {
       const result = await initiateOAuth();
       res.json(result);

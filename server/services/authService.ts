@@ -339,7 +339,17 @@ export async function createOrUpdateUser(
 }
 
 export async function initiateOAuth(): Promise<OAuthState> {
-  return generateOAuthState();
+  const oauthState = generateOAuthState();
+  
+  // Store the session data for later retrieval in callback
+  await storage.storeOAuthSession({
+    state: oauthState.state,
+    codeVerifier: oauthState.codeVerifier,
+    codeChallenge: oauthState.codeChallenge,
+    createdAt: new Date(),
+  });
+  
+  return oauthState;
 }
 
 export async function handleOAuthCallback(code: string, state: string): Promise<{ user: CityCatalystUser }> {
