@@ -42,8 +42,12 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">BC</span>
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center p-1">
+                <img 
+                  src="/boundary-icon.png" 
+                  alt="Boundary Editor Icon" 
+                  className="w-6 h-6 object-contain"
+                />
               </div>
               <h1 className="text-xl font-semibold text-foreground">Boundary Editor</h1>
             </div>
