@@ -1,0 +1,80 @@
+Error: <svg> attribute width: A negative value is not valid. ("-1")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
+index-C9Lig_s6.js:33 Error: <svg> attribute viewBox: A negative value is not valid. ("0 0 -1 200")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
+index-C9Lig_s6.js:33 Error: <svg> attribute width: A negative value is not valid. ("-1")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
+index-C9Lig_s6.js:33 Error: <svg> attribute viewBox: A negative value is not valid. ("0 0 -1 200")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
+index-C9Lig_s6.js:33 Error: <svg> attribute width: A negative value is not valid. ("-1")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
+index-C9Lig_s6.js:33 Error: <svg> attribute viewBox: A negative value is not valid. ("0 0 -1 200")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
+index-C9Lig_s6.js:33 Error: <svg> attribute width: A negative value is not valid. ("-1")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
+index-C9Lig_s6.js:33 Error: <svg> attribute viewBox: A negative value is not valid. ("0 0 -1 200")
+Tc @ index-C9Lig_s6.js:33
+Yx @ index-C9Lig_s6.js:40
+mv @ index-C9Lig_s6.js:40
+pv @ index-C9Lig_s6.js:40
+r1 @ index-C9Lig_s6.js:40
+va @ index-C9Lig_s6.js:40
+dv @ index-C9Lig_s6.js:40
+E @ index-C9Lig_s6.js:25
+A @ index-C9Lig_s6.js:25Understand this error
