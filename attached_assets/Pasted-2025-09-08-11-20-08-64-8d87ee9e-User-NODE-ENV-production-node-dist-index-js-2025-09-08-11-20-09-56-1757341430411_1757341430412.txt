@@ -1,0 +1,128 @@
+2025-09-08 11:20:08.64
+8d87ee9e
+User
+> NODE_ENV=production node dist/index.js
+2025-09-08 11:20:09.56
+8d87ee9e
+User
+OAuth Redirect URI: https://cc-boundary-picker.replit.app/api/auth/oauth/callback
+2025-09-08 11:20:09.64
+8d87ee9e
+User
+2:20:09 PM [express] serving on port 5000
+2025-09-08 11:21:42.03
+8d87ee9e
+User
+2:21:42 PM [express] GET /api/user/profile 401 in 3ms :: {"message":"Not authenticated"}
+2025-09-08 11:21:46.10
+8d87ee9e
+User
+2:21:46 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"Not authenticated"}
+2025-09-08 11:21:47.93
+8d87ee9e
+User
+2:21:47 PM [express] GET /api/auth/oauth/initiate 200 in 3ms :: {"authUrl":"https://citycatalyst.ope…
+2025-09-08 11:21:49.49
+a1eb87b0
+System
+system: received signal terminated
+2025-09-08 11:21:51.71
+8d87ee9e
+User
+Exchanging code for token...
+2025-09-08 11:21:51.71
+8d87ee9e
+User
+Token exchange request:
+2025-09-08 11:21:51.71
+8d87ee9e
+User
+URL: https://citycatalyst.openearth.dev/api/v0/token/
+2025-09-08 11:21:51.71
+8d87ee9e
+User
+Body: grant_type=authorization_code&client_id=kIzoXFLTxmzu_L3FnL_CxMlDkI2cSm-L8rJ1LWn-hROvA4dQMK97aFC6ahOJd_CQ&code=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiJrSXpvWEZMVHhtenVfTDNGbkxfQ3hNbERrSTJjU20tTDhySjFMV24taFJPdkE0ZFFNSzk3YUZDNmFoT0pkX0NRIiwicmVkaXJlY3RfdXJpIjoiaHR0cHM6Ly9jYy1ib3VuZGFyeS1waWNrZXIucmVwbGl0LmFwcC9hcGkvYXV0aC9vYXV0aC9jYWxsYmFjayIsInNjb3BlIjoicmVhZCB3cml0ZSIsImNvZGVfY2hhbGxlbmdlIjoiYnl0Z09BVHVKa0JkSFpPSjBfM0xBNFhEdWo5TVNYdURHMzFXbXg2ektHayIsImlhdCI6MTc1NzM0MTMxMSwiZXhwIjoxNzU3MzQxNjExLCJhdWQiOiJodHRwczovL2NpdHljYXRhbHlzdC5vcGVuZWFydGguZGV2IiwiaXNzIjoiaHR0cHM6Ly9jaXR5Y2F0YWx5c3Qub3BlbmVhcnRoLmRldiIsInN1YiI6IjFkNTNmNWI2LWZmYTMtNGUyNy05MjRhLTM0NzRmZGIxNmZmMyIsImp0aSI6IjJkNTVmYTliLWI5NjctNGQ5MS05NTZlLWNjYTFmN2FmOTdlOSJ9.ip0iG5r-ewHliPx7PHNLUfnFQzLgWi_IBHniuKJtQ2E&redirect_uri=https%3A%2F%2Fcc-boundary-picker.replit.app%2Fapi%2Fauth%2Foauth%2Fcallback&code_verifier=LlTGFH6iL853t_FxBbnq24etHSsiM0dkghgZfkds52o
+2025-09-08 11:21:51.71
+8d87ee9e
+User
+Client ID: kIzoXFLTxmzu_L3FnL_CxMlDkI2cSm-L8rJ1LWn-hROvA4dQMK97aFC6ahOJd_CQ
+2025-09-08 11:21:51.71
+8d87ee9e
+User
+Redirect URI: https://cc-boundary-picker.replit.app/api/auth/oauth/callback
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+Token exchange response status: 400
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+Token exchange response headers: {
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+'access-control-allow-credentials': 'false',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+'access-control-allow-headers': 'Content-Type, Authorization',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+'access-control-allow-origin': '*',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+connection: 'keep-alive',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+'content-type': 'application/json',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+date: 'Mon, 08 Sep 2025 14:21:51 GMT',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+'transfer-encoding': 'chunked',
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+vary: 'rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch'
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+}
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+Token exchange error response: {"error":{"message":"Single-use code."}}
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+OAuth callback error: Error: Token exchange failed: Bad Request - {"error":{"message":"Single-use code."}}
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+at exchangeCodeForToken (file:///home/runner/workspace/dist/index.js:236:11)
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+at async file:///home/runner/workspace/dist/index.js:694:29
+2025-09-08 11:21:51.97
+8d87ee9e
+User
+2:21:51 PM [express] GET /api/auth/oauth/callback 302 in 265ms
+2025-09-08 11:21:52.70
+8d87ee9e
+User
+2:21:52 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"User not found"}
