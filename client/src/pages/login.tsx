@@ -91,11 +91,6 @@ export default function Login() {
               </div>
             </div>
             
-            <div className="mt-8 pt-6 border-t border-border">
-              <p className="text-xs text-muted-foreground text-center" data-testid="text-client-id">
-                Client ID: xmxdF7PVxIR2zBVwBEsHlC8zf506dv8PmyJY6WqOMYW8bInf4HxO1e4IiGyxpee0
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>

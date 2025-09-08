@@ -71,10 +71,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Exchange code for token
+      console.log('Exchanging code for token...');
       const tokenResponse = await exchangeCodeForToken(code as string, session.codeVerifier!);
+      console.log('Token exchange successful, getting user profile...');
       
       // Get user profile
       const cityCatalystUser = await getUserProfile(tokenResponse.access_token);
+      console.log('User profile retrieved:', cityCatalystUser.email);
       
       // Create or update user
       const user = await createOrUpdateUser(

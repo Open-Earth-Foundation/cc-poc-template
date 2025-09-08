@@ -2,7 +2,11 @@ import { storage } from "../storage";
 import { randomBytes, createHash } from "crypto";
 import { User } from "@shared/schema";
 
-const CLIENT_ID = process.env.OAUTH_CLIENT_ID || "xmxdF7PVxIR2zBVwBEsHlC8zf506dv8PmyJY6WqOMYW8bInf4HxO1e4IiGyxpee0";
+const CLIENT_ID = process.env.OAUTH_CLIENT_ID!;
+
+if (!CLIENT_ID) {
+  throw new Error('OAUTH_CLIENT_ID environment variable is required');
+}
 // For production, use the exact redirect URI configured in CityCatalyst OAuth client
 const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI || 'https://cc-boundary-picker.replit.app/api/auth/oauth/callback';
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || "https://citycatalyst.openearth.dev";
