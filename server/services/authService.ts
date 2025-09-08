@@ -3,8 +3,32 @@ import { randomBytes, createHash } from "crypto";
 import { User } from "@shared/schema";
 
 const CLIENT_ID = process.env.OAUTH_CLIENT_ID || "xmxdF7PVxIR2zBVwBEsHlC8zf506dv8PmyJY6WqOMYW8bInf4HxO1e4IiGyxpee0";
-const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI || `${process.env.REPL_SLUG ? `https://${process.env.REPL_ID}.${process.env.REPL_CLUSTER}.replit.dev` : 'http://localhost:5000'}/api/auth/oauth/callback`;
+// Determine the correct base URL for different environments
+function getBaseUrl(): string {
+  // If explicitly set, use that
+  if (process.env.OAUTH_REDIRECT_URI) {
+    return process.env.OAUTH_REDIRECT_URI.replace('/api/auth/oauth/callback', '');
+  }
+  
+  // Check for Replit deployment environment
+  if (process.env.REPLIT_DEPLOYMENT) {
+    return `https://${process.env.REPL_SLUG}.replit.app`;
+  }
+  
+  // Check for Replit development environment
+  if (process.env.REPL_SLUG && process.env.REPL_ID && process.env.REPL_CLUSTER) {
+    return `https://${process.env.REPL_ID}.${process.env.REPL_CLUSTER}.replit.dev`;
+  }
+  
+  // Fallback to localhost for local development
+  return 'http://localhost:5000';
+}
+
+const REDIRECT_URI = `${getBaseUrl()}/api/auth/oauth/callback`;
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || "https://citycatalyst.openearth.dev";
+
+// Debug logging for redirect URI
+console.log(`OAuth Redirect URI: ${REDIRECT_URI}`);
 
 export interface OAuthState {
   codeVerifier: string;
