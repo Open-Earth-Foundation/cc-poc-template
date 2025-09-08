@@ -186,7 +186,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // City routes
   app.get('/api/cities', requireAuth, async (req: any, res) => {
     try {
-      const cities = await getUserAccessibleCities(req.user.id);
+      // Pass access token to fetch real city data from CityCatalyst
+      const cities = await getUserAccessibleCities(req.user.id, req.user.accessToken);
       res.json({ cities });
     } catch (error) {
       console.error('Get cities error:', error);
