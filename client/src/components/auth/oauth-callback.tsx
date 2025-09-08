@@ -29,8 +29,14 @@ export function OAuthCallback() {
         try {
           // Store user data from OAuth callback
           const userData = JSON.parse(decodeURIComponent(userParam));
+          console.log('📥 OAuth callback user data:', userData);
+          console.log('🔑 Access token:', userData.accessToken ? 'Present' : 'Missing');
+          
           localStorage.setItem('citycatalyst_user', JSON.stringify(userData));
           localStorage.setItem('auth_token', userData.accessToken || '');
+          
+          // Force refetch to update auth state
+          await refetch();
           
           toast({
             title: "Welcome!",

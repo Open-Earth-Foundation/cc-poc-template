@@ -352,7 +352,7 @@ export async function initiateOAuth(): Promise<OAuthState> {
   return oauthState;
 }
 
-export async function handleOAuthCallback(code: string, state: string): Promise<{ user: CityCatalystUser }> {
+export async function handleOAuthCallback(code: string, state: string): Promise<{ user: CityCatalystUser & { accessToken: string } }> {
   // Get the stored session to retrieve code verifier
   const session = await storage.getSessionByState(state);
   if (!session) {
@@ -379,7 +379,7 @@ export async function handleOAuthCallback(code: string, state: string): Promise<
   // Clean up the session
   await storage.deleteSession(session.token);
 
-  return { user: cityCatalystUser };
+  return { user: { ...cityCatalystUser, accessToken: tokenResponse.access_token } };
 }
 
 export async function refreshToken(currentToken: string): Promise<{ access_token: string }> {
