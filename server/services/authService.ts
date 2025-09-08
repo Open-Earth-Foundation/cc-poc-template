@@ -3,7 +3,7 @@ import { randomBytes, createHash } from "crypto";
 import { User } from "@shared/schema";
 
 const CLIENT_ID = process.env.OAUTH_CLIENT_ID || "xmxdF7PVxIR2zBVwBEsHlC8zf506dv8PmyJY6WqOMYW8bInf4HxO1e4IiGyxpee0";
-const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI || `${process.env.CLIENT_URL || 'http://localhost:5000'}/api/auth/oauth/callback`;
+const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI || `${process.env.REPL_SLUG ? `https://${process.env.REPL_ID}.${process.env.REPL_CLUSTER}.replit.dev` : 'http://localhost:5000'}/api/auth/oauth/callback`;
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || "https://citycatalyst.openearth.dev";
 
 export interface OAuthState {
@@ -55,6 +55,7 @@ export function generateOAuthState(): OAuthState {
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state,
+    scope: 'read write',
   });
 
   const authUrl = `${AUTH_BASE_URL}/authorize/?${params.toString()}`;
