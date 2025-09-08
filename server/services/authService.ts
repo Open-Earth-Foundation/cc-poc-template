@@ -90,11 +90,13 @@ export async function exchangeCodeForToken(
     code_verifier: codeVerifier,
   });
 
-  console.log('Token exchange request:');
+  console.log('=== CITYCATALYST TOKEN EXCHANGE DEBUG ===');
   console.log('URL:', tokenUrl);
   console.log('Body:', body.toString());
   console.log('Client ID:', CLIENT_ID);
   console.log('Redirect URI:', REDIRECT_URI);
+  console.log('Code (first 50 chars):', code.substring(0, 50) + '...');
+  console.log('Code Verifier (first 20 chars):', codeVerifier.substring(0, 20) + '...');
 
   const response = await fetch(tokenUrl, {
     method: 'POST',
@@ -110,10 +112,14 @@ export async function exchangeCodeForToken(
   if (!response.ok) {
     const errorText = await response.text();
     console.log('Token exchange error response:', errorText);
+    console.log('=== END TOKEN EXCHANGE DEBUG ===');
     throw new Error(`Token exchange failed: ${response.statusText} - ${errorText}`);
   }
 
-  return await response.json();
+  const tokenData = await response.json();
+  console.log('Token exchange successful. Token response:', tokenData);
+  console.log('=== END TOKEN EXCHANGE DEBUG ===');
+  return tokenData;
 }
 
 export async function getUserProfile(accessToken: string): Promise<CityCatalystUser> {
@@ -143,7 +149,20 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
     }
 
     const authText = await authResponse.text();
-    console.log('Auth response text:', authText.substring(0, 200) + '...');
+    
+    // Detailed logging for troubleshooting CityCatalyst API
+    console.log('=== CITYCATALYST AUTH API RESPONSE DEBUG ===');
+    console.log('Request URL:', authMeUrl);
+    console.log('Request Headers:', {
+      'Authorization': `Bearer ${accessToken.substring(0, 20)}...`,
+      'Accept': 'application/json',
+    });
+    console.log('Response Status:', authResponse.status);
+    console.log('Response Headers:', Object.fromEntries(authResponse.headers.entries()));
+    console.log('Response Body Length:', authText.length);
+    console.log('Response Body (first 500 chars):', authText.substring(0, 500));
+    console.log('Response Body (full - for debugging):', authText);
+    console.log('=== END DEBUG ===');
     
     let authData;
     try {
@@ -151,7 +170,8 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
       console.log('Auth data received:', authData);
     } catch (parseError) {
       console.log('Auth response is not valid JSON, likely HTML error page');
-      throw new Error(`Auth API returned HTML instead of JSON: ${authText.substring(0, 100)}`);
+      console.log('Parse error:', parseError);
+      throw new Error(`Auth API returned HTML instead of JSON`);
     }
 
     // Then get the full user profile
