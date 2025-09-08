@@ -168,7 +168,7 @@ async function fetchJSON(url: string, accessToken: string): Promise<any> {
   return JSON.parse(text);
 }
 
-// Get user's accessible cities from CityCatalyst
+// Get user's accessible cities from CityCatalyst and store them
 async function getUserCities(accessToken: string): Promise<string[]> {
   const citiesEndpoints = [
     `${AUTH_BASE_URL}/api/v0/user/cities`,
@@ -182,20 +182,48 @@ async function getUserCities(accessToken: string): Promise<string[]> {
       console.log(`Trying cities endpoint: ${url}`);
       const citiesData = await fetchJSON(url, accessToken);
       console.log(`✅ Success! Got cities data from: ${url}`);
-      console.log('Raw cities data:', JSON.stringify(citiesData, null, 2));
+      console.log('Cities data:', citiesData);
       
       // Handle different response formats
       const cities = citiesData.cities || citiesData.data || citiesData;
       if (Array.isArray(cities)) {
-        // Handle nested city objects: { city: { cityId: "..." }, years: [...] }
-        return cities.map((item: any) => {
-          // Extract from nested structure
-          if (item.city) {
-            return item.city.cityId || item.city.id || item.city.locode;
+        const cityIds: string[] = [];
+        
+        // Process each city and store the full data
+        for (const item of cities) {
+          const cityData = item.city || item;
+          if (cityData) {
+            const cityId = cityData.cityId || cityData.id || cityData.locode;
+            if (cityId) {
+              cityIds.push(cityId);
+              
+              // Store the full city data in our storage
+              try {
+                await storage.createOrUpdateCity({
+                  cityId: cityId,
+                  name: cityData.name || cityData.cityName || 'Unknown City',
+                  country: cityData.country || 'Unknown Country',
+                  locode: cityData.locode || null,
+                  projectId: cityId, // Use cityId as projectId for matching
+                  currentBoundary: null,
+                  metadata: {
+                    region: cityData.region || cityData.regionName,
+                    regionLocode: cityData.regionLocode,
+                    countryLocode: cityData.countryLocode,
+                    area: cityData.area ? parseFloat(cityData.area) : undefined,
+                    years: item.years,
+                  },
+                });
+                console.log(`📦 Stored city data for: ${cityData.name || cityId}`);
+              } catch (error) {
+                console.log(`⚠️ Failed to store city ${cityId}:`, error);
+              }
+            }
           }
-          // Direct city object
-          return item.cityId || item.id || item.defaultCityId;
-        }).filter(Boolean);
+        }
+        
+        console.log(`✅ Successfully processed and stored ${cityIds.length} cities`);
+        return cityIds;
       }
       
       return [];

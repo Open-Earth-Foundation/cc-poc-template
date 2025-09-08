@@ -13,6 +13,7 @@ export interface IStorage {
   getCitiesByProjectIds(projectIds: string[]): Promise<City[]>;
   getCity(cityId: string): Promise<City | undefined>;
   createCity(city: InsertCity): Promise<City>;
+  createOrUpdateCity(city: InsertCity): Promise<City>;
 
   // Boundary methods
   getBoundariesByCityId(cityId: string): Promise<Boundary[]>;
@@ -81,7 +82,7 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id,
       title: insertUser.title || null,
-      projects: insertUser.projects ? insertUser.projects.slice() : [],
+      projects: insertUser.projects ? (insertUser.projects as string[]).slice() : [],
       accessToken: insertUser.accessToken || null,
       refreshToken: insertUser.refreshToken || null,
       tokenExpiry: insertUser.tokenExpiry || null,
@@ -158,6 +159,28 @@ export class MemStorage implements IStorage {
     };
     this.cities.set(id, city);
     return city;
+  }
+
+  async createOrUpdateCity(insertCity: InsertCity): Promise<City> {
+    // Check if city with same cityId already exists
+    const existing = await this.getCity(insertCity.cityId);
+    if (existing) {
+      // Update existing city
+      const updatedCity: City = {
+        ...existing,
+        ...insertCity,
+        id: existing.id,
+        createdAt: existing.createdAt,
+        locode: insertCity.locode || null,
+        currentBoundary: insertCity.currentBoundary || null,
+        metadata: insertCity.metadata || {},
+      };
+      this.cities.set(existing.id, updatedCity);
+      return updatedCity;
+    } else {
+      // Create new city
+      return await this.createCity(insertCity);
+    }
   }
 
   // Boundary methods
