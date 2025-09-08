@@ -8,7 +8,7 @@ import {
   createOrUpdateUser,
   generateSessionToken 
 } from "./services/authService";
-import { searchBoundaries, getBoundaryGeometry } from "./services/osmService";
+import { searchBoundaries } from "./services/osmService";
 import { getUserAccessibleCities, getCityById } from "./services/cityService";
 import { insertBoundarySchema } from "@shared/schema";
 

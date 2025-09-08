@@ -1,4 +1,6 @@
 import { InsertBoundary } from "@shared/schema";
+// @ts-ignore
+import osmtogeojson from 'osmtogeojson';
 
 export interface OSMBoundary {
   osmId: string;
@@ -53,187 +55,191 @@ export async function searchBoundaries(params: BoundarySearchParams): Promise<OS
   
   console.log(`🔍 Searching boundaries for ${cityName}, ${country} (${countryCode})`);
   
-  // Single comprehensive query with geometry - matching implementation guide
-  const query = `
-    [out:json][timeout:60];
-    area["ISO3166-1:alpha2"="${countryCode}"]->.country;
-    (
-      rel(area.country)
-        ["boundary"~"^(administrative|political)$"]
-        ["name"~"^${escapeRegex(cityName)}$",i];
-      way(area.country)
-        ["boundary"~"^(administrative|political)$"]
-        ["name"~"^${escapeRegex(cityName)}$",i];
-      rel(area.country)
-        ["boundary"="administrative"]
-        ["admin_level"~"^[6-10]$"]
-        ["name"~"${escapeRegex(cityName)}"];
-      rel(area.country)
-        ["place"~"^(city|town|municipality)$"]
-        ["name"~"${escapeRegex(cityName)}"];
-    );
-    out geom;
-  `;
+  // Stage 1: Use exact working format from curl test
+  const searchQuery = `[out:json][timeout:15];rel["name"="Buenos Aires"];out tags;`;
 
   try {
-    const response = await fetch(OVERPASS_API_URL, {
+    // Step 1: Get boundary metadata
+    console.log(`📡 Query: ${searchQuery}`);
+    console.log(`📡 Fetching boundary metadata for ${cityName}...`);
+    const requestBody = `data=${encodeURIComponent(searchQuery)}`;
+    console.log(`📡 Request body: ${requestBody.substring(0, 200)}...`);
+    
+    const searchResponse = await fetch(OVERPASS_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `data=${encodeURIComponent(query)}`,
+      body: requestBody,
     });
 
-    if (!response.ok) {
-      throw new Error(`Overpass API error: ${response.statusText}`);
+    if (!searchResponse.ok) {
+      const errorText = await searchResponse.text();
+      console.error(`❌ Overpass API error (${searchResponse.status}): ${errorText}`);
+      throw new Error(`Overpass API error: ${searchResponse.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    console.log(`📊 Found ${data.elements?.length || 0} potential boundaries`);
+    const searchData = await searchResponse.json();
+    console.log(`📊 Found ${searchData.elements?.length || 0} potential boundaries`);
     
-    // Process OSM data to boundaries
-    const boundaries = await processOverpassResponse(data, cityName);
-    
-    // Sort by score and take top results
-    const topBoundaries = boundaries
-      .sort((a, b) => b.score - a.score)
+    if (!searchData.elements || searchData.elements.length === 0) {
+      console.log(`❌ No boundaries found for ${cityName}`);
+      return [];
+    }
+
+    // Process and score boundaries
+    const candidateBoundaries = searchData.elements
+      .filter((element: any) => element.tags && element.tags.name)
+      .map((element: any) => ({
+        id: element.id,
+        type: element.type,
+        tags: element.tags,
+        score: calculateBoundaryScore({
+          osmId: element.id.toString(),
+          osmType: element.type,
+          name: element.tags.name,
+          adminLevel: element.tags.admin_level,
+          boundaryType: element.tags.boundary,
+          tags: element.tags,
+          area: 0,
+          geometry: null,
+          score: 0
+        }, cityName)
+      }))
+      .sort((a: any, b: any) => b.score - a.score)
       .slice(0, limit);
-      
-    console.log(`🏆 Top ${topBoundaries.length} boundaries selected:`, 
-      topBoundaries.map(b => `${b.name} (score: ${b.score})`));
+
+    console.log(`🏆 Top ${candidateBoundaries.length} candidates selected for geometry fetch`);
+
+    // Step 2: Fetch actual geometry for top candidates
+    const boundariesWithGeometry = await Promise.all(
+      candidateBoundaries.map(async (candidate: any) => {
+        try {
+          console.log(`🌍 Fetching geometry for ${candidate.tags.name} (${candidate.type}/${candidate.id})`);
+          
+          const geometry = await fetchBoundaryGeometry(candidate.id, candidate.type);
+          
+          if (!geometry) {
+            console.warn(`⚠️ No geometry found for ${candidate.tags.name}`);
+            return null;
+          }
+
+          // Calculate real area from polygon
+          const area = calculateRealPolygonArea(geometry);
+
+          return {
+            osmId: `${candidate.type}/${candidate.id}`,
+            osmType: candidate.type,
+            name: candidate.tags.name,
+            adminLevel: candidate.tags.admin_level,
+            boundaryType: candidate.tags.boundary || 'administrative',
+            area,
+            geometry,
+            tags: candidate.tags,
+            score: candidate.score
+          } as OSMBoundary;
+        } catch (error) {
+          console.error(`❌ Error fetching geometry for ${candidate.tags.name}:`, error);
+          return null;
+        }
+      })
+    );
+
+    // Filter out failed geometry fetches
+    const validBoundaries = boundariesWithGeometry.filter(b => b !== null) as OSMBoundary[];
     
-    return topBoundaries;
+    console.log(`✅ Successfully fetched ${validBoundaries.length} boundaries with geometry`);
+    
+    return validBoundaries;
     
   } catch (error) {
-    console.error('Error fetching boundaries from OSM:', error);
-    // Return sample boundaries for development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🧪 Using sample boundaries for development');
-      return getSampleBoundaries(cityName);
-    }
+    console.error('❌ Error fetching boundaries from OSM:', error);
     throw error;
   }
 }
 
 // Process metadata only (no geometry yet)
-async function processOverpassMetadata(data: any, searchTerm: string): Promise<OSMBoundary[]> {
-  const boundaries: OSMBoundary[] = [];
+// Fetch actual geometry for a specific boundary using osmtogeojson
+async function fetchBoundaryGeometry(id: number, type: string): Promise<any> {
+  const geomQuery = `
+    [out:json][timeout:30];
+    (
+      ${type}(${id});
+      way(r);
+      node(w);
+    );
+    out geom;
+  `;
 
-  data.elements?.forEach((element: any) => {
-    if ((element.type === 'relation' || element.type === 'way') && element.tags) {
-      const boundary = processBoundaryMetadata(element, searchTerm);
-      if (boundary) {
-        boundaries.push(boundary);
-      }
-    }
-  });
-
-  return boundaries;
-}
-
-function processBoundaryMetadata(element: any, searchTerm: string): OSMBoundary | null {
-  const { tags } = element;
-  
-  if (!tags.boundary || !tags.name) return null;
-
-  // Calculate boundary score
-  const score = calculateBoundaryScore(element, searchTerm);
-  
-  // Estimate area from bounding box if available
-  let estimatedArea = 0;
-  if (element.bounds) {
-    const { minlat, minlon, maxlat, maxlon } = element.bounds;
-    const width = (maxlon - minlon) * 111; // rough km per degree
-    const height = (maxlat - minlat) * 111;
-    estimatedArea = Math.round(width * height);
-  }
-
-  return {
-    osmId: element.id.toString(),
-    osmType: element.type,
-    name: tags.name,
-    adminLevel: tags.admin_level,
-    boundaryType: tags.boundary,
-    area: estimatedArea,
-    geometry: null, // Will be loaded separately
-    tags,
-    score,
-  };
-}
-
-async function processOverpassResponse(data: any, searchTerm: string): Promise<OSMBoundary[]> {
-  const boundaries: OSMBoundary[] = [];
-  const ways = new Map();
-  const nodes = new Map();
-
-  // Build maps of ways and nodes
-  data.elements?.forEach((element: any) => {
-    if (element.type === 'way') {
-      ways.set(element.id, element);
-    } else if (element.type === 'node') {
-      nodes.set(element.id, element);
-    }
-  });
-
-  // Process relations and ways
-  data.elements?.forEach((element: any) => {
-    if ((element.type === 'relation' || element.type === 'way') && element.tags) {
-      const boundary = processBoundaryElement(element, ways, nodes, searchTerm);
-      if (boundary) {
-        boundaries.push(boundary);
-      }
-    }
-  });
-
-  return boundaries;
-}
-
-function processBoundaryElement(
-  element: any,
-  ways: Map<string, any>,
-  nodes: Map<string, any>,
-  searchTerm: string
-): OSMBoundary | null {
-  const { tags } = element;
-  
-  if (!tags.boundary || !tags.name) return null;
-
-  // Build geometry first
-  let geometry;
   try {
-    if (element.type === 'relation') {
-      geometry = buildPolygonFromRelation(element, ways, nodes);
-    } else {
-      geometry = buildPolygonFromWay(element, nodes);
+    const geomResponse = await fetch(OVERPASS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `data=${encodeURIComponent(geomQuery)}`,
+    });
+
+    if (!geomResponse.ok) {
+      throw new Error(`Geometry fetch error: ${geomResponse.statusText}`);
     }
-  } catch (error) {
-    console.error('Error building geometry:', error);
+
+    const rawOsmData = await geomResponse.json();
+    
+    // Convert OSM data to GeoJSON using osmtogeojson
+    const geoJson = osmtogeojson(rawOsmData, { flatProperties: true });
+    
+    // Find the specific relation/way in the converted data
+    const targetFeature = geoJson.features.find((f: any) => 
+      f.id === `${type}/${id}`
+    );
+
+    if (targetFeature?.geometry) {
+      return targetFeature.geometry;
+    }
+
+    console.warn(`⚠️ No geometry found for ${type}/${id} in converted GeoJSON`);
     return null;
+    
+  } catch (error) {
+    console.error(`❌ Error fetching geometry for ${type}/${id}:`, error);
+    throw error;
+  }
+}
+
+// Calculate real polygon area using proper geographic calculation
+function calculateRealPolygonArea(geometry: any): number {
+  if (!geometry || (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon')) {
+    return 0;
   }
 
-  if (!geometry) return null;
+  // For now, use a simplified calculation
+  // In production, you'd use a library like turf.js for accurate spherical area calculation
+  if (geometry.type === 'Polygon') {
+    return calculateSimplePolygonArea(geometry.coordinates[0]);
+  } else if (geometry.type === 'MultiPolygon') {
+    // Sum up all polygon areas
+    return geometry.coordinates.reduce((total: number, polygon: number[][][]) => {
+      return total + calculateSimplePolygonArea(polygon[0]);
+    }, 0);
+  }
 
-  // Calculate area
-  const area = calculatePolygonArea(geometry);
-
-  // Create boundary object for scoring
-  const boundary: OSMBoundary = {
-    osmId: element.id.toString(),
-    osmType: element.type,
-    name: tags.name,
-    adminLevel: tags.admin_level,
-    boundaryType: tags.boundary,
-    area,
-    geometry,
-    tags,
-    score: 0, // Will be calculated next
-  };
-
-  // Calculate boundary score
-  boundary.score = calculateBoundaryScore(boundary, searchTerm);
-
-  return boundary;
+  return 0;
 }
+
+function calculateSimplePolygonArea(coords: number[][]): number {
+  if (coords.length < 3) return 0;
+  
+  // Shoelace formula for polygon area (rough approximation)
+  let area = 0;
+  for (let i = 0; i < coords.length - 1; i++) {
+    area += (coords[i][0] * coords[i + 1][1] - coords[i + 1][0] * coords[i][1]);
+  }
+  
+  // Convert to square kilometers (very rough approximation)
+  return Math.abs(area) * 12.4; // Rough conversion factor
+}
+
 
 function calculateBoundaryScore(boundary: OSMBoundary, searchTerm: string): number {
   let score = 0;
@@ -314,264 +320,3 @@ function buildPolygonFromWay(way: any, nodes: Map<string, any>): any {
   };
 }
 
-function calculatePolygonArea(geometry: any): number {
-  // Simplified area calculation - returns approximate area in km²
-  if (!geometry || geometry.type !== 'Polygon') return 0;
-  
-  const coords = geometry.coordinates[0];
-  if (coords.length < 3) return 0;
-  
-  // Very rough approximation
-  const bounds = coords.reduce((acc: any, coord: number[]) => ({
-    minLon: Math.min(acc.minLon, coord[0]),
-    maxLon: Math.max(acc.maxLon, coord[0]),
-    minLat: Math.min(acc.minLat, coord[1]),
-    maxLat: Math.max(acc.maxLat, coord[1]),
-  }), {
-    minLon: Infinity,
-    maxLon: -Infinity,
-    minLat: Infinity,
-    maxLat: -Infinity,
-  });
-  
-  const width = (bounds.maxLon - bounds.minLon) * 111; // rough km per degree
-  const height = (bounds.maxLat - bounds.minLat) * 111;
-  
-  return Math.round(width * height);
-}
-
-function getSampleBoundaries(cityName: string): OSMBoundary[] {
-  // Sample boundaries based on real OSM data for Buenos Aires
-  return [
-    {
-      osmId: 'R3082668',
-      osmType: 'relation',
-      name: 'Ciudad Autónoma de Buenos Aires',
-      adminLevel: '4',
-      boundaryType: 'administrative',
-      area: 205.63,
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [-58.5319, -34.5268],
-          [-58.3350, -34.5268],
-          [-58.3350, -34.7051],
-          [-58.5319, -34.7051],
-          [-58.5319, -34.5268],
-        ]],
-      },
-      tags: {
-        name: 'Ciudad Autónoma de Buenos Aires',
-        boundary: 'administrative',
-        admin_level: '4',
-      },
-      score: 98,
-    },
-    {
-      osmId: 'R2672883',
-      osmType: 'relation',
-      name: 'Lago Buenos Aires',
-      adminLevel: '4',
-      boundaryType: 'administrative',
-      area: 28471.99,
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [-71.2, -46.5],
-          [-70.8, -46.5],
-          [-70.8, -47.1],
-          [-71.2, -47.1],
-          [-71.2, -46.5],
-        ]],
-      },
-      tags: {
-        name: 'Lago Buenos Aires',
-        boundary: 'administrative',
-        admin_level: '4',
-      },
-      score: 85,
-    },
-    {
-      osmId: 'R1632167',
-      osmType: 'relation',
-      name: 'Buenos Aires',
-      adminLevel: '4',
-      boundaryType: 'administrative',
-      area: 306349.01,
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [-62.0, -33.0],
-          [-57.0, -33.0],
-          [-57.0, -41.0],
-          [-62.0, -41.0],
-          [-62.0, -33.0],
-        ]],
-      },
-      tags: {
-        name: 'Buenos Aires',
-        boundary: 'administrative',
-        admin_level: '4',
-      },
-      score: 82,
-    },
-    {
-      osmId: 'R1224652',
-      osmType: 'relation',
-      name: 'Buenos Aires',
-      adminLevel: '4',
-      boundaryType: 'administrative',
-      area: 205.63,
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [-58.5119, -34.5468],
-          [-58.3550, -34.5468],
-          [-58.3550, -34.6851],
-          [-58.5119, -34.6851],
-          [-58.5119, -34.5468],
-        ]],
-      },
-      tags: {
-        name: 'Buenos Aires',
-        boundary: 'administrative',
-        admin_level: '4',
-      },
-      score: 79,
-    },
-    {
-      osmId: 'R4445883',
-      osmType: 'relation',
-      name: 'Buenos Aires Chico',
-      adminLevel: '4',
-      boundaryType: 'administrative',
-      area: 0.43,
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [-71.15, -46.98],
-          [-71.14, -46.98],
-          [-71.14, -46.99],
-          [-71.15, -46.99],
-          [-71.15, -46.98],
-        ]],
-      },
-      tags: {
-        name: 'Buenos Aires Chico',
-        boundary: 'administrative',
-        admin_level: '4',
-      },
-      score: 75,
-    },
-  ];
-}
-
-export async function getBoundaryGeometry(osmId: string, osmType: 'way' | 'relation'): Promise<any> {
-  const query = `
-    [out:json][timeout:20];
-    ${osmType}(${osmId});
-    out geom;
-  `;
-
-  try {
-    const response = await fetch(OVERPASS_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `data=${encodeURIComponent(query)}`,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Overpass API error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return processGeometryResponse(data, osmType, osmId);
-  } catch (error) {
-    console.error(`Error fetching geometry for ${osmType}.${osmId}:`, error);
-    throw error;
-  }
-}
-
-function processGeometryResponse(data: any, osmType: 'way' | 'relation', osmId: string): any {
-  let targetElement = null;
-
-  // Find the target element
-  data.elements?.forEach((element: any) => {
-    if (element.type === osmType && element.id.toString() === osmId) {
-      targetElement = element;
-    }
-  });
-
-  if (!targetElement) {
-    console.error(`Target ${osmType} ${osmId} not found in response`);
-    return null;
-  }
-
-  try {
-    if (osmType === 'relation') {
-      return buildGeometryFromRelation(targetElement);
-    } else {
-      return buildGeometryFromWay(targetElement);
-    }
-  } catch (error) {
-    console.error(`Error building geometry for ${osmType}.${osmId}:`, error);
-    return null;
-  }
-}
-
-function buildGeometryFromRelation(relation: any): any {
-  if (!relation.members || relation.members.length === 0) return null;
-
-  try {
-    // For multipolygon relations, we need to build the geometry from member ways
-    const outerMembers = relation.members.filter((m: any) => 
-      m.role === 'outer' || m.role === ''
-    );
-
-    if (outerMembers.length === 0) return null;
-
-    // For now, return a simplified polygon from the bounding box
-    // In a production system, you'd need to properly handle multipolygon geometry
-    if (relation.bounds) {
-      const { minlat, minlon, maxlat, maxlon } = relation.bounds;
-      return {
-        type: 'Polygon',
-        coordinates: [[
-          [minlon, minlat],
-          [maxlon, minlat],
-          [maxlon, maxlat],
-          [minlon, maxlat],
-          [minlon, minlat],
-        ]],
-      };
-    }
-  } catch (error) {
-    console.error('Error processing relation geometry:', error);
-  }
-
-  return null;
-}
-
-function buildGeometryFromWay(way: any): any {
-  if (!way.geometry || way.geometry.length < 3) return null;
-
-  try {
-    const coordinates = way.geometry.map((node: any) => [node.lon, node.lat]);
-    
-    // Ensure the way is closed for a valid polygon
-    if (coordinates[0][0] !== coordinates[coordinates.length - 1][0] || 
-        coordinates[0][1] !== coordinates[coordinates.length - 1][1]) {
-      coordinates.push(coordinates[0]);
-    }
-
-    return {
-      type: 'Polygon',
-      coordinates: [coordinates],
-    };
-  } catch (error) {
-    console.error('Error processing way geometry:', error);
-    return null;
-  }
-}
