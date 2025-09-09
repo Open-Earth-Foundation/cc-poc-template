@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { searchBoundaries } from "../../services/osmService";
+import { searchBoundaries } from "./services/osmService";
 import { insertBoundarySchema } from "@shared/boundary-schema";
 
 export function registerBoundaryRoutes(app: Express) {
