@@ -3,6 +3,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Button Styling System Documentation
+ * 
+ * Our button system uses a centralized approach with CSS variables and variants:
+ * 
+ * Primary Colors:
+ * - Primary: #001fa8 (Dark Blue) - Used for main action buttons
+ * - Success: #16a34a (Green) - Used for positive actions 
+ * - Destructive: #ef4444 (Red) - Used for dangerous actions
+ * 
+ * Button Variants Available:
+ * - default: Primary blue button with white text
+ * - success: Green button with white text  
+ * - destructive: Red button with white text
+ * - outline: Transparent with border (used for secondary actions)
+ * - secondary: Dark gray button
+ * - ghost: Transparent with hover effect
+ * - link: Text-only link style
+ * 
+ * Usage Examples:
+ * <Button>Primary Action</Button>
+ * <Button variant="success">Save Changes</Button>
+ * <Button variant="outline">Cancel</Button>
+ * <Button variant="destructive">Delete</Button>
+ * 
+ * To change colors globally, update the CSS variables below.
+ */
+
 :root {
   --background: hsl(210 40% 96%);
   --foreground: hsl(222.2 84% 4.9%);
