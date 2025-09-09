@@ -68,7 +68,7 @@ export function Header() {
                   size="sm"
                   onClick={handleLogout}
                   data-testid="button-logout"
-                  className="border-white text-white hover:bg-white hover:text-primary"
+                  className="border-white bg-primary text-white hover:bg-white hover:text-primary"
                 >
                   Logout
                 </Button>
