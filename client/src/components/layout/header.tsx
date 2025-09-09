@@ -37,37 +37,38 @@ export function Header() {
   };
 
   return (
-    <header className="bg-card border-b border-border shadow-sm">
+    <header className="bg-primary shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center p-1">
+              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center p-1">
                 <img 
                   src="/boundary-icon.png" 
                   alt="Boundary Editor Icon" 
                   className="w-6 h-6 object-contain"
                 />
               </div>
-              <h1 className="text-xl font-semibold text-foreground">Enhanced Boundary Editor</h1>
+              <h1 className="text-xl font-semibold text-white">Enhanced Boundary Editor</h1>
             </div>
-            <span className="text-sm text-muted-foreground">CityCatalyst Prototype Module</span>
+            <span className="text-sm text-white/80">CityCatalyst Prototype Module</span>
           </div>
           
           <div className="flex items-center space-x-4">
             {isLoading ? (
-              <div className="h-8 w-24 bg-muted animate-pulse rounded"></div>
+              <div className="h-8 w-24 bg-white/20 animate-pulse rounded"></div>
             ) : isAuthenticated && user ? (
               <div className="flex items-center space-x-3">
                 <div className="text-sm">
-                  <div className="font-medium text-foreground" data-testid="user-name">{user.name}</div>
-                  <div className="text-muted-foreground" data-testid="user-email">{user.email}</div>
+                  <div className="font-medium text-white" data-testid="user-name">{user.name}</div>
+                  <div className="text-white/80" data-testid="user-email">{user.email}</div>
                 </div>
                 <Button 
-                  variant="secondary"
+                  variant="outline"
                   size="sm"
                   onClick={handleLogout}
                   data-testid="button-logout"
+                  className="border-white text-white hover:bg-white hover:text-primary"
                 >
                   Logout
                 </Button>
@@ -76,6 +77,7 @@ export function Header() {
               <Button 
                 onClick={handleLogin}
                 data-testid="button-login"
+                className="bg-white text-primary hover:bg-white/90"
               >
                 Sign In with CityCatalyst
               </Button>
