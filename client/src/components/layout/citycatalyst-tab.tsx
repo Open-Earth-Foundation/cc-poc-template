@@ -34,7 +34,7 @@ export function CityCatalystTab() {
               </a>
             </div>
             <div className="text-xs opacity-90">
-              Urban Climate Action Platform
+              Exit module and return to the main platform
             </div>
           </div>
         </div>
