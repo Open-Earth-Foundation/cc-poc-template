@@ -1,0 +1,118 @@
+Modularization Plan for Boundary Editor App
+Goal
+Transform the current boundary editor app into a highly modular system where the core functionality (OAuth, information retrieval, generic routes, styling, and layout) can be reused across different applications. The specific business logic (boundary editing) should be easily replaceable with other domain-specific functions like city picture galleries, without requiring changes to the infrastructure code.
+
+Current State Analysis
+What's Already Well-Modularized ✅
+Authentication System
+
+OAuth flow is completely generic in server/services/authService.ts
+Session management in server/storage.ts is reusable
+Auth hooks in client/src/hooks/useAuth.ts are domain-agnostic
+UI Framework & Styling
+
+Complete shadcn/ui component library in client/src/components/ui/
+Generic layout components like Header and CityCatalyst tab
+Consistent design system with reusable styling
+API Infrastructure
+
+Generic route patterns in server/routes.ts
+Reusable middleware for authentication
+Standard error handling and response patterns
+Major Gaps Requiring Modularization ❌
+Phase 1: Extract Generic City Service Layer
+Current Issue: City data fetching is mixed with boundary-specific logic
+
+server/services/cityService.ts - Good foundation but needs expansion
+client/src/hooks/useCities.ts - Already generic
+client/src/pages/city-selection.tsx - Already domain-agnostic
+Action Required: Create abstracted city data service that any app can use
+
+Phase 2: Separate Domain-Specific Business Logic
+Current Issue: Boundary-specific code is scattered throughout the app
+
+Files That Need Complete Separation:
+client/src/pages/boundary-editor.tsx
+
+This entire file is boundary-specific
+Should be replaceable with city-gallery.tsx or pollution-monitor.tsx
+server/services/osmService.ts
+
+Completely OSM/boundary focused
+Should be in a separate module: server/modules/boundary/osmService.ts
+client/src/components/boundary/ (entire directory)
+
+All components are boundary-specific
+Should be: client/src/modules/boundary/components/
+client/src/hooks/useBoundaries.ts
+
+Domain-specific hooks
+Should be: client/src/modules/boundary/hooks/
+client/src/services/osmService.ts
+
+Should be: client/src/modules/boundary/services/
+Phase 3: Create Modular App Structure
+Target Structure:
+
+client/src/
+├── core/                    # Reusable across all apps
+│   ├── components/ui/       # Generic UI components
+│   ├── components/layout/   # Header, navigation, etc.
+│   ├── hooks/              # useAuth, useCities, etc.
+│   ├── services/           # authService, cityService
+│   └── types/              # Generic types
+├── modules/
+│   ├── boundary/           # Boundary-specific module
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── services/
+│   └── gallery/            # Future: City gallery module
+│       ├── pages/
+│       ├── components/
+│       └── services/
+└── App.tsx                 # Routes to different modules
+Phase 4: Extract Route Configuration
+Current Issue: Routes are hardcoded for boundary editing
+
+client/src/App.tsx has boundary-specific routes
+Should support pluggable route modules
+Action Required: Create route registration system where each module can register its routes
+
+Phase 5: Abstract Data Types
+Current Issue: Types are mixed between generic and specific
+
+shared/schema.ts has boundary-specific schemas mixed with generic ones
+client/src/types/ needs separation
+Action Required:
+
+Generic types: User, City, Project, ApiResponse
+Module types: Boundary, OSMData → boundary module
+Future types: CityImage, PollutionData → respective modules
+Phase 6: Configuration-Driven Module System
+Current Issue: Each new app type requires code changes
+
+No module registration system
+No configuration-based feature toggling
+Action Required: Create module manifest system where:
+
+Each module declares its routes, components, and services
+Main app loads modules based on configuration
+New apps can be created by swapping module configurations
+Success Criteria
+When complete, creating a "City Picture Gallery" app should only require:
+
+Keep Unchanged (90% of codebase):
+
+All authentication code
+All UI components and styling
+All city selection logic
+All layout and navigation
+All generic API patterns
+Replace Only (10% of codebase):
+
+boundary-editor.tsx → city-gallery.tsx
+boundary/ components → gallery/ components
+OSM service → image service
+Boundary-specific routes → gallery routes
+This plan transforms the current tightly-coupled boundary editor into a true platform where 90% of the infrastructure code is reusable, and only the domain-specific business logic needs to be swapped out for different applications.
