@@ -26,6 +26,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const oauthState = generateOAuthState();
       
+      // Debug: Log the complete authorization URL
+      console.log('🔗 Generated OAuth Authorization URL:', oauthState.authUrl);
+      console.log('🔗 State:', oauthState.state);
+      console.log('🔗 Code Challenge:', oauthState.codeChallenge);
+      
       // Store the state and code verifier in session
       const session = await storage.createSession({
         userId: '', // Will be filled after OAuth callback

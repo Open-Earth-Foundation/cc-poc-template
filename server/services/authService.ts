@@ -63,8 +63,16 @@ export function generateOAuthState(): OAuthState {
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state,
-    scope: 'read write',
+    scope: 'read',  // Simplified scope to test if 'read write' is causing issues
   });
+
+  console.log('🔍 OAuth Params Debug:');
+  console.log('  client_id:', CLIENT_ID);
+  console.log('  redirect_uri:', REDIRECT_URI);
+  console.log('  code_challenge_method:', 'S256');
+  console.log('  scope:', 'read');
+  console.log('  state:', state);
+  console.log('  code_challenge:', codeChallenge);
 
   const authUrl = `${AUTH_BASE_URL}/authorize/?${params.toString()}`;
 
