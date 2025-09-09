@@ -63,7 +63,7 @@ export function generateOAuthState(): OAuthState {
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state,
-    scope: 'openid profile',  // Try standard OpenID Connect scopes
+    scope: 'read write',  // CityCatalyst valid scopes: read, write
   });
 
   console.log('🔍 OAuth Params Debug:');
