@@ -55,11 +55,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/auth/oauth/callback', async (req, res) => {
     try {
+      // Enhanced debugging: Log ALL query parameters
+      console.log('=== OAUTH CALLBACK DEBUG ===');
+      console.log('Full query object:', req.query);
+      console.log('URL:', req.url);
+      console.log('Headers:', req.headers);
+      
       const { code, state, error, error_description } = req.query;
       
-      // Handle OAuth errors
+      // Handle OAuth errors with enhanced logging
       if (error) {
-        console.error('OAuth error:', error, error_description);
+        console.error('❌ OAuth error detected:');
+        console.error('Error:', error);
+        console.error('Error description:', error_description);
+        console.error('All query params:', req.query);
+        console.error('=== END OAUTH CALLBACK DEBUG ===');
         return res.redirect(`/login?error=${encodeURIComponent(error_description as string || error as string)}`);
       }
       
