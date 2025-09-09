@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest } from "@/core/lib/queryClient";
 import { OSMBoundary, BoundarySearchParams, Boundary } from "@/modules/boundary/types/boundary";
 
 export async function searchBoundaries(params: BoundarySearchParams): Promise<{ boundaries: OSMBoundary[] }> {

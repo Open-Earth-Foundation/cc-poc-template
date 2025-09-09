@@ -1,5 +1,5 @@
-import { apiRequest } from "@/lib/queryClient";
-import { OAuthResponse, LoginResponse } from "@/types/auth";
+import { apiRequest } from "@/core/lib/queryClient";
+import { OAuthResponse, LoginResponse } from "@/core/types/auth";
 
 export async function initiateOAuth(): Promise<OAuthResponse> {
   const res = await apiRequest("GET", "/api/auth/oauth/initiate");

@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { Badge } from "@/core/components/ui/badge";
+import { Progress } from "@/core/components/ui/progress";
 import { OSMBoundary } from "@/types/boundary";
 
 interface BoundaryListProps {

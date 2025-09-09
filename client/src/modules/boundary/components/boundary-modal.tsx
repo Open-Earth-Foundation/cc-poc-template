@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/core/components/ui/dialog";
+import { Button } from "@/core/components/ui/button";
+import { Badge } from "@/core/components/ui/badge";
 import { OSMBoundary } from "../../types/boundary";
-import { City } from "@shared/schema";
-import { downloadGeoJSON } from "@/utils/geojson";
+import { City } from "@shared/core-schema";
+import { downloadGeoJSON } from "@/core/utils/geojson";
 import { MiniMap } from "./mini-map";
 
 interface BoundaryModalProps {

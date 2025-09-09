@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { Badge } from "@/core/components/ui/badge";
 import { OSMBoundary } from "../../types/boundary";
 import { City } from "@shared/schema";
 import { MiniMap } from "./mini-map";

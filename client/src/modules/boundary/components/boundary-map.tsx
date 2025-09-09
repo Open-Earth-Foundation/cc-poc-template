@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
 import { OSMBoundary } from "@/types/boundary";
 import { calculateBounds } from "@/utils/geojson";
 
