@@ -49,9 +49,9 @@ export function Header() {
                   className="w-6 h-6 object-contain"
                 />
               </div>
-              <h1 className="text-xl font-semibold text-foreground">Boundary Editor</h1>
+              <h1 className="text-xl font-semibold text-foreground">Enhanced Boundary Editor</h1>
             </div>
-            <span className="text-sm text-muted-foreground">CityCatalyst Integration</span>
+            <span className="text-sm text-muted-foreground">CityCatalyst Prototype Module</span>
           </div>
           
           <div className="flex items-center space-x-4">
