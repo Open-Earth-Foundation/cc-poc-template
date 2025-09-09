@@ -68,7 +68,7 @@ export default function Login() {
                 Welcome to Boundary Editor
               </h2>
               <p className="text-muted-foreground mb-8" data-testid="text-login-subtitle">
-                Connect with your CityCatalyst account to access city boundaries
+                Connect your CityCatalyst account and choose an alternative city boundary from
               </p>
             </div>
             
