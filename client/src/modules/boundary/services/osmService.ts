@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/queryClient";
-import { OSMBoundary, BoundarySearchParams, Boundary } from "@/types/boundary";
+import { OSMBoundary, BoundarySearchParams, Boundary } from "@/modules/boundary/types/boundary";
 
 export async function searchBoundaries(params: BoundarySearchParams): Promise<{ boundaries: OSMBoundary[] }> {
   // Use the POST endpoint to match implementation guide

@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { handleOAuthCallback } from "@/services/authService";
-import { extractOAuthParams } from "@/utils/oauth";
-import { useToast } from "@/hooks/use-toast";
-import { Spinner } from "@/components/ui/spinner";
-import { useAuth } from "@/hooks/useAuth";
+import { handleOAuthCallback } from "@/core/services/authService";
+import { extractOAuthParams } from "@/core/utils/oauth";
+import { useToast } from "@/core/hooks/use-toast";
+import { Spinner } from "@/core/components/ui/spinner";
+import { useAuth } from "@/core/hooks/useAuth";
 
 export function OAuthCallback() {
   const [, setLocation] = useLocation();

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { OSMBoundary, BoundarySearchParams, Boundary } from "@/types/boundary";
-import { searchBoundaries, selectBoundary, getCityBoundaries } from "@/services/osmService";
+import { OSMBoundary, BoundarySearchParams, Boundary } from "@/modules/boundary/types/boundary";
+import { searchBoundaries, selectBoundary, getCityBoundaries } from "@/modules/boundary/services/osmService";
 
 export function useBoundarySearch(params: BoundarySearchParams | null) {
   return useQuery<{ boundaries: OSMBoundary[] }>({
