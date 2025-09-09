@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { City } from "@/types/city";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { Badge } from "@/core/components/ui/badge";
+import { City } from "@/core/types/city";
 
 interface CityCardProps {
   city: City;

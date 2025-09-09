@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { User, AuthState } from "@/types/auth";
-import { getUserProfile, logout as logoutService } from "@/services/authService";
+import { User, AuthState } from "@/core/types/auth";
+import { getUserProfile, logout as logoutService } from "@/core/services/authService";
 
 export function useAuth(): AuthState & {
   logout: () => Promise<void>;

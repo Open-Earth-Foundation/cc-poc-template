@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { initiateOAuth } from "@/services/authService";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/core/components/ui/button";
+import { useAuth } from "@/core/hooks/useAuth";
+import { initiateOAuth } from "@/core/services/authService";
+import { useToast } from "@/core/hooks/use-toast";
 
 export function Header() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();

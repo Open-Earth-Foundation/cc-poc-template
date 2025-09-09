@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Header } from "@/components/layout/header";
-import { CityCard } from "@/components/city/city-card";
-import { useAuth } from "@/hooks/useAuth";
-import { useCities } from "@/hooks/useCities";
-import { City } from "@/types/city";
+import { Input } from "@/core/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
+import { Header } from "@/core/components/layout/header";
+import { CityCard } from "@/core/components/city/city-card";
+import { useAuth } from "@/core/hooks/useAuth";
+import { useCities } from "@/core/hooks/useCities";
+import { City } from "@/core/types/city";
 
 export default function CitySelection() {
   const [, setLocation] = useLocation();

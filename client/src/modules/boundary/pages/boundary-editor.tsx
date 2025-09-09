@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Header } from "@/components/layout/header";
-import { EnhancedBoundaryCard } from "@/components/boundary/enhanced-boundary-card";
-import { BoundaryModal } from "@/components/boundary/boundary-modal";
-import { useAuth } from "@/hooks/useAuth";
-import { useCity } from "@/hooks/useCities";
-import { useBoundarySearch, useBoundarySelection } from "@/hooks/useBoundaries";
-import { OSMBoundary } from "@/types/boundary";
+import { Button } from "@/core/components/ui/button";
+import { Header } from "@/core/components/layout/header";
+import { EnhancedBoundaryCard } from "@/modules/boundary/components/enhanced-boundary-card";
+import { BoundaryModal } from "@/modules/boundary/components/boundary-modal";
+import { useAuth } from "@/core/hooks/useAuth";
+import { useCity } from "@/core/hooks/useCities";
+import { useBoundarySearch, useBoundarySelection } from "@/modules/boundary/hooks/useBoundaries";
+import { OSMBoundary } from "@/modules/boundary/types/boundary";
 import { City } from "@shared/schema";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/core/hooks/use-toast";
 
 export default function BoundaryEditor() {
   const params = useParams();

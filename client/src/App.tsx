@@ -1,16 +1,16 @@
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
+import { queryClient } from "@/core/lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { CityCatalystTab } from "@/components/layout/citycatalyst-tab";
+import { Toaster } from "@/core/components/ui/toaster";
+import { TooltipProvider } from "@/core/components/ui/tooltip";
+import { CityCatalystTab } from "@/core/components/layout/citycatalyst-tab";
 
 // Pages
-import Login from "@/pages/login";
-import CitySelection from "@/pages/city-selection";
-import BoundaryEditor from "@/pages/boundary-editor";
-import { OAuthCallback } from "@/components/auth/oauth-callback";
-import NotFound from "@/pages/not-found";
+import Login from "@/core/pages/login";
+import CitySelection from "@/core/pages/city-selection";
+import BoundaryEditor from "@/modules/boundary/pages/boundary-editor";
+import { OAuthCallback } from "@/core/components/auth/oauth-callback";
+import NotFound from "@/core/pages/not-found";
 
 function Router() {
   return (

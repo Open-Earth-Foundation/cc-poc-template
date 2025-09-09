@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { initiateOAuth } from "@/services/authService";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { useAuth } from "@/core/hooks/useAuth";
+import { initiateOAuth } from "@/core/services/authService";
+import { useToast } from "@/core/hooks/use-toast";
 
 export default function Login() {
   const [, setLocation] = useLocation();
