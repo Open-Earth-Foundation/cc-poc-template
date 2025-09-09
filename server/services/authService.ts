@@ -63,7 +63,7 @@ export function generateOAuthState(): OAuthState {
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state,
-    scope: 'read',  // Simplified scope to test if 'read write' is causing issues
+    scope: 'openid profile',  // Try standard OpenID Connect scopes
   });
 
   console.log('🔍 OAuth Params Debug:');
