@@ -141,6 +141,9 @@ export async function getUserAccessibleCities(userId: string, accessToken?: stri
  * Get detailed city information including inventories list
  */
 export async function getCityDetail(locode: string, accessToken: string): Promise<CityCatalystCityDetail> {
+  if (!locode || locode === 'undefined') {
+    throw new Error(`Invalid locode provided: ${locode}`);
+  }
   const normalizedLocode = locode.replace(/\s+/g, "_");
   return cityCatalystApiGet<CityCatalystCityDetail>(
     `/api/v0/city/${encodeURIComponent(normalizedLocode)}`, 
@@ -186,9 +189,23 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
   );
 
   console.log(`🏙️ Found ${cities.length} cities for user`);
+  console.log('🏙️ Cities data structure:', JSON.stringify(cities, null, 2));
 
   const details = await Promise.all(
     cities.map(async (city) => {
+      console.log(`🔍 Processing city:`, JSON.stringify(city, null, 2));
+      
+      // Skip cities without locode
+      if (!city.locode || city.locode === 'undefined') {
+        console.log(`⚠️ Skipping city without valid locode:`, city);
+        return { 
+          locode: city.locode || 'unknown', 
+          name: city.name || 'Unknown City', 
+          years: [], 
+          inventories: [] 
+        };
+      }
+      
       try {
         const detail = await getCityDetail(city.locode, accessToken);
         const years = (detail.inventories ?? [])

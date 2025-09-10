@@ -39,14 +39,24 @@ export function CityCatalystApiTester() {
       if (response.ok) {
         const data = await response.json();
         console.log('✅ /api/citycatalyst/inventories SUCCESS:', data);
+        console.log('📊 Full response structure:', JSON.stringify(data, null, 2));
         
         tests[0] = { ...tests[0], status: 'success', data };
         setTestResults([...tests]);
         
         // If we got cities, test individual city endpoints
         if (data.data && data.data.length > 0) {
-          const firstCity = data.data[0];
-          const locode = firstCity.locode;
+          // Find the first city with a valid locode
+          const validCity = data.data.find((city: any) => city.locode && city.locode !== 'undefined');
+          console.log('🔍 Looking for valid city with locode from:', data.data);
+          console.log('✅ Found valid city:', validCity);
+          
+          if (!validCity) {
+            console.log('❌ No cities with valid locode found');
+            return;
+          }
+          
+          const locode = validCity.locode;
           
           // Test 2: Get city detail
           const cityDetailTest: TestResult = { 
