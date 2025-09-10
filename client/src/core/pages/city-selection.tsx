@@ -7,13 +7,17 @@ import { CityCard } from "@/core/components/city/city-card";
 import { UserDataCard } from "@/core/components/user/user-data-card";
 import { CityCatalystApiTester } from "@/core/components/testing/citycatalyst-api-tester";
 import { useAuth } from "@/core/hooks/useAuth";
-import { useCities } from "@/core/hooks/useCities";
+import { useQuery } from "@tanstack/react-query";
 import { City } from "@/core/types/city";
 
 export default function CitySelection() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { data: citiesData, isLoading: citiesLoading } = useCities();
+  // Use CityCatalyst inventories data instead of local database
+  const { data: inventoriesData, isLoading: citiesLoading } = useQuery({
+    queryKey: ['/api/citycatalyst/inventories'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProject, setSelectedProject] = useState<string>("all");
 
@@ -27,7 +31,25 @@ export default function CitySelection() {
     setLocation(`/city-information/${cityId}`);
   };
 
-  const cities = citiesData?.cities || [];
+  // Transform CityCatalyst inventories into city format
+  const cities = (inventoriesData?.data || []).map((city: any) => {
+    const countryMap: Record<string, string> = {
+      'AR': 'Argentina', 'BR': 'Brazil', 'US': 'United States',
+      'MX': 'Mexico', 'JP': 'Japan', 'ZM': 'Zambia',
+      'DE': 'Germany', 'CA': 'Canada', 'AU': 'Australia'
+    };
+    const prefix = city.locode.split(' ')[0];
+    return {
+      id: city.locode,
+      cityId: city.locode, 
+      name: city.name,
+      country: countryMap[prefix] || prefix,
+      locode: city.locode,
+      projectId: `project-${prefix.toLowerCase()}`,
+      metadata: { inventoryCount: city.years.length },
+      createdAt: new Date()
+    };
+  });
   
   // Filter cities based on search and project
   const filteredCities = cities.filter(city => {

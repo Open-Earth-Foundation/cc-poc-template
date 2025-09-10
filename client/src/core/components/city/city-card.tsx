@@ -12,7 +12,7 @@ export function CityCard({ city, onSelect, isActive = true }: CityCardProps) {
   return (
     <Card 
       className={`cursor-pointer transition-all hover:shadow-md ${!isActive ? 'opacity-60' : ''}`}
-      onClick={() => isActive && onSelect(city.cityId)}
+      onClick={() => isActive && onSelect(city.locode || city.cityId)}
       data-testid={`card-city-${city.cityId}`}
     >
       <CardContent className="p-6">
