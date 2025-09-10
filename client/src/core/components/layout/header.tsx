@@ -42,14 +42,14 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center p-1">
+              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center p-0">
                 <img 
                   src="/boundary-icon.png" 
                   alt="Boundary Editor Icon" 
-                  className="w-6 h-6 object-contain"
+                  className="w-8 h-8 object-contain"
                 />
               </div>
-              <h1 className="text-xl font-semibold text-white">Enhanced Boundary Editor</h1>
+              <h1 className="text-xl font-semibold text-white">CC POC Module</h1>
             </div>
             <span className="text-sm text-white/80">CityCatalyst Prototype Module</span>
           </div>

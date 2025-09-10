@@ -57,11 +57,11 @@ export default function Login() {
         <Card>
           <CardContent className="p-8">
             <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-6 p-2">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-6 p-0">
                 <img 
                   src="/boundary-icon.png" 
                   alt="Boundary Editor Icon" 
-                  className="w-12 h-12 object-contain"
+                  className="w-16 h-16 object-contain"
                 />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2" data-testid="text-login-title">

@@ -81,7 +81,7 @@ export default function CitySelection() {
             Select a City
           </h2>
           <p className="text-muted-foreground" data-testid="text-page-subtitle">
-            Choose a city to explore and edit its boundaries
+            Choose a city to see its data
           </p>
         </div>
         
