@@ -3,6 +3,9 @@ import { City, User } from "@shared/schema";
 
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || 'https://citycatalyst.openearth.dev';
 
+// Debug: Log the base URL being used
+console.log('🔧 CityCatalyst API base URL:', AUTH_BASE_URL);
+
 // CityCatalyst API Types
 export interface CityCatalystInventory {
   year: number;

@@ -46,9 +46,12 @@ export function CityCatalystApiTester() {
         
         // If we got cities, test individual city endpoints
         if (data.data && data.data.length > 0) {
-          // Find the first city with a valid locode
-          const validCity = data.data.find((city: any) => city.locode && city.locode !== 'undefined' && city.locode !== 'unknown');
+          // Test with BR SER (Serra) as mentioned by user - 2022 inventory
+          const serraCity = data.data.find((city: any) => city.locode === 'BR SER');
+          const validCity = serraCity || data.data.find((city: any) => city.locode && city.locode !== 'undefined' && city.locode !== 'unknown');
+          
           console.log('🔍 Looking for valid city with locode from:', data.data);
+          console.log('🎯 Specifically testing BR SER (Serra) as user requested:', serraCity);
           console.log('✅ Found valid city:', validCity);
           
           if (!validCity) {
@@ -125,9 +128,13 @@ export function CityCatalystApiTester() {
             boundaryTest.error = String(error);
           }
           
-          // Test 4: Get inventory for first available year  
+          // Test 4: Get inventory for specific year (prioritize 2022 if available)  
           if (validCity.years && validCity.years.length > 0) {
-            const year = validCity.years[0].year || validCity.years[0];
+            const year2022 = validCity.years.find(y => (y.year || y) === 2022);
+            const year = year2022 ? (year2022.year || year2022) : (validCity.years[0].year || validCity.years[0]);
+            
+            console.log('🎯 Prioritizing year 2022 if available:', year2022);
+            console.log('📅 Selected year:', year);
             const inventoryTest: TestResult = { 
               endpoint: `/api/citycatalyst/city/${locode}/inventory/${year}`, 
               status: 'pending' 
