@@ -182,52 +182,73 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
   years: number[];
   inventories: CityCatalystInventory[];
 }>> {
-  // First get the user's cities from CityCatalyst
-  const cities = await cityCatalystApiGet<Array<{ locode: string; name?: string }>>(
-    '/api/v0/user/cities/', 
-    accessToken
-  );
+  // Use the same endpoint as the auth service that actually works
+  const citiesUrl = '/api/v0/user/cities/';
+  const citiesData = await cityCatalystApiGet<any>(citiesUrl, accessToken);
+  
+  console.log(`🏙️ Raw CityCatalyst response:`, JSON.stringify(citiesData, null, 2));
+  
+  // Handle different response formats (same logic as authService.ts)
+  const cities = citiesData.cities || citiesData.data || citiesData;
+  
+  if (!Array.isArray(cities)) {
+    console.log('❌ Cities data is not an array:', cities);
+    return [];
+  }
 
   console.log(`🏙️ Found ${cities.length} cities for user`);
-  console.log('🏙️ Cities data structure:', JSON.stringify(cities, null, 2));
 
   const details = await Promise.all(
-    cities.map(async (city) => {
-      console.log(`🔍 Processing city:`, JSON.stringify(city, null, 2));
+    cities.map(async (item) => {
+      console.log(`🔍 Processing city item:`, JSON.stringify(item, null, 2));
       
-      // Skip cities without locode
-      if (!city.locode || city.locode === 'undefined') {
-        console.log(`⚠️ Skipping city without valid locode:`, city);
+      // Use same data extraction logic as authService.ts
+      const cityData = item.city || item;
+      
+      if (!cityData) {
+        console.log(`⚠️ No city data in item:`, item);
         return { 
-          locode: city.locode || 'unknown', 
-          name: city.name || 'Unknown City', 
+          locode: 'unknown', 
+          name: 'Unknown City', 
           years: [], 
           inventories: [] 
         };
       }
       
-      try {
-        const detail = await getCityDetail(city.locode, accessToken);
-        const years = (detail.inventories ?? [])
-          .map((inv) => inv.year)
-          .filter((y): y is number => Number.isFinite(y))
-          .sort((a, b) => b - a);
+      const locode = cityData.locode;
+      const cityId = cityData.cityId || cityData.id || cityData.locode;
+      const name = cityData.name || cityData.cityName || 'Unknown City';
+      const years = item.years || [];
+      
+      console.log(`🏙️ Extracted: name="${name}", locode="${locode}", cityId="${cityId}", years:`, years);
+      
+      // If we have a locode, try to get detailed inventory info
+      if (locode && locode !== 'undefined') {
+        try {
+          const detail = await getCityDetail(locode, accessToken);
+          const detailYears = (detail.inventories ?? [])
+            .map((inv) => inv.year)
+            .filter((y): y is number => Number.isFinite(y))
+            .sort((a, b) => b - a);
 
-        return { 
-          locode: city.locode, 
-          name: detail.name, 
-          years, 
-          inventories: detail.inventories ?? [] 
-        };
-      } catch (error) {
-        console.error(`❌ Failed to get details for city ${city.locode}:`, error);
-        return { 
-          locode: city.locode, 
-          name: city.name || 'Unknown City', 
-          years: [], 
-          inventories: [] 
-        };
+          return { 
+            locode: locode, 
+            name: detail.name || name, 
+            years: detailYears.length > 0 ? detailYears : years, 
+            inventories: detail.inventories ?? [] 
+          };
+        } catch (error) {
+          console.error(`❌ Failed to get details for city ${locode}:`, error);
+        }
       }
+      
+      // Fallback to basic data from the list response
+      return { 
+        locode: locode || cityId || 'unknown', 
+        name: name, 
+        years: Array.isArray(years) ? years : [], 
+        inventories: [] 
+      };
     })
   );
 
