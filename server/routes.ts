@@ -334,6 +334,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // City Information API (uses working inventories data)
+  app.get('/api/city-information/:cityId', requireAuth, async (req: any, res) => {
+    try {
+      const { cityId } = req.params;
+      console.log(`🏙️ Getting city information for: ${cityId}`);
+      
+      // Get all inventories data (this works!)
+      const inventoriesData = await getInventoriesByCity(req.user.accessToken);
+      console.log(`📊 Found ${inventoriesData.length} cities with inventory data`);
+      
+      // Find the city by cityId or locode
+      const cityInfo = inventoriesData.find(city => 
+        city.locode === cityId || 
+        city.locode.replace(/\s+/g, '_') === cityId ||
+        city.name.toLowerCase().replace(/\s+/g, '-') === cityId.toLowerCase()
+      );
+      
+      if (!cityInfo) {
+        console.log(`❌ City not found: ${cityId}`);
+        return res.status(404).json({ message: 'City not found' });
+      }
+      
+      // Map country from locode prefix
+      const getCountryFromLocode = (locode: string): string => {
+        const prefix = locode.split(' ')[0];
+        const countryMap: Record<string, string> = {
+          'AR': 'Argentina',
+          'BR': 'Brazil', 
+          'US': 'United States',
+          'MX': 'Mexico',
+          'JP': 'Japan',
+          'ZM': 'Zambia',
+          'DE': 'Germany',
+          'CA': 'Canada',
+          'AU': 'Australia'
+        };
+        return countryMap[prefix] || prefix;
+      };
+      
+      const enrichedCityInfo = {
+        ...cityInfo,
+        country: getCountryFromLocode(cityInfo.locode),
+        locodePrefix: cityInfo.locode.split(' ')[0],
+        totalInventories: cityInfo.years.length,
+        availableYears: cityInfo.years.map(y => y.year || y).sort((a, b) => b - a),
+        latestUpdate: cityInfo.years.length > 0 ? 
+          Math.max(...cityInfo.years.map(y => new Date(y.lastUpdate || '').getTime())) : null
+      };
+      
+      console.log(`✅ Found city: ${cityInfo.name} (${cityInfo.locode})`);
+      res.json({ data: enrichedCityInfo });
+    } catch (error: any) {
+      console.error('Get city information error:', error);
+      res.status(500).json({ message: 'Failed to fetch city information' });
+    }
+  });
+
   // Register module routes
   registerBoundaryRoutes(app);
 
