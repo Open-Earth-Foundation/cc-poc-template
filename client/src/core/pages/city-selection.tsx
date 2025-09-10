@@ -24,7 +24,7 @@ export default function CitySelection() {
   }
 
   const handleCitySelect = (cityId: string) => {
-    setLocation(`/boundary-editor/${cityId}`);
+    setLocation(`/city-information/${cityId}`);
   };
 
   const cities = citiesData?.cities || [];
