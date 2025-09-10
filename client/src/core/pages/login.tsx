@@ -65,10 +65,10 @@ export default function Login() {
                 />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2" data-testid="text-login-title">
-                Welcome to Boundary Editor
+                Welcome to a CC POC Module
               </h2>
               <p className="text-muted-foreground mb-8" data-testid="text-login-subtitle">
-                Connect your CityCatalyst account and choose an alternative city boundary from OpenStreetMap.
+                Connect your CityCatalyst account to access your data.
               </p>
             </div>
             
