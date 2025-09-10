@@ -8,7 +8,7 @@ import {
   createOrUpdateUser,
   generateSessionToken 
 } from "./services/authService";
-import { getUserAccessibleCities, getCityById } from "./services/cityService";
+import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity } from "./services/cityService";
 import { registerBoundaryRoutes } from "./modules/boundary/routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -262,6 +262,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Get city error:', error);
       res.status(500).json({ message: 'Failed to fetch city' });
+    }
+  });
+
+  // CityCatalyst API routes
+  app.get('/api/citycatalyst/city/:locode', requireAuth, async (req: any, res) => {
+    try {
+      const { locode } = req.params;
+      const cityDetail = await getCityDetail(locode, req.user.accessToken);
+      res.json({ data: cityDetail });
+    } catch (error: any) {
+      console.error('Get city detail error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch city detail' });
+    }
+  });
+
+  app.get('/api/citycatalyst/city/:locode/inventory/:year', requireAuth, async (req: any, res) => {
+    try {
+      const { locode, year } = req.params;
+      const inventory = await getInventory(locode, parseInt(year), req.user.accessToken);
+      res.json({ data: inventory });
+    } catch (error: any) {
+      console.error('Get inventory error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch inventory' });
+    }
+  });
+
+  app.get('/api/citycatalyst/city/:locode/boundary', requireAuth, async (req: any, res) => {
+    try {
+      const { locode } = req.params;
+      const boundary = await getCityBoundary(locode, req.user.accessToken);
+      res.json({ data: boundary });
+    } catch (error: any) {
+      console.error('Get city boundary error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch city boundary' });
+    }
+  });
+
+  app.get('/api/citycatalyst/inventories', requireAuth, async (req: any, res) => {
+    try {
+      const inventories = await getInventoriesByCity(req.user.accessToken);
+      res.json({ data: inventories });
+    } catch (error: any) {
+      console.error('Get inventories error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch inventories' });
     }
   });
 
