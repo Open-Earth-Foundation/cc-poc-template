@@ -144,7 +144,9 @@ export async function getCityDetail(locode: string, accessToken: string): Promis
   if (!locode || locode === 'undefined') {
     throw new Error(`Invalid locode provided: ${locode}`);
   }
+  // Convert spaces to underscores as per CityCatalyst API docs
   const normalizedLocode = locode.replace(/\s+/g, "_");
+  console.log(`🔄 getCityDetail: Converting locode "${locode}" → "${normalizedLocode}"`);
   return cityCatalystApiGet<CityCatalystCityDetail>(
     `/api/v0/city/${encodeURIComponent(normalizedLocode)}`, 
     accessToken

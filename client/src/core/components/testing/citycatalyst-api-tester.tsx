@@ -125,9 +125,9 @@ export function CityCatalystApiTester() {
             boundaryTest.error = String(error);
           }
           
-          // Test 4: Get inventory for first available year
-          if (firstCity.years && firstCity.years.length > 0) {
-            const year = firstCity.years[0];
+          // Test 4: Get inventory for first available year  
+          if (validCity.years && validCity.years.length > 0) {
+            const year = validCity.years[0].year || validCity.years[0];
             const inventoryTest: TestResult = { 
               endpoint: `/api/citycatalyst/city/${locode}/inventory/${year}`, 
               status: 'pending' 
@@ -137,6 +137,8 @@ export function CityCatalystApiTester() {
             
             try {
               console.log(`🌐 Testing /api/citycatalyst/city/${locode}/inventory/${year}...`);
+              console.log(`📅 Using year data:`, validCity.years[0]);
+              
               const inventoryResponse = await fetch(`/api/citycatalyst/city/${encodeURIComponent(locode)}/inventory/${year}`, {
                 credentials: 'include'
               });

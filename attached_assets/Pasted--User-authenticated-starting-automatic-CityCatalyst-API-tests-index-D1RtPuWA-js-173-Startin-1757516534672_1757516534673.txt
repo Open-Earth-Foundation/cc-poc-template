@@ -1,0 +1,332 @@
+🚀 User authenticated, starting automatic CityCatalyst API tests...
+index-D1RtPuWA.js:173 🧪 Starting CityCatalyst API tests...
+index-D1RtPuWA.js:173 🌐 Testing /api/citycatalyst/inventories...
+index-D1RtPuWA.js:173 ✅ /api/citycatalyst/inventories SUCCESS: {data: Array(9)}
+index-D1RtPuWA.js:173 📊 Full response structure: {
+  "data": [
+    {
+      "locode": "AR MDZ",
+      "name": "Mendoza",
+      "years": [
+        {
+          "year": 2021,
+          "inventoryId": "6b7c40bc-6fcc-420a-b0cb-c341072a4547",
+          "lastUpdate": "2024-11-24T10:44:26.778Z"
+        },
+        {
+          "year": 2021,
+          "inventoryId": "d93364f5-f0fa-4b95-9a14-8cc3f3a74ae7",
+          "lastUpdate": "2024-11-24T10:44:26.778Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "US SAN",
+      "name": "San Diego",
+      "years": [
+        {
+          "year": 2021,
+          "inventoryId": "7a76e6e3-14cc-4a56-a71f-ac2102a4145f",
+          "lastUpdate": "2024-11-24T10:44:26.778Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "MX GDL",
+      "name": "Guadalajara",
+      "years": [
+        {
+          "year": 2021,
+          "inventoryId": "b5ce46cc-b58f-4be5-a34c-46023c47f9b5",
+          "lastUpdate": "2024-11-24T10:44:26.778Z"
+        },
+        {
+          "year": 2021,
+          "inventoryId": "4037a7ae-5a61-4418-b889-f8e0d734c457",
+          "lastUpdate": "2024-11-24T10:44:26.778Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "ZM LUN",
+      "name": "Lusaka",
+      "years": [
+        {
+          "year": 2022,
+          "inventoryId": "41ca4c09-2938-4658-a06b-324dd4427ff5",
+          "lastUpdate": "2024-11-24T10:44:26.778Z"
+        },
+        {
+          "year": 2020,
+          "inventoryId": "5cb19d10-65f4-40ba-a0a0-ac722d4b3752",
+          "lastUpdate": "2025-04-22T18:08:57.389Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "BR CXL",
+      "name": "Caxias do Sul",
+      "years": [
+        {
+          "year": 2022,
+          "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+          "lastUpdate": "2024-11-27T18:31:11.735Z"
+        },
+        {
+          "year": 2023,
+          "inventoryId": "f59e260b-440e-4996-8283-a63cef60c224",
+          "lastUpdate": "2025-01-13T20:58:55.590Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "BR SER",
+      "name": "Serra",
+      "years": [
+        {
+          "year": 2022,
+          "inventoryId": "535fe381-1de4-4dc1-9f86-f08dc8a1177f",
+          "lastUpdate": "2024-12-16T13:27:14.340Z"
+        },
+        {
+          "year": 2023,
+          "inventoryId": "a6b774ae-4200-4347-a2e7-adc83db35852",
+          "lastUpdate": "2025-01-27T18:52:10.273Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "BR RBR",
+      "name": "Rio Branco",
+      "years": [
+        {
+          "year": 2022,
+          "inventoryId": "e5abd4e7-055f-402e-93e0-3171c4537681",
+          "lastUpdate": "2024-12-12T20:59:43.117Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "JP TYO",
+      "name": "Tokyo",
+      "years": [
+        {
+          "year": 2022,
+          "inventoryId": "2753e42a-c041-4219-a841-fa78f4ec0593",
+          "lastUpdate": "2025-01-27T18:53:22.340Z"
+        }
+      ],
+      "inventories": []
+    },
+    {
+      "locode": "AR BUE",
+      "name": "Buenos Aires",
+      "years": [
+        {
+          "year": 2023,
+          "inventoryId": "ac564afb-f22c-41b6-a8e0-8532ac53bf18",
+          "lastUpdate": "2025-09-08T17:04:06.257Z"
+        }
+      ],
+      "inventories": []
+    }
+  ]
+}
+index-D1RtPuWA.js:173 🔍 Looking for valid city with locode from: (9) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+index-D1RtPuWA.js:173 ✅ Found valid city: {locode: 'AR MDZ', name: 'Mendoza', years: Array(2), inventories: Array(0)}
+index-D1RtPuWA.js:173 🌐 Testing /api/citycatalyst/city/AR MDZ...
+index-D1RtPuWA.js:173  GET https://cc-poc-template.replit.app/api/citycatalyst/city/AR%20MDZ 500 (Internal Server Error)
+s @ index-D1RtPuWA.js:173
+await in s
+(anonymous) @ index-D1RtPuWA.js:173
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+(anonymous) @ index-D1RtPuWA.js:40
+setTimeout
+o @ index-D1RtPuWA.js:48
+s @ index-D1RtPuWA.js:48
+batch @ index-D1RtPuWA.js:48
+Jt @ index-D1RtPuWA.js:48
+setData @ index-D1RtPuWA.js:48
+onSuccess @ index-D1RtPuWA.js:48
+p @ index-D1RtPuWA.js:48
+Promise.then
+y @ index-D1RtPuWA.js:48
+start @ index-D1RtPuWA.js:48
+fetch @ index-D1RtPuWA.js:48
+ui @ index-D1RtPuWA.js:48
+onSubscribe @ index-D1RtPuWA.js:48
+subscribe @ index-D1RtPuWA.js:48
+(anonymous) @ index-D1RtPuWA.js:48
+Fm @ index-D1RtPuWA.js:38
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+vv @ index-D1RtPuWA.js:40
+E @ index-D1RtPuWA.js:25
+A @ index-D1RtPuWA.js:25Understand this error
+index-D1RtPuWA.js:173 ❌ /api/citycatalyst/city/AR MDZ ERROR: {"message":"GET /api/v0/city/AR_MDZ failed: 500 Internal Server Error — {\"error\":{\"message\":\"Internal server error\",\"error\":\"invalid input syntax for type uuid: \\\"AR_MDZ\\\"\"}}"}
+s @ index-D1RtPuWA.js:173
+await in s
+(anonymous) @ index-D1RtPuWA.js:173
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+(anonymous) @ index-D1RtPuWA.js:40
+setTimeout
+o @ index-D1RtPuWA.js:48
+s @ index-D1RtPuWA.js:48
+batch @ index-D1RtPuWA.js:48
+Jt @ index-D1RtPuWA.js:48
+setData @ index-D1RtPuWA.js:48
+onSuccess @ index-D1RtPuWA.js:48
+p @ index-D1RtPuWA.js:48
+Promise.then
+y @ index-D1RtPuWA.js:48
+start @ index-D1RtPuWA.js:48
+fetch @ index-D1RtPuWA.js:48
+ui @ index-D1RtPuWA.js:48
+onSubscribe @ index-D1RtPuWA.js:48
+subscribe @ index-D1RtPuWA.js:48
+(anonymous) @ index-D1RtPuWA.js:48
+Fm @ index-D1RtPuWA.js:38
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+vv @ index-D1RtPuWA.js:40
+E @ index-D1RtPuWA.js:25
+A @ index-D1RtPuWA.js:25Understand this error
+index-D1RtPuWA.js:173 🌐 Testing /api/citycatalyst/city/AR MDZ/boundary...
+index-D1RtPuWA.js:173  GET https://cc-poc-template.replit.app/api/citycatalyst/city/AR%20MDZ/boundary 500 (Internal Server Error)
+s @ index-D1RtPuWA.js:173
+await in s
+(anonymous) @ index-D1RtPuWA.js:173
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+(anonymous) @ index-D1RtPuWA.js:40
+setTimeout
+o @ index-D1RtPuWA.js:48
+s @ index-D1RtPuWA.js:48
+batch @ index-D1RtPuWA.js:48
+Jt @ index-D1RtPuWA.js:48
+setData @ index-D1RtPuWA.js:48
+onSuccess @ index-D1RtPuWA.js:48
+p @ index-D1RtPuWA.js:48
+Promise.then
+y @ index-D1RtPuWA.js:48
+start @ index-D1RtPuWA.js:48
+fetch @ index-D1RtPuWA.js:48
+ui @ index-D1RtPuWA.js:48
+onSubscribe @ index-D1RtPuWA.js:48
+subscribe @ index-D1RtPuWA.js:48
+(anonymous) @ index-D1RtPuWA.js:48
+Fm @ index-D1RtPuWA.js:38
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+vv @ index-D1RtPuWA.js:40
+E @ index-D1RtPuWA.js:25
+A @ index-D1RtPuWA.js:25Understand this error
+index-D1RtPuWA.js:173 ❌ /api/citycatalyst/city/AR MDZ/boundary ERROR: {"message":"GET /api/v0/city/AR_MDZ/boundary failed: 500 Internal Server Error — {\"error\":{\"message\":\"Internal server error\",\"error\":\"Failed to fetch city boundary\"}}"}
+s @ index-D1RtPuWA.js:173
+await in s
+(anonymous) @ index-D1RtPuWA.js:173
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+(anonymous) @ index-D1RtPuWA.js:40
+setTimeout
+o @ index-D1RtPuWA.js:48
+s @ index-D1RtPuWA.js:48
+batch @ index-D1RtPuWA.js:48
+Jt @ index-D1RtPuWA.js:48
+setData @ index-D1RtPuWA.js:48
+onSuccess @ index-D1RtPuWA.js:48
+p @ index-D1RtPuWA.js:48
+Promise.then
+y @ index-D1RtPuWA.js:48
+start @ index-D1RtPuWA.js:48
+fetch @ index-D1RtPuWA.js:48
+ui @ index-D1RtPuWA.js:48
+onSubscribe @ index-D1RtPuWA.js:48
+subscribe @ index-D1RtPuWA.js:48
+(anonymous) @ index-D1RtPuWA.js:48
+Fm @ index-D1RtPuWA.js:38
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+vv @ index-D1RtPuWA.js:40
+E @ index-D1RtPuWA.js:25
+A @ index-D1RtPuWA.js:25Understand this error
+index-D1RtPuWA.js:173 ❌ /api/citycatalyst/inventories EXCEPTION: ReferenceError: firstCity is not defined
+    at s (index-D1RtPuWA.js:173:32676)
+s @ index-D1RtPuWA.js:173
+await in s
+(anonymous) @ index-D1RtPuWA.js:173
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+(anonymous) @ index-D1RtPuWA.js:40
+setTimeout
+o @ index-D1RtPuWA.js:48
+s @ index-D1RtPuWA.js:48
+batch @ index-D1RtPuWA.js:48
+Jt @ index-D1RtPuWA.js:48
+setData @ index-D1RtPuWA.js:48
+onSuccess @ index-D1RtPuWA.js:48
+p @ index-D1RtPuWA.js:48
+Promise.then
+y @ index-D1RtPuWA.js:48
+start @ index-D1RtPuWA.js:48
+fetch @ index-D1RtPuWA.js:48
+ui @ index-D1RtPuWA.js:48
+onSubscribe @ index-D1RtPuWA.js:48
+subscribe @ index-D1RtPuWA.js:48
+(anonymous) @ index-D1RtPuWA.js:48
+Fm @ index-D1RtPuWA.js:38
+Fa @ index-D1RtPuWA.js:40
+to @ index-D1RtPuWA.js:40
+eh @ index-D1RtPuWA.js:40
+qn @ index-D1RtPuWA.js:38
+u1 @ index-D1RtPuWA.js:40
+rr @ index-D1RtPuWA.js:40
+vv @ index-D1RtPuWA.js:40
+E @ index-D1RtPuWA.js:25
+A @ index-D1RtPuWA.js:25Understand this error
+index-D1RtPuWA.js:173 🧪 CityCatalyst API tests completed!
