@@ -1,0 +1,84 @@
+
+index-afnEFDSa.js:173 📊 Full response structure: {
+  "data": [
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    },
+    {
+      "locode": "unknown",
+      "name": "Unknown City",
+      "years": [],
+      "inventories": []
+    }
+  ]
+}
+index-afnEFDSa.js:173 🔍 Looking for valid city with locode from: 
+Array(9)
+index-afnEFDSa.js:173 ✅ Found valid city: 
+Object
+index-afnEFDSa.js:173 🌐 Testing /api/citycatalyst/city/unknown...
+api/citycatalyst/city/unknown:1 
+ Failed to load resource: the server responded with a status of 500 ()
+index-afnEFDSa.js:173 ❌ /api/citycatalyst/city/unknown ERROR: {"message":"GET /api/v0/city/unknown failed: 500 Internal Server Error — {\"error\":{\"message\":\"Internal server error\",\"error\":\"invalid input syntax for type uuid: \\\"unknown\\\"\"}}"}
+index-afnEFDSa.js:173 🌐 Testing /api/citycatalyst/city/unknown/boundary...
+api/citycatalyst/city/unknown/boundary:1 
+ Failed to load resource: the server responded with a status of 500 ()
+index-afnEFDSa.js:173 ❌ /api/citycatalyst/city/unknown/boundary ERROR: {"message":"GET /api/v0/city/unknown/boundary failed: 500 Internal Server Error — {\"error\":{\"message\":\"Internal server error\",\"error\":\"Failed to fetch city boundary\"}}"}
+index-afnEFDSa.js:173 ❌ /api/citycatalyst/inventories EXCEPTION: ReferenceError: firstCity is not defined
+    at s (index-afnEFDSa.js:173:32503)
+index-afnEFDSa.js:173 🧪 CityCatalyst API tests completed!
+﻿
+
+Preconnected origins in 'Network dependency tree' insight
+The 'Network dependency tree' insight now shows you a list of used or unused preconnected origins and preconnect candidates, if any.
+
+Server response and redirection times in 'Document request latency' insight
+The 'Document request latency' insight now shows you server response time and, if any, redirection time.
+
+Geolocation accuracy parameter in Sensors
+The Sensors panel now lets you set accuracy in geolocation emulation, so you can test the handling of different levels of GPS accuracy.

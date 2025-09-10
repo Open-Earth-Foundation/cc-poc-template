@@ -47,12 +47,13 @@ export function CityCatalystApiTester() {
         // If we got cities, test individual city endpoints
         if (data.data && data.data.length > 0) {
           // Find the first city with a valid locode
-          const validCity = data.data.find((city: any) => city.locode && city.locode !== 'undefined');
+          const validCity = data.data.find((city: any) => city.locode && city.locode !== 'undefined' && city.locode !== 'unknown');
           console.log('🔍 Looking for valid city with locode from:', data.data);
           console.log('✅ Found valid city:', validCity);
           
           if (!validCity) {
-            console.log('❌ No cities with valid locode found');
+            console.log('❌ No cities with valid locode found - all cities have "unknown" locode');
+            console.log('💡 This suggests the CityCatalyst /api/v0/user/cities/ response structure is different than expected');
             return;
           }
           
@@ -243,7 +244,11 @@ export function CityCatalystApiTester() {
         
         <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
           <strong>Note:</strong> All API responses are logged to the server console for data structure analysis.
-          Check the server logs for detailed CityCatalyst API response data.
+          {testResults.some(r => r.error?.includes('unknown')) && (
+            <div className="mt-2 text-orange-600">
+              <strong>Debug:</strong> All cities have "unknown" locode - check CityCatalyst API response structure.
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
