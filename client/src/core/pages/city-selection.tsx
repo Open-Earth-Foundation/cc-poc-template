@@ -4,13 +4,14 @@ import { Input } from "@/core/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { Header } from "@/core/components/layout/header";
 import { CityCard } from "@/core/components/city/city-card";
+import { UserDataCard } from "@/core/components/user/user-data-card";
 import { useAuth } from "@/core/hooks/useAuth";
 import { useCities } from "@/core/hooks/useCities";
 import { City } from "@/core/types/city";
 
 export default function CitySelection() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { data: citiesData, isLoading: citiesLoading } = useCities();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProject, setSelectedProject] = useState<string>("all");
@@ -68,6 +69,13 @@ export default function CitySelection() {
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* User Data Section */}
+        {user && (
+          <div className="mb-8">
+            <UserDataCard user={user} />
+          </div>
+        )}
+        
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2" data-testid="text-page-title">
             Select a City
