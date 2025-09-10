@@ -130,15 +130,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get user profile (pass full token response for ID token access)
-      const cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
-      console.log('User profile retrieved:', cityCatalystUser.email);
+      let cityCatalystUser;
+      try {
+        cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
+        console.log('User profile retrieved:', cityCatalystUser.email);
+      } catch (profileError) {
+        console.error('❌ Failed to get user profile:', profileError);
+        throw new Error('Failed to retrieve user profile');
+      }
       
       // Create or update user
-      const user = await createOrUpdateUser(
-        cityCatalystUser,
-        tokenResponse.access_token,
-        tokenResponse.refresh_token
-      );
+      let user;
+      try {
+        user = await createOrUpdateUser(
+          cityCatalystUser,
+          tokenResponse.access_token,
+          tokenResponse.refresh_token
+        );
+        console.log('✅ User created/updated successfully:', user.email);
+      } catch (userError) {
+        console.error('❌ Failed to create/update user:', userError);
+        throw new Error('Failed to create or update user');
+      }
       
       // Update session with user ID
       await storage.updateSession(session.id, {
@@ -156,8 +169,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Redirect to cities page after successful authentication
       res.redirect('/cities');
     } catch (error) {
-      console.error('OAuth callback error:', error);
-      res.redirect('/login?error=Authentication failed');
+      console.error('❌ OAuth callback error:', error);
+      
+      // Enhanced error logging to identify the source of undefined errors
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      } else {
+        console.error('Non-Error object thrown:', error);
+        console.error('Type:', typeof error);
+        console.error('Stringified:', String(error));
+      }
+      
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+      res.redirect(`/login?error=${encodeURIComponent(errorMessage)}`);
     }
   });
 

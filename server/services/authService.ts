@@ -343,7 +343,10 @@ export async function createOrUpdateUser(
     });
   }
   
-  return user!;
+  if (!user) {
+    throw new Error('Failed to create or update user');
+  }
+  return user;
 }
 
 export function generateSessionToken(): string {
