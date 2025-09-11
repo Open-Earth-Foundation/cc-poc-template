@@ -1,0 +1,100 @@
+2025-09-11 13:54:21.40
+bbb22c71
+User
+> NODE_ENV=production node dist/index.js
+2025-09-11 13:54:22.41
+bbb22c71
+User
+4:54:22 PM [express] serving on port 5000
+2025-09-11 13:54:37.97
+bbb22c71
+User
+4:54:37 PM [express] GET /api/user/profile 401 in 3ms :: {"message":"Session expired"}
+2025-09-11 13:54:39.19
+bbb22c71
+User
+4:54:39 PM [express] GET /api/auth/oauth/initiate 200 in 2ms :: {"authUrl":"https://citycatalyst.ope…
+2025-09-11 13:54:41.94
+bbb22c71
+User
+❌ OAuth callback error: SyntaxError: Unexpected token '<', "
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at JSON.parse ()
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at parseJSONFromBytes (node:internal/deps/undici/undici:5738:19)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at successSteps (node:internal/deps/undici/undici:5719:27)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at fullyReadBody (node:internal/deps/undici/undici:4609:9)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at async consumeBody (node:internal/deps/undici/undici:5728:7)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at async exchangeCodeForToken (file:///home/runner/workspace/dist/index.js:240:18)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at async file:///home/runner/workspace/dist/index.js:472:25
+2025-09-11 13:54:41.94
+bbb22c71
+User
+Error message: Unexpected token '<', "
+2025-09-11 13:54:41.94
+bbb22c71
+User
+Error stack: SyntaxError: Unexpected token '<', "
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at JSON.parse ()
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at parseJSONFromBytes (node:internal/deps/undici/undici:5738:19)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at successSteps (node:internal/deps/undici/undici:5719:27)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at fullyReadBody (node:internal/deps/undici/undici:4609:9)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at async consumeBody (node:internal/deps/undici/undici:5728:7)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at async exchangeCodeForToken (file:///home/runner/workspace/dist/index.js:240:18)
+2025-09-11 13:54:41.94
+bbb22c71
+User
+at async file:///home/runner/workspace/dist/index.js:472:25
+2025-09-11 13:54:41.95
+bbb22c71
+User
+4:54:41 PM [express] GET /api/auth/oauth/callback 302 in 618ms
+2025-09-11 13:54:42.59
+bbb22c71
+User
+4:54:42 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"User not found"}

@@ -240,7 +240,7 @@ export function generateOAuthState(): OAuthState {
     scope: 'read write',  // CityCatalyst valid scopes: read, write
   });
 
-  const authUrl = `${AUTH_BASE_URL}/authorize/?${params.toString()}`;
+  const authUrl = `${AUTH_BASE_URL}/authorize?${params.toString()}`;
 
   return {
     codeVerifier,
@@ -292,7 +292,7 @@ export async function exchangeCodeForToken(code: string, codeVerifier: string): 
     code_verifier: codeVerifier,
   });
 
-  const response = await fetch(`${AUTH_BASE_URL}/token/`, {
+  const response = await fetch(`${AUTH_BASE_URL}/api/v0/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
