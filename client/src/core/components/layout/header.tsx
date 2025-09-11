@@ -62,7 +62,7 @@ export function Header() {
             >
               <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center p-0 overflow-hidden">
                 <img 
-                  src="/boundary-icon.png" 
+                  src="/poc-icon.png" 
                   alt={t('header.iconAlt')} 
                   className="w-8 h-8 object-cover"
                 />
