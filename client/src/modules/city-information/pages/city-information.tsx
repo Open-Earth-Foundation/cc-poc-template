@@ -5,6 +5,7 @@ import { Badge } from "@/core/components/ui/badge";
 import { Button } from "@/core/components/ui/button";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { useCityInformation } from "../hooks/useCityInformation";
+import { InventoryCard } from "../components/inventory-card";
 import { MapPin, Globe, Calendar, Database, ArrowLeft, Building2, Clock } from "lucide-react";
 
 export default function CityInformation() {
@@ -222,51 +223,12 @@ export default function CityInformation() {
               {city.years
                 .sort((a, b) => (b.year || 0) - (a.year || 0)) // Sort by year, newest first
                 .map((yearData) => (
-                  <Card key={yearData.inventoryId} className="hover:shadow-md transition-shadow" data-testid={`card-inventory-${yearData.year}`}>
-                    <CardContent className="pt-6">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="text-2xl font-bold text-primary" data-testid={`text-year-${yearData.year}`}>
-                              {yearData.year}
-                            </div>
-                            <p className="text-sm text-muted-foreground">Emissions Inventory</p>
-                          </div>
-                          <Badge variant="outline" data-testid={`badge-status-${yearData.year}`}>
-                            Available
-                          </Badge>
-                        </div>
-                        
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Inventory ID</span>
-                            <span className="font-mono text-xs" data-testid={`text-inventory-id-${yearData.year}`}>
-                              {yearData.inventoryId.slice(0, 8)}...
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Last Update</span>
-                            <span className="text-xs" data-testid={`text-update-date-${yearData.year}`}>
-                              {new Date(yearData.lastUpdate).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="pt-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="w-full"
-                            disabled
-                            data-testid={`button-view-inventory-${yearData.year}`}
-                          >
-                            <Clock className="h-4 w-4 mr-2" />
-                            View Details (Coming Soon)
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <InventoryCard
+                    key={yearData.inventoryId}
+                    inventory={yearData}
+                    cityName={city.name}
+                    locode={city.locode}
+                  />
                 ))}
             </div>
           ) : (

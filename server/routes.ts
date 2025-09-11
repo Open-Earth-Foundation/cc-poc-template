@@ -391,9 +391,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         country: getCountryFromLocode(cityInfo.locode),
         locodePrefix: cityInfo.locode.split(' ')[0],
         totalInventories: cityInfo.years.length,
-        availableYears: cityInfo.years.map(y => y.year || y).sort((a, b) => b - a),
-        latestUpdate: cityInfo.years.length > 0 ? 
-          Math.max(...cityInfo.years.map(y => new Date(y.lastUpdate || '').getTime())) : null
+        availableYears: cityInfo.years.map(y => typeof y === 'object' ? y.year : y).filter(Boolean).sort((a, b) => b - a),
+        latestUpdate: (() => {
+          const validTimes = cityInfo.years.map(y => {
+            const updateTime = typeof y === 'object' && y.lastUpdate ? new Date(y.lastUpdate).getTime() : 0;
+            return updateTime || 0;
+          }).filter(t => t > 0);
+          return validTimes.length > 0 ? Math.max(...validTimes) : null;
+        })()
       };
       
       console.log(`✅ Found city: ${cityInfo.name} (${cityInfo.locode})`);
