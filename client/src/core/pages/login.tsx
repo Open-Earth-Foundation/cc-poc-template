@@ -69,7 +69,7 @@ export default function Login() {
         <Card>
           <CardContent className="p-8">
             <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-6 p-0">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-6 p-0 overflow-hidden">
                 <img 
                   src="/boundary-icon.png" 
                   alt={t('header.iconAlt')} 

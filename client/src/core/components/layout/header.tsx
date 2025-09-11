@@ -60,7 +60,7 @@ export function Header() {
               className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => setLocation('/cities')}
             >
-              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center p-0">
+              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center p-0 overflow-hidden">
                 <img 
                   src="/boundary-icon.png" 
                   alt={t('header.iconAlt')} 
