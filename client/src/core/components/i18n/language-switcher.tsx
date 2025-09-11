@@ -14,13 +14,13 @@ export function LanguageSwitcher() {
     i18n.changeLanguage(languageCode);
   };
 
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+  const currentLanguage = languages.find(lang => lang.code === i18n.resolvedLanguage) || languages[0];
 
   return (
     <div className="flex items-center gap-2" data-testid="language-switcher">
       <Globe className="h-4 w-4 text-muted-foreground" />
       <Select 
-        value={i18n.language} 
+        value={i18n.resolvedLanguage} 
         onValueChange={handleLanguageChange}
       >
         <SelectTrigger className="w-auto min-w-[120px]" data-testid="select-language">

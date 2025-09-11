@@ -5,11 +5,13 @@ import { Button } from "@/core/components/ui/button";
 import { useAuth } from "@/core/hooks/useAuth";
 import { initiateOAuth } from "@/core/services/authService";
 import { useToast } from "@/core/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -23,8 +25,8 @@ export default function Login() {
       window.location.href = oauthResponse.authUrl;
     } catch (error: any) {
       toast({
-        title: "Login Failed",
-        description: error.message || "Failed to initiate OAuth flow",
+        title: t('errors.authenticationFailed'),
+        description: error.message || t('errors.networkError'),
         variant: "destructive",
       });
     }
@@ -36,8 +38,8 @@ export default function Login() {
       await handleOAuthLogin();
     } catch (error: any) {
       toast({
-        title: "Login Failed",
-        description: error.message || "Failed to use sample user",
+        title: t('errors.authenticationFailed'),
+        description: error.message || t('errors.validationError'),
         variant: "destructive",
       });
     }
@@ -65,10 +67,10 @@ export default function Login() {
                 />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2" data-testid="text-login-title">
-                Welcome to a CC POC Module
+                {t('login.title')}
               </h2>
               <p className="text-muted-foreground mb-8" data-testid="text-login-subtitle">
-                Connect your CityCatalyst account to access your data.
+                {t('login.subtitle')}
               </p>
             </div>
             
@@ -81,7 +83,7 @@ export default function Login() {
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                 </svg>
-                Continue with CityCatalyst
+                {t('login.continueButton')}
               </Button>
               
               <div className="text-center">
@@ -90,7 +92,7 @@ export default function Login() {
                   onClick={handleSampleLogin}
                   data-testid="button-sample-login"
                 >
-                  Use Sample User (for testing)
+                  {t('login.sampleButton')}
                 </Button>
               </div>
             </div>

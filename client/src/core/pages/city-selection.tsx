@@ -8,10 +8,12 @@ import { UserDataCard } from "@/core/components/user/user-data-card";
 import { useAuth } from "@/core/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { City } from "@/core/types/city";
+import { useTranslation } from 'react-i18next';
 
 export default function CitySelection() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { t } = useTranslation();
   // Use CityCatalyst inventories data instead of local database
   const { data: inventoriesData, isLoading: citiesLoading } = useQuery({
     queryKey: ['/api/citycatalyst/inventories'],
@@ -101,10 +103,10 @@ export default function CitySelection() {
         
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2" data-testid="text-page-title">
-            Select a City
+            {t('citySelection.title')}
           </h2>
           <p className="text-muted-foreground" data-testid="text-page-subtitle">
-            Choose a city to see its data
+            {t('citySelection.subtitle')}
           </p>
         </div>
         
@@ -114,7 +116,7 @@ export default function CitySelection() {
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Search cities..."
+                placeholder={t('citySelection.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -138,10 +140,10 @@ export default function CitySelection() {
           
           <Select value={selectedProject} onValueChange={setSelectedProject}>
             <SelectTrigger className="w-full sm:w-48" data-testid="select-project-filter">
-              <SelectValue placeholder="All Projects" />
+              <SelectValue placeholder={t('citySelection.allProjects')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Projects</SelectItem>
+              <SelectItem value="all">{t('citySelection.allProjects')}</SelectItem>
               {projects.map((projectId: string) => (
                 <SelectItem key={projectId} value={projectId}>
                   {projectId.replace('project-', '').replace('-', ' ').split(' ').map((word: string) => 
@@ -168,7 +170,7 @@ export default function CitySelection() {
         {filteredCities.length === 0 && !citiesLoading && (
           <div className="text-center py-12">
             <div className="text-muted-foreground mb-4" data-testid="text-no-cities">
-              {searchTerm ? "No cities match your search criteria." : "No cities available."}
+              {searchTerm ? t('citySelection.noCitiesFound') : t('citySelection.noCitiesAvailable')}
             </div>
             {searchTerm && (
               <button
@@ -176,7 +178,7 @@ export default function CitySelection() {
                 className="text-primary hover:underline"
                 data-testid="button-clear-search"
               >
-                Clear search
+                {t('citySelection.clearSearch')}
               </button>
             )}
           </div>

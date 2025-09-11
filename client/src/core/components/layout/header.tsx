@@ -2,10 +2,13 @@ import { Button } from "@/core/components/ui/button";
 import { useAuth } from "@/core/hooks/useAuth";
 import { initiateOAuth } from "@/core/services/authService";
 import { useToast } from "@/core/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/core/components/i18n/language-switcher';
 
 export function Header() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     try {
@@ -13,8 +16,8 @@ export function Header() {
       window.location.href = oauthResponse.authUrl;
     } catch (error) {
       toast({
-        title: "Login Failed",
-        description: "Failed to initiate OAuth flow. Please try again.",
+        title: t('errors.authenticationFailed'),
+        description: t('errors.networkError'),
         variant: "destructive",
       });
     }
@@ -24,13 +27,13 @@ export function Header() {
     try {
       await logout();
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: t('navigation.logout'),
+        description: t('common.success'),
       });
     } catch (error) {
       toast({
-        title: "Logout Failed",
-        description: "Failed to logout. Please try again.",
+        title: t('errors.serverError'),
+        description: t('errors.networkError'),
         variant: "destructive",
       });
     }
@@ -49,12 +52,13 @@ export function Header() {
                   className="w-8 h-8 object-contain"
                 />
               </div>
-              <h1 className="text-xl font-semibold text-white">CC POC Module</h1>
+              <h1 className="text-xl font-semibold text-white">{t('header.title')}</h1>
             </div>
-            <span className="text-sm text-white/80">CityCatalyst Prototype Module</span>
+            <span className="text-sm text-white/80">{t('header.subtitle')}</span>
           </div>
           
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             {isLoading ? (
               <div className="h-8 w-24 bg-white/20 animate-pulse rounded"></div>
             ) : isAuthenticated && user ? (
@@ -70,7 +74,7 @@ export function Header() {
                   data-testid="button-logout"
                   className="border-white bg-primary text-white hover:bg-white hover:text-primary"
                 >
-                  Logout
+                  {t('navigation.logout')}
                 </Button>
               </div>
             ) : (
@@ -79,7 +83,7 @@ export function Header() {
                 data-testid="button-login"
                 className="bg-white text-primary hover:bg-white/90"
               >
-                Sign In with CityCatalyst
+                {t('login.continueButton')}
               </Button>
             )}
           </div>
