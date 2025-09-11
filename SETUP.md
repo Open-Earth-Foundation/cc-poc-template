@@ -163,6 +163,38 @@ app.get('/api/your-endpoint', requireAuth, async (req: any, res) => {
 });
 ```
 
+## Internationalization (i18n)
+
+This template includes complete internationalization support for English and Portuguese, with an easy-to-extend structure for additional languages.
+
+### Features
+- ✅ English and Portuguese translations
+- ✅ Automatic language detection from browser preferences
+- ✅ Language preference persistence in localStorage
+- ✅ Elegant language switcher component
+- ✅ Translation key organization by feature domain
+
+### Quick Start
+1. **Switch languages:** Use the language switcher (🇺🇸 EN / 🇧🇷 PT) in the app header
+2. **Languages persist:** Your language choice is saved automatically
+3. **All content translated:** Forms, navigation, data displays, and error messages
+
+### For Developers
+- **📖 Complete Documentation:** See [`docs/i18n.md`](docs/i18n.md) for comprehensive setup and usage guide
+- **🌍 Adding Languages:** Step-by-step instructions for adding new languages
+- **🔧 Translation Management:** How to add and organize translation keys
+- **⚛️ Component Integration:** Best practices for using translations in React components
+
+### Adding Translation/Language Support
+
+**Quick checklist for contributors:**
+- Add new translation keys to **all** language files (`en.json`, `pt.json`)
+- Test language switching after changes
+- Group keys by feature domain (e.g., `login.*`, `citySelection.*`)
+- Use `t('key.path')` instead of hardcoded strings in components
+
+For detailed instructions, see [`docs/i18n.md`](docs/i18n.md).
+
 ## Database Integration
 
 ### Using PostgreSQL (Advanced)

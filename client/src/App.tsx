@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/core/components/ui/toaster";
 import { TooltipProvider } from "@/core/components/ui/tooltip";
 import { CityCatalystTab } from "@/core/components/layout/citycatalyst-tab";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 // Core pages
 import Login from "@/core/pages/login";
@@ -31,6 +33,13 @@ function Router() {
 }
 
 function App() {
+  const { i18n } = useTranslation();
+
+  // Sync HTML lang attribute with current language for accessibility and SEO
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
