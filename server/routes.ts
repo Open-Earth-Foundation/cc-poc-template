@@ -9,7 +9,6 @@ import {
   generateSessionToken 
 } from "./services/authService";
 import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails } from "./services/cityService";
-import { registerBoundaryRoutes } from "./modules/boundary/routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -364,7 +363,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Register module routes
-  registerBoundaryRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
