@@ -179,6 +179,54 @@ export async function getCityBoundary(locode: string, accessToken: string): Prom
 }
 
 /**
+ * Get detailed inventory information by inventory ID
+ * GET /api/v0/inventory/{inventory}
+ * 
+ * Returns comprehensive inventory details including:
+ * - inventoryId, inventoryName, year
+ * - totalEmissions, inventoryType
+ * - globalWarmingPotentialType, lastUpdated
+ * - Full city details with project information
+ */
+export async function getInventoryDetails(inventoryId: string, accessToken: string): Promise<{
+  inventoryId: string;
+  inventoryName: string;
+  year: number;
+  totalEmissions: number | null;
+  cityId: string;
+  totalCountryEmissions: number | null;
+  isPublic: boolean;
+  publishedAt: string | null;
+  inventoryType: string;
+  globalWarmingPotentialType: string;
+  lastUpdated: string;
+  created: string;
+  city: {
+    cityId: string;
+    locode: string;
+    name: string;
+    shape: any;
+    country: string;
+    region: string;
+    countryLocode: string;
+    regionLocode: string;
+    area: string;
+    projectId: string;
+    created: string;
+    last_updated: string;
+    project: {
+      projectId: string;
+      name: string;
+      organizationId: string;
+    };
+  };
+}> {
+  // Use 'default' for user's default inventory, or specific inventory ID
+  const endpoint = inventoryId === 'default' ? '/api/v0/inventory/default' : `/api/v0/inventory/${inventoryId}`;
+  return cityCatalystApiGet(endpoint, accessToken);
+}
+
+/**
  * Get all inventories for multiple cities (used for overview)
  */
 export async function getInventoriesByCity(accessToken: string): Promise<Array<{
