@@ -1,0 +1,78 @@
+Certificate Background & Design System
+Goals
+
+Provide each certificate with a unique, sophisticated visual background, similar to banknote guilloché patterns, enhancing credibility and authenticity.
+
+Ensure the background subtly communicates sustainability and environmental stewardship.
+
+Generate designs dynamically so they cannot be trivially forged.
+
+Design Language
+
+Fractal / Guilloché Patterns:
+
+Inspired by security printing (e.g., on bills), generated using parametric equations.
+
+Each certificate generates a seed-based unique pattern, tied to certificate ID + city ID (ensuring both uniqueness and reproducibility).
+
+Symmetry and repetition provide elegance while preventing predictability.
+
+Gradient Palettes (Sustainability-themed):
+
+Green spectrum: From deep forest greens to light lime, symbolizing growth.
+
+Blue spectrum: Ocean and sky tones for water/air.
+
+Earth neutrals: Sand, clay, and wood hues as secondary tones.
+
+Optional: Seasonal palettes (autumn leaves, spring blossoms, etc.) tied to city’s hemisphere & certificate creation date.
+
+Nature Motifs Embedded:
+
+Leaf vein fractals, solar flare waves, water ripple interference, or root-like branching as fractal base patterns.
+
+Subtle enough to be decorative, not illustrative (avoiding clip-art feel).
+
+Technical Approach
+
+Procedural Background Generation:
+
+Use Canvas API or SVG with D3.js/p5.js to render fractals/guilloché patterns.
+
+Background generation is deterministic based on certificate UUID → ensures uniqueness and reproducibility without storage overhead.
+
+Exported as SVG (scalable) → rasterized into PNG/PDF for final certificate.
+
+Gradient Layering:
+
+Blend fractal lines with 2- or 3-stop gradients (e.g., green → gold, blue → turquoise).
+
+Opacity overlays for subtle texture.
+
+Security-like Details:
+
+Fine line density to prevent trivial reproduction.
+
+Optional microtext with city name or certificate ID along curves (like watermarks).
+
+Sustainability Symbolism
+
+Circular Mandala Motifs → represent regeneration & cycles.
+
+Branching/L-system fractals → symbolize ecosystems & networks.
+
+Wave Interference patterns → symbolize interconnectedness & ripple effects.
+
+Hexagonal tiling → subtle nod to beehives/pollinators.
+
+Example Flow
+
+Certificate ID = UUID-1234 → hashed to a numeric seed.
+
+Seed is fed into fractal generator (e.g., rose curve, L-system tree).
+
+City ID modifies symmetry parameters (so Buenos Aires patterns differ from São Paulo).
+
+Gradient palette selected based on sustainability theme (forest/river/earth).
+
+Exported into SVG background + QR + certificate text overlay.

@@ -1,0 +1,295 @@
+1) Deterministic design contract
+
+Seed = SHA256(cityId + ":" + certificateId).slice(0, 16) → feed to a tiny PRNG.
+This guarantees: same inputs → same background; different inputs → different art.
+
+// seed.ts
+export function sha256Hex(str: string) {
+  const enc = new TextEncoder().encode(str);
+  return crypto.subtle.digest("SHA-256", enc).then(buf =>
+    [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("")
+  );
+}
+
+export function mulberry32(seed: number) {
+  return function() {
+    let t = (seed += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export async function rngFrom(cityId: string, certId: string) {
+  const hex = await sha256Hex(`${cityId}:${certId}`);
+  // take first 8 hex chars -> int
+  const seed = parseInt(hex.slice(0, 8), 16);
+  return mulberry32(seed);
+}
+
+2) Palette system (sustainability themes)
+
+Choose a base theme programmatically, then jitter stops with the PRNG for subtle uniqueness.
+
+// palettes.ts
+export type Palette = { name: string; stops: string[] };
+
+export const PALETTES: Palette[] = [
+  { name: "Forest", stops: ["#0b3d2e", "#117a65", "#a3e635"] },
+  { name: "Ocean",  stops: ["#0a2540", "#0ea5e9", "#67e8f9"] },
+  { name: "Earth",  stops: ["#3b2f2f", "#8d6e63", "#d7ccc8"] },
+  { name: "Pollinator", stops: ["#1f2937", "#f59e0b", "#fde68a"] },
+  { name: "Renewables", stops: ["#0b132b", "#1c7ed6", "#e9ff70"] },
+];
+
+export function pickPalette(rand: () => number, cityId: string) {
+  // example: vary by hemisphere or city type if you want
+  return PALETTES[Math.floor(rand() * PALETTES.length)];
+}
+
+3) Guilloché (banknote-style) pattern generator (SVG)
+
+We’ll use a rose curve / epitrochoid blend. Lines are path‐stroking only (no heavy fills), so it renders crisply and exports well.
+
+// guilloche.ts
+type GuillocheOpts = {
+  width: number; height: number;
+  loops?: number;  // line density
+  k?: number;      // rose parameter
+  a?: number; b?: number; // epi/ hypotrochoid radii
+  stroke?: string; strokeOpacity?: number; strokeWidth?: number;
+};
+
+export function guillochePath(rand: () => number, w: number, h: number) {
+  // Center & scale
+  const cx = w / 2, cy = h / 2;
+  const R = Math.min(w, h) * 0.45;
+
+  // parameters from PRNG
+  const k = 2 + Math.floor(rand() * 7);       // rose petals multiplier
+  const a = R * (0.4 + rand() * 0.5);         // epi radius
+  const b = a * (0.2 + rand() * 0.5);         // epi inner
+
+  const steps = 3600;
+  const pts: [number, number][] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = (Math.PI * 2 * i) / steps;
+    // blend rose + epitrochoid
+    const r = R * Math.cos(k * t);
+    const x1 = cx + r * Math.cos(t);
+    const y1 = cy + r * Math.sin(t);
+
+    const x2 = cx + (a + b) * Math.cos(t) - b * Math.cos(((a + b) / b) * t);
+    const y2 = cy + (a + b) * Math.sin(t) - b * Math.sin(((a + b) / b) * t);
+
+    const x = (x1 * 0.55 + x2 * 0.45);
+    const y = (y1 * 0.55 + y2 * 0.45);
+    pts.push([x, y]);
+  }
+  // convert to SVG path
+  return "M" + pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" L ");
+}
+
+export function buildGuillocheSVG(
+  rand: () => number,
+  { width, height, loops = 9, stroke = "rgba(255,255,255,0.75)", strokeOpacity = 0.7, strokeWidth = 0.6 }: GuillocheOpts
+) {
+  const paths: string[] = [];
+  for (let i = 0; i < loops; i++) {
+    paths.push(
+      `<path d="${guillochePath(rand, width, height)}" stroke="white" stroke-opacity="${strokeOpacity * (0.7 + i/loops*0.5)}" stroke-width="${strokeWidth}" fill="none"/>`
+    );
+  }
+  return `<g>${paths.join("")}</g>`;
+}
+
+4) Microtext and sustainability icons (subtle, security-style)
+
+Microtext ring: repeat city name + certificate short hash along a circular path.
+
+Hex tiling watermark: faint hex grid (pollinators).
+
+Leaf-vein accent: thin Bézier curve layer.
+
+// ornaments.ts
+export function microtextDefs(id: string, cx: number, cy: number, r: number) {
+  return `
+  <defs>
+    <path id="circ-${id}" d="
+      M ${cx - r},${cy}
+      a ${r},${r} 0 1,0 ${2*r},0
+      a ${r},${r} 0 1,0 ${-2*r},0" />
+  </defs>`;
+}
+
+export function microtextUse(id: string, text: string) {
+  return `
+  <text font-size="6" letter-spacing="1" fill="currentColor" opacity="0.6">
+    <textPath href="#circ-${id}" startOffset="0%">
+      ${text} • ${text} • ${text} • ${text}
+    </textPath>
+  </text>`;
+}
+
+export function hexGrid(w: number, h: number, cell = 22) {
+  const hex = (x:number,y:number,s:number)=> {
+    const pts = Array.from({length:6},(_,i)=>{
+      const a = Math.PI/3*i; return `${(x+s*Math.cos(a)).toFixed(1)},${(y+s*Math.sin(a)).toFixed(1)}`;
+    }).join(" ");
+    return `<polygon points="${pts}" />`;
+  };
+  let g = `<g stroke="currentColor" opacity="0.08" fill="none" stroke-width="0.8">`;
+  const s = cell/2;
+  const hStep = s*3;
+  const vStep = Math.sqrt(3)*s;
+  for(let row=0; row<h/vStep+2; row++){
+    for(let col=0; col<w/hStep+2; col++){
+      const x = col*hStep + (row%2 ? 1.5*s : s);
+      const y = row*vStep + s;
+      g += hex(x,y,s);
+    }
+  }
+  return g + `</g>`;
+}
+
+5) Gradient + layering
+
+We’ll layer: gradient background → hex watermark → guilloché → microtext → (optional) leaf-vein accent.
+
+// background.ts
+import { pickPalette } from "./palettes";
+import { buildGuillocheSVG } from "./guilloche";
+import { hexGrid, microtextDefs, microtextUse } from "./ornaments";
+
+export async function buildCertificateBackgroundSVG(params: {
+  cityId: string; certId: string; width?: number; height?: number;
+}) {
+  const { cityId, certId, width = 2480, height = 3508 } = params; // A4 @ ~300dpi
+  const rand = await (await import("./seed")).rngFrom(cityId, certId);
+  const palette = pickPalette(rand, cityId);
+  const id = certId.slice(0, 8);
+  const cx = width/2, cy = height/2;
+
+  // gradient
+  const [g1,g2,g3] = palette.stops;
+  const defs = `
+    <defs>
+      <radialGradient id="bg-grad" cx="50%" cy="45%" r="75%">
+        <stop offset="0%" stop-color="${g2}" />
+        <stop offset="60%" stop-color="${g1}" />
+        <stop offset="100%" stop-color="${g1}" />
+      </radialGradient>
+      <linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${g3}" />
+        <stop offset="100%" stop-color="white" />
+      </linearGradient>
+    </defs>
+  `;
+
+  const guilloche = buildGuillocheSVG(rand, { width, height, loops: 10, strokeWidth: 0.7 } as any)
+    .replace(/stroke="white"/g, `stroke="url(#line-grad)"`);
+
+  const microDefs = microtextDefs(id, cx, cy, Math.min(cx, cy)*0.62);
+  const microRing = microtextUse(id, `${cityId.toUpperCase()} • ${id}`);
+
+  const svg = `
+  <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+    ${defs}
+    ${microDefs}
+    <rect width="100%" height="100%" fill="url(#bg-grad)"/>
+    <g style="color:${g3}">${hexGrid(width,height,24)}</g>
+    <g style="mix-blend-mode:screen">${guilloche}</g>
+    <g style="color:${g3}">${microRing}</g>
+  </svg>`;
+  return { svg, paletteName: palette.name };
+}
+
+
+Usage (React/Vite):
+
+// CertificateBackground.tsx
+import { useEffect, useState } from "react";
+import { buildCertificateBackgroundSVG } from "./design/background";
+
+export default function CertificateBackground({ cityId, certId }: {cityId:string; certId:string}) {
+  const [svg, setSvg] = useState<string>("");
+  useEffect(() => {
+    buildCertificateBackgroundSVG({ cityId, certId }).then(({ svg }) => setSvg(svg));
+  }, [cityId, certId]);
+  return <div dangerouslySetInnerHTML={{ __html: svg }} aria-hidden />;
+}
+
+6) Rendering to PNG/PDF for downloads
+
+Browser PNG: use canvg to render SVG → <canvas> → toDataURL().
+
+Server PNG/PDF: use Puppeteer or resvg.
+
+// server/export.ts (Node)
+import puppeteer from "puppeteer";
+export async function svgToPng(svg: string, width = 2480, height = 3508) {
+  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+  const page = await browser.newPage();
+  await page.setContent(`<html><body style="margin:0">${svg}</body></html>`, { waitUntil: "networkidle0" });
+  const buf = await page.screenshot({ clip: { x:0, y:0, width, height }, omitBackground: false, type: "png" });
+  await browser.close();
+  return buf; // Buffer -> save or zip
+}
+
+7) Integration into your PRD / modules
+
+New module: design/
+
+seed.ts → deterministic PRNG
+
+palettes.ts → sustainability themes
+
+guilloche.ts → parametric paths
+
+ornaments.ts → microtext + hex watermark
+
+background.ts → assembler (exports SVG)
+
+export.ts → PNG/PDF outputs (server)
+
+Certificate pipeline (MVP):
+
+On certificate creation, compute seed from cityId:certificateId.
+
+Build SVG background with selected palette + guilloché.
+
+Compose certificate: place your text, logos, QR on top in a separate <g> (keep background in its own <svg>/layer).
+
+For downloads, render combined SVG → PNG/PDF (server) and add to the .zip.
+
+8) Security & authenticity touches (optional but recommended)
+
+HMAC microtext: include HMAC_SHA256(certId, serverSecret).slice(0,12) in the microtext ring.
+
+Edge glow lines: second guilloché group with mix-blend-mode:screen for anti-scan artifacts.
+
+Invisible watermark: set a faint <text> at 2–3% opacity with city name across the page.
+
+// add to microtext
+const token = (await sha256Hex(certId + process.env.SECRET!)).slice(0,12);
+const microRing = microtextUse(id, `${cityId.toUpperCase()} • ${id} • ${token}`);
+
+9) Performance & quality tips
+
+Prefer SVG for on-screen; rasterize only for downloads/printing.
+
+Keep stroke widths ≥ 0.5px for print.
+
+When printing, set page background printing ON or bake into the PDF.
+
+Consider light/dark certificate text contrast based on palette luminance.
+
+Cache by (cityId, certId); invalidate when template version changes.
+
+10) Accessibility & branding
+
+Ensure text overlay meets WCAG contrast against the gradient.
+
+Expose a paletteOverride per city to apply municipal brand colors.
+
+Provide a “high-ink” print style (less fill, fewer layers) as an alternate template.
