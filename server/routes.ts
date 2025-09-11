@@ -108,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user profile (pass full token response for ID token access)
       let cityCatalystUser;
       try {
-        cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
+        cityCatalystUser = await getUserProfile(tokenResponse.access_token);
       } catch (profileError) {
         throw new Error('Failed to retrieve user profile');
       }
@@ -116,11 +116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create or update user
       let user;
       try {
-        user = await createOrUpdateUser(
-          cityCatalystUser,
-          tokenResponse.access_token,
-          tokenResponse.refresh_token
-        );
+        user = await createOrUpdateUser(cityCatalystUser, tokenResponse);
       } catch (userError) {
         throw new Error('Failed to create or update user');
       }
