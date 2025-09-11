@@ -73,7 +73,7 @@ export default function Login() {
                 <img 
                   src="/boundary-icon.png" 
                   alt={t('header.iconAlt')} 
-                  className="w-16 h-16 object-contain"
+                  className="w-16 h-16 object-cover"
                 />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2" data-testid="text-login-title">

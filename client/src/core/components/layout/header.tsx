@@ -64,7 +64,7 @@ export function Header() {
                 <img 
                   src="/boundary-icon.png" 
                   alt={t('header.iconAlt')} 
-                  className="w-8 h-8 object-contain"
+                  className="w-8 h-8 object-cover"
                 />
               </div>
               <h1 className="text-xl font-semibold text-white">{t('header.title')}</h1>
