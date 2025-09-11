@@ -1,0 +1,68 @@
+2025-09-11 15:25:47.26
+"inventoryId": "5cb19d10-65f4-40ba-a0a0-ac722d4b3752",
+2025-09-11 15:25:47.26
+}
+2025-09-11 15:25:47.26
+]
+2025-09-11 15:25:47.26
+lastUpdate: '2024-11-24T10:44:26.778Z'
+2025-09-11 15:25:47.26
+🌐 CityCatalyst API call: https://citycatalyst.openearth.dev/api/v0/city/ZM_LUN
+2025-09-11 15:25:47.26
+"locode": "BR CXL",
+2025-09-11 15:25:47.26
+"area": "1647",
+2025-09-11 15:25:47.60
+at async getInventoriesByCity (file:///home/runner/workspace/dist/index.js:571:19)
+2025-09-11 15:25:47.60
+at async file:///home/runner/workspace/dist/index.js:877:31
+2025-09-11 15:25:47.60
+❌ CityCatalyst API error 500: {"error":{"message":"Internal server error","error":"invalid input syntax for type uuid: \"BR_CXL\""}}
+2025-09-11 15:25:47.60
+❌ Failed to get details for city BR CXL: Error: GET /api/v0/city/BR_CXL failed: 500 Internal Server Error — {"error":{"message":"Internal server error","error":"invalid input syntax for type uuid: \"BR_CXL\""}}
+2025-09-11 15:25:47.60
+at cityCatalystApiGet (file:///home/runner/workspace/dist/index.js:500:11)
+2025-09-11 15:25:47.60
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11 15:25:47.60
+at async file:///home/runner/workspace/dist/index.js:591:26
+2025-09-11 15:25:47.60
+at async Promise.all (index 4)
+2025-09-11 15:25:47.60
+at async getInventoriesByCity (file:///home/runner/workspace/dist/index.js:571:19)
+2025-09-11 15:25:47.60
+at async file:///home/runner/workspace/dist/index.js:877:31
+2025-09-11 15:25:47.61
+❌ CityCatalyst API error 500: {"error":{"message":"Internal server error","error":"invalid input syntax for type uuid: \"AR_MDZ\""}}
+2025-09-11 15:25:47.61
+❌ Failed to get details for city AR MDZ: Error: GET /api/v0/city/AR_MDZ failed: 500 Internal Server Error — {"error":{"message":"Internal server error","error":"invalid input syntax for type uuid: \"AR_MDZ\""}}
+2025-09-11 15:25:47.61
+at cityCatalystApiGet (file:///home/runner/workspace/dist/index.js:500:11)
+2025-09-11 15:25:47.61
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11 15:25:47.61
+at async file:///home/runner/workspace/dist/index.js:591:26
+2025-09-11 15:25:47.61
+at async Promise.all (index 0)
+2025-09-11 15:25:47.61
+at async getInventoriesByCity (file:///home/runner/workspace/dist/index.js:571:19)
+2025-09-11 15:25:47.61
+at async file:///home/runner/workspace/dist/index.js:877:31
+2025-09-11 15:25:47.61
+❌ CityCatalyst API error 500: {"error":{"message":"Internal server error","error":"invalid input syntax for type uuid: \"MX_GDL\""}}
+2025-09-11 15:25:47.61
+❌ Failed to get details for city MX GDL: Error: GET /api/v0/city/MX_GDL failed: 500 Internal Server Error — {"error":{"message":"Internal server error","error":"invalid input syntax for type uuid: \"MX_GDL\""}}
+2025-09-11 15:25:47.61
+at cityCatalystApiGet (file:///home/runner/workspace/dist/index.js:500:11)
+2025-09-11 15:25:47.61
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11 15:25:47.61
+at async file:///home/runner/workspace/dist/index.js:591:26
+2025-09-11 15:25:47.61
+at async Promise.all (index 2)
+2025-09-11 15:25:47.61
+at async getInventoriesByCity (file:///home/runner/workspace/dist/index.js:571:19)
+2025-09-11 15:25:47.61
+at async file:///home/runner/workspace/dist/index.js:877:31
+2025-09-11 15:25:47.61
+at async file:///home/runner/workspace/dist/index.js:877:31

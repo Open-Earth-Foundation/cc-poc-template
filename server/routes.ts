@@ -18,7 +18,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Clear any existing session to ensure completely fresh start
       const oldSessionId = req.cookies.session_id;
       if (oldSessionId) {
-        console.log('🧹 Clearing old session for fresh OAuth initiation');
         await storage.deleteSession(oldSessionId);
         res.clearCookie('session_id');
       }
@@ -44,7 +43,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxAge: 10 * 60 * 1000, // 10 minutes
       });
       
-      console.log('✅ Fresh OAuth session created with new state and verifier');
       res.json({
         authUrl: oauthState.authUrl,
         state: oauthState.state,
@@ -124,7 +122,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let cityCatalystUser;
       try {
         cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
-        console.log('User profile retrieved successfully');
       } catch (profileError) {
         console.error('❌ Failed to get user profile:', profileError);
         throw new Error('Failed to retrieve user profile');
@@ -138,7 +135,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           tokenResponse.access_token,
           tokenResponse.refresh_token
         );
-        console.log('✅ User created/updated successfully');
       } catch (userError) {
         console.error('❌ Failed to create/update user:', userError);
         throw new Error('Failed to create or update user');
@@ -212,7 +208,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if access token is expired and needs refresh
       if (user.tokenExpiry && user.tokenExpiry < new Date() && user.refreshToken) {
-        console.log('🔄 Access token expired, attempting refresh...');
         // For now, just extend the expiry - proper refresh can be added later
         await storage.updateUser(user.id, {
           tokenExpiry: new Date(Date.now() + 60 * 60 * 1000), // Extend by 1 hour
@@ -242,11 +237,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // City routes
   app.get('/api/cities', requireAuth, async (req: any, res) => {
     try {
-      console.log('🏙️ /api/cities called');
       
       // Pass access token to fetch real city data from CityCatalyst
       const cities = await getUserAccessibleCities(req.user.id, req.user.accessToken);
-      console.log('Cities returned from service:', cities.length);
       
       res.json({ cities });
     } catch (error) {
@@ -280,10 +273,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CityCatalyst API routes
-  app.get('/api/citycatalyst/city/:locode', requireAuth, async (req: any, res) => {
+  app.get('/api/citycatalyst/city/:cityId', requireAuth, async (req: any, res) => {
     try {
-      const { locode } = req.params;
-      const cityDetail = await getCityDetail(locode, req.user.accessToken);
+      const { cityId } = req.params;
+      
+      // Validate UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(cityId)) {
+        return res.status(400).json({ message: 'Invalid cityId format. Expected UUID.' });
+      }
+      
+      const cityDetail = await getCityDetail(cityId, req.user.accessToken);
       res.json({ data: cityDetail });
     } catch (error: any) {
       console.error('Get city detail error:', error);

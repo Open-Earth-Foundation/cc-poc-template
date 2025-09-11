@@ -28,7 +28,6 @@ export interface CityCatalystInventoryData {
 // Generic API helper function
 async function cityCatalystApiGet<T>(path: string, accessToken: string): Promise<T> {
   const url = `${AUTH_BASE_URL}${path}`;
-  console.log(`🌐 CityCatalyst API call: ${url}`);
   
   const response = await fetch(url, {
     headers: {
@@ -44,7 +43,7 @@ async function cityCatalystApiGet<T>(path: string, accessToken: string): Promise
   }
 
   const json = await response.json();
-  console.log(`✅ CityCatalyst API response for ${path}:`, json);
+  // Response received successfully
   
   // API wraps content under `data`
   return (json.data ?? json) as T;
@@ -142,16 +141,21 @@ export async function getUserAccessibleCities(userId: string, accessToken?: stri
 
 /**
  * Get detailed city information including inventories list
+ * @param cityId - UUID format city identifier (not LOCODE)
  */
-export async function getCityDetail(locode: string, accessToken: string): Promise<CityCatalystCityDetail> {
-  if (!locode || locode === 'undefined') {
-    throw new Error(`Invalid locode provided: ${locode}`);
+export async function getCityDetail(cityId: string, accessToken: string): Promise<CityCatalystCityDetail> {
+  if (!cityId || cityId === 'undefined') {
+    throw new Error(`Invalid cityId provided: ${cityId}`);
   }
-  // Convert spaces to underscores as per CityCatalyst API docs
-  const normalizedLocode = locode.replace(/\s+/g, "_");
-  console.log(`🔄 getCityDetail: Converting locode "${locode}" → "${normalizedLocode}"`);
+  
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(cityId)) {
+    throw new Error(`Invalid cityId format. Expected UUID, got: ${cityId}`);
+  }
+  
   return cityCatalystApiGet<CityCatalystCityDetail>(
-    `/api/v0/city/${encodeURIComponent(normalizedLocode)}`, 
+    `/api/v0/city/${encodeURIComponent(cityId)}`, 
     accessToken
   );
 }
@@ -239,27 +243,25 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
   const citiesUrl = '/api/v0/user/cities/';
   const citiesData = await cityCatalystApiGet<any>(citiesUrl, accessToken);
   
-  console.log(`🏙️ Raw CityCatalyst response:`, JSON.stringify(citiesData, null, 2));
+  console.log(`🏙️ Retrieved ${Array.isArray(citiesData?.cities || citiesData?.data || citiesData) ? (citiesData?.cities || citiesData?.data || citiesData).length : 0} cities from CityCatalyst API`);
   
   // Handle different response formats (same logic as authService.ts)
   const cities = citiesData.cities || citiesData.data || citiesData;
   
   if (!Array.isArray(cities)) {
-    console.log('❌ Cities data is not an array:', cities);
+    console.log('❌ Cities data is not in expected format');
     return [];
   }
 
-  console.log(`🏙️ Found ${cities.length} cities for user`);
 
   const details = await Promise.all(
     cities.map(async (item) => {
-      console.log(`🔍 Processing city item:`, JSON.stringify(item, null, 2));
       
       // Use same data extraction logic as authService.ts
       const cityData = item.city || item;
       
       if (!cityData) {
-        console.log(`⚠️ No city data in item:`, item);
+        console.log(`⚠️ No city data found in response item`);
         return { 
           locode: 'unknown', 
           name: 'Unknown City', 
@@ -269,16 +271,14 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
       }
       
       const locode = cityData.locode;
-      const cityId = cityData.cityId || cityData.id || cityData.locode;
+      const cityId = cityData.cityId || cityData.id;
       const name = cityData.name || cityData.cityName || 'Unknown City';
       const years = item.years || [];
       
-      console.log(`🏙️ Extracted: name="${name}", locode="${locode}", cityId="${cityId}", years:`, years);
-      
-      // If we have a locode, try to get detailed inventory info
-      if (locode && locode !== 'undefined') {
+      // If we have a cityId (UUID format), try to get detailed inventory info
+      if (cityId && cityId !== 'undefined' && cityId !== locode) {
         try {
-          const detail = await getCityDetail(locode, accessToken);
+          const detail = await getCityDetail(cityId, accessToken);
           const detailYears = (detail.inventories ?? [])
             .map((inv) => inv.year)
             .filter((y): y is number => Number.isFinite(y))
@@ -291,7 +291,7 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
             inventories: detail.inventories ?? [] 
           };
         } catch (error) {
-          console.error(`❌ Failed to get details for city ${locode}:`, error);
+          console.error(`❌ Failed to get details for city ${name} (${cityId}):`, error);
         }
       }
       
