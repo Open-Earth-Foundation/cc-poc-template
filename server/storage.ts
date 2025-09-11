@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type City, type InsertCity, type Boundary, type InsertBoundary, type Session, type InsertSession } from "@shared/schema";
+import { type User, type InsertUser, type City, type InsertCity, type Session, type InsertSession } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -15,12 +15,6 @@ export interface IStorage {
   createCity(city: InsertCity): Promise<City>;
   createOrUpdateCity(city: InsertCity): Promise<City>;
 
-  // Boundary methods
-  getBoundariesByCityId(cityId: string): Promise<Boundary[]>;
-  getBoundary(id: string): Promise<Boundary | undefined>;
-  createBoundary(boundary: InsertBoundary): Promise<Boundary>;
-  updateBoundary(id: string, updates: Partial<Boundary>): Promise<Boundary | undefined>;
-  deleteBoundariesByCityId(cityId: string): Promise<void>;
 
   // Session methods
   getSession(id: string): Promise<Session | undefined>;
@@ -37,14 +31,12 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private cities: Map<string, City>;
-  private boundaries: Map<string, Boundary>;
   private sessions: Map<string, Session>;
   private consumedCodes: Set<string>;
 
   constructor() {
     this.users = new Map();
     this.cities = new Map();
-    this.boundaries = new Map();
     this.sessions = new Map();
     this.consumedCodes = new Set();
     
@@ -185,7 +177,6 @@ export class MemStorage implements IStorage {
         id: existing.id,
         createdAt: existing.createdAt,
         locode: insertCity.locode || null,
-        currentBoundary: insertCity.currentBoundary || null,
         metadata: insertCity.metadata || {},
       };
       this.cities.set(existing.id, updatedCity);
@@ -196,51 +187,6 @@ export class MemStorage implements IStorage {
     }
   }
 
-  // Boundary methods
-  async getBoundariesByCityId(cityId: string): Promise<Boundary[]> {
-    return Array.from(this.boundaries.values()).filter(boundary => 
-      boundary.cityId === cityId
-    );
-  }
-
-  async getBoundary(id: string): Promise<Boundary | undefined> {
-    return this.boundaries.get(id);
-  }
-
-  async createBoundary(insertBoundary: InsertBoundary): Promise<Boundary> {
-    const id = randomUUID();
-    const boundary: Boundary = { 
-      ...insertBoundary, 
-      id,
-      adminLevel: insertBoundary.adminLevel || null,
-      boundaryType: insertBoundary.boundaryType || null,
-      area: insertBoundary.area || null,
-      tags: insertBoundary.tags || {},
-      score: insertBoundary.score || null,
-      isSelected: insertBoundary.isSelected || false,
-      createdAt: new Date(),
-    };
-    this.boundaries.set(id, boundary);
-    return boundary;
-  }
-
-  async updateBoundary(id: string, updates: Partial<Boundary>): Promise<Boundary | undefined> {
-    const boundary = this.boundaries.get(id);
-    if (!boundary) return undefined;
-    
-    const updatedBoundary = { ...boundary, ...updates };
-    this.boundaries.set(id, updatedBoundary);
-    return updatedBoundary;
-  }
-
-  async deleteBoundariesByCityId(cityId: string): Promise<void> {
-    const boundariesArray = Array.from(this.boundaries.entries());
-    for (const [id, boundary] of boundariesArray) {
-      if (boundary.cityId === cityId) {
-        this.boundaries.delete(id);
-      }
-    }
-  }
 
   // Session methods
   async getSession(id: string): Promise<Session | undefined> {
