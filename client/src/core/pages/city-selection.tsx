@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Header } from "@/core/components/layout/header";
 import { CityCard } from "@/core/components/city/city-card";
 import { UserDataCard } from "@/core/components/user/user-data-card";
-import { CityCatalystApiTester } from "@/core/components/testing/citycatalyst-api-tester";
 import { useAuth } from "@/core/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { City } from "@/core/types/city";
@@ -100,7 +99,6 @@ export default function CitySelection() {
         )}
 
         {/* CityCatalyst API Testing Section */}
-        <CityCatalystApiTester />
         
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2" data-testid="text-page-title">
