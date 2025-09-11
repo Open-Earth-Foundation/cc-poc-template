@@ -120,15 +120,12 @@ export class MemStorage implements IStorage {
   }
 
   async getCitiesByProjectIds(projectIds: string[]): Promise<City[]> {
-    console.log('🔍 Looking for cities with project IDs:', projectIds);
     const matchingCities = Array.from(this.cities.values()).filter(city => 
       projectIds.includes(city.projectId)
     );
-    console.log(`📦 Found ${matchingCities.length} cities in local storage`);
     
     // If no cities found, create some sample cities for the user's projects
     if (matchingCities.length === 0 && projectIds.length > 0) {
-      console.log('🏗️ Creating sample cities for testing...');
       const sampleCities: City[] = [];
       
       for (let i = 0; i < Math.min(3, projectIds.length); i++) {
@@ -149,7 +146,6 @@ export class MemStorage implements IStorage {
         sampleCities.push(sampleCity);
       }
       
-      console.log(`✅ Created ${sampleCities.length} sample cities`);
       return sampleCities;
     }
     

@@ -11,8 +11,6 @@ if (!CLIENT_ID) {
 const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI || 'https://cc-boundary-picker.replit.app/api/auth/oauth/callback';
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || "https://citycatalyst.openearth.dev";
 
-// Debug logging for redirect URI
-console.log(`OAuth Redirect URI: ${REDIRECT_URI}`);
 
 export interface OAuthState {
   codeVerifier: string;
@@ -66,13 +64,6 @@ export function generateOAuthState(): OAuthState {
     scope: 'read write',  // CityCatalyst valid scopes: read, write
   });
 
-  console.log('🔍 OAuth Params Debug:');
-  console.log('  client_id:', CLIENT_ID);
-  console.log('  redirect_uri:', REDIRECT_URI);
-  console.log('  code_challenge_method:', 'S256');
-  console.log('  scope:', 'read');
-  console.log('  state:', state);
-  console.log('  code_challenge:', codeChallenge);
 
   const authUrl = `${AUTH_BASE_URL}/authorize/?${params.toString()}`;
 
@@ -98,13 +89,6 @@ export async function exchangeCodeForToken(
     code_verifier: codeVerifier,
   });
 
-  console.log('=== CITYCATALYST TOKEN EXCHANGE DEBUG ===');
-  console.log('URL:', tokenUrl);
-  console.log('Body:', body.toString());
-  console.log('Client ID:', CLIENT_ID);
-  console.log('Redirect URI:', REDIRECT_URI);
-  console.log('Code (first 50 chars):', code.substring(0, 50) + '...');
-  console.log('Code Verifier (first 20 chars):', codeVerifier.substring(0, 20) + '...');
 
   const response = await fetch(tokenUrl, {
     method: 'POST',
@@ -114,19 +98,13 @@ export async function exchangeCodeForToken(
     body: body.toString(),
   });
 
-  console.log('Token exchange response status:', response.status);
-  console.log('Token exchange response headers:', Object.fromEntries(response.headers.entries()));
   
   if (!response.ok) {
     const errorText = await response.text();
-    console.log('Token exchange error response:', errorText);
-    console.log('=== END TOKEN EXCHANGE DEBUG ===');
     throw new Error(`Token exchange failed: ${response.statusText} - ${errorText}`);
   }
 
   const tokenData = await response.json();
-  console.log('Token exchange successful. Token response:', tokenData);
-  console.log('=== END TOKEN EXCHANGE DEBUG ===');
   return tokenData;
 }
 
@@ -139,7 +117,6 @@ function decodeJWT(token: string): any {
     const decoded = Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
     return JSON.parse(decoded);
   } catch (error) {
-    console.log('Failed to decode JWT:', error);
     return null;
   }
 }
@@ -181,10 +158,7 @@ async function getUserCities(accessToken: string): Promise<string[]> {
   const citiesUrl = `${AUTH_BASE_URL}/api/v0/user/cities/`;
 
   try {
-    console.log('🏙️ Fetching user cities...');
     const citiesData = await fetchJSON(citiesUrl, accessToken);
-    console.log('✅ Success! Got cities data');
-    console.log('Cities data:', citiesData);
     
     // Handle different response formats
     const cities = citiesData.cities || citiesData.data || citiesData;
@@ -216,43 +190,34 @@ async function getUserCities(accessToken: string): Promise<string[]> {
                   years: item.years,
                 } as Record<string, any>,
               });
-              console.log(`📦 Stored city data for: ${cityData.name || cityId}`);
             } catch (error) {
-              console.log(`⚠️ Failed to store city ${cityId}:`, error);
+              // Silently continue if city storage fails
             }
           }
         }
       }
       
-      console.log(`✅ Successfully processed and stored ${cityIds.length} cities`);
       return cityIds;
     }
     
     return [];
   } catch (error) {
-    console.log(`❌ Failed to fetch cities:`, error instanceof Error ? error.message : error);
     return [];
   }
 }
 
 export async function getUserProfile(accessToken: string, tokenResponse?: any): Promise<CityCatalystUser> {
-  console.log('Attempting to get real user profile data...');
-  
   try {
     // Use the known working profile endpoint
     const profileUrl = `${AUTH_BASE_URL}/api/v0/user/`;
     
-    console.log('Fetching profile data...');
     const profileData = await fetchJSON(profileUrl, accessToken);
-    console.log('✅ Success! Got profile data');
-    console.log('Profile data:', profileData);
     
     // Handle nested data structure from CityCatalyst API
     const userData = profileData.data || profileData;
     
     // Get user's accessible cities
     const userCities = await getUserCities(accessToken);
-    console.log('User cities found:', userCities);
     
     // Convert to our expected format
     return {
@@ -263,15 +228,10 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
       projects: userCities.length > 0 ? userCities : (userData.defaultCityId ? [userData.defaultCityId] : ['default-project']),
     };
   } catch (error) {
-    console.log(`❌ Failed to fetch profile:`, error instanceof Error ? error.message : error);
-
     // Strategy 2: Try to decode ID token if available
     if (tokenResponse?.id_token) {
-      console.log('Trying to decode ID token...');
       const claims = decodeJWT(tokenResponse.id_token);
       if (claims) {
-        console.log('✅ Successfully decoded ID token');
-        console.log('ID token claims:', claims);
         
         return {
           id: claims.sub || 'unknown',
@@ -286,11 +246,8 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
     }
 
     // Strategy 3: Try to decode access token (some APIs encode user info in access tokens)
-    console.log('Trying to decode access token for user info...');
     const accessClaims = decodeJWT(accessToken);
     if (accessClaims && (accessClaims.email || accessClaims.sub)) {
-      console.log('✅ Found user info in access token');
-      console.log('Access token claims:', accessClaims);
       
       return {
         id: accessClaims.sub || 'unknown',
@@ -301,15 +258,8 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
       };
     }
 
-    console.error('❌ All profile retrieval strategies failed, falling back to sample data');
-    
-    return {
-      id: 'sample-user-1',
-      email: 'elena.rodriguez@citycatalyst.org',
-      name: 'Dr. Elena Rodriguez',
-      title: 'Urban Planning Specialist',
-      projects: ['project-south-america'],
-    };
+    // All profile retrieval strategies failed
+    throw new Error('Unable to retrieve user profile from CityCatalyst API');
   }
 }
 

@@ -3,8 +3,6 @@ import { City, User } from "@shared/schema";
 
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || 'https://citycatalyst.openearth.dev';
 
-// Debug: Log the base URL being used
-console.log('🔧 CityCatalyst API base URL:', AUTH_BASE_URL);
 
 // CityCatalyst API Types
 export interface CityCatalystInventory {
@@ -28,7 +26,6 @@ export interface CityCatalystInventoryData {
 // Generic API helper function
 async function cityCatalystApiGet<T>(path: string, accessToken: string): Promise<T> {
   const url = `${AUTH_BASE_URL}${path}`;
-  console.log(`🌐 CityCatalyst API call: ${url}`);
   
   const response = await fetch(url, {
     headers: {
@@ -39,12 +36,10 @@ async function cityCatalystApiGet<T>(path: string, accessToken: string): Promise
 
   if (!response.ok) {
     const text = await response.text();
-    console.error(`❌ CityCatalyst API error ${response.status}: ${text.slice(0, 300)}`);
     throw new Error(`GET ${path} failed: ${response.status} ${response.statusText} — ${text.slice(0, 300)}`);
   }
 
   const json = await response.json();
-  console.log(`✅ CityCatalyst API response for ${path}:`, json);
   
   // API wraps content under `data`
   return (json.data ?? json) as T;
@@ -59,18 +54,14 @@ async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): P
 
   for (const url of cityEndpoints) {
     try {
-      console.log(`🌐 Trying CityCatalyst endpoint: ${url}`);
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Accept': 'application/json',
         },
       });
-
-      console.log(`📡 Response status for ${url}: ${response.status}`);
       
       if (!response.ok) {
-        console.log(`❌ Non-OK response for ${url}: ${response.status} ${response.statusText}`);
         continue;
       }
       
@@ -108,20 +99,13 @@ export async function getUserCities(user: User, accessToken?: string): Promise<C
     return [];
   }
   
-  console.log('🏙️ Getting user cities...');
-  console.log('User project IDs:', user.projects);
-  
   // First check our local storage for cities with these project IDs
   const localCities = await storage.getCitiesByProjectIds(user.projects);
-  console.log(`📦 Found ${localCities.length} cities in local storage`);
   
   if (localCities.length > 0) {
-    console.log('✅ Using stored city data');
-    console.log('City names:', localCities.map(c => c.name));
     return localCities;
   }
   
-  console.log('⚠️ No cities found in local storage, returning empty array');
   return [];
 }
 
@@ -149,7 +133,6 @@ export async function getCityDetail(locode: string, accessToken: string): Promis
   }
   // Convert spaces to underscores as per CityCatalyst API docs
   const normalizedLocode = locode.replace(/\s+/g, "_");
-  console.log(`🔄 getCityDetail: Converting locode "${locode}" → "${normalizedLocode}"`);
   return cityCatalystApiGet<CityCatalystCityDetail>(
     `/api/v0/city/${encodeURIComponent(normalizedLocode)}`, 
     accessToken
@@ -239,27 +222,19 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
   const citiesUrl = '/api/v0/user/cities/';
   const citiesData = await cityCatalystApiGet<any>(citiesUrl, accessToken);
   
-  console.log(`🏙️ Raw CityCatalyst response:`, JSON.stringify(citiesData, null, 2));
-  
   // Handle different response formats (same logic as authService.ts)
   const cities = citiesData.cities || citiesData.data || citiesData;
   
   if (!Array.isArray(cities)) {
-    console.log('❌ Cities data is not an array:', cities);
     return [];
   }
 
-  console.log(`🏙️ Found ${cities.length} cities for user`);
-
   const details = await Promise.all(
     cities.map(async (item) => {
-      console.log(`🔍 Processing city item:`, JSON.stringify(item, null, 2));
-      
       // Use same data extraction logic as authService.ts
       const cityData = item.city || item;
       
       if (!cityData) {
-        console.log(`⚠️ No city data in item:`, item);
         return { 
           locode: 'unknown', 
           name: 'Unknown City', 
@@ -272,8 +247,6 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
       const cityId = cityData.cityId || cityData.id || cityData.locode;
       const name = cityData.name || cityData.cityName || 'Unknown City';
       const years = item.years || [];
-      
-      console.log(`🏙️ Extracted: name="${name}", locode="${locode}", cityId="${cityId}", years:`, years);
       
       // If we have a locode, try to get detailed inventory info
       if (locode && locode !== 'undefined') {
@@ -291,7 +264,7 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
             inventories: detail.inventories ?? [] 
           };
         } catch (error) {
-          console.error(`❌ Failed to get details for city ${locode}:`, error);
+          // Silently continue if city detail fetch fails
         }
       }
       
