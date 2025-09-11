@@ -1,0 +1,93 @@
+{
+  "login": {
+    "title": "Bem-vindo ao Módulo CC POC",
+    "subtitle": "Conecte sua conta CityCatalyst para acessar seus dados.",
+    "continueButton": "Continuar com CityCatalyst",
+    "sampleButton": "Usar Usuário de Exemplo (para testes)"
+  },
+  "citySelection": {
+    "title": "Selecione uma Cidade",
+    "subtitle": "Escolha uma cidade para ver seus dados",
+    "searchPlaceholder": "Pesquisar cidades...",
+    "allProjects": "Todos os Projetos",
+    "noCitiesFound": "Nenhuma cidade corresponde aos seus critérios de pesquisa.",
+    "noCitiesAvailable": "Nenhuma cidade disponível.",
+    "clearSearch": "Limpar pesquisa"
+  },
+  "header": {
+    "title": "Editor de Limites",
+    "subtitle": "Visualização Aprimorada de Limites Urbanos"
+  },
+  "navigation": {
+    "home": "Início",
+    "cities": "Cidades",
+    "boundaries": "Limites",
+    "profile": "Perfil",
+    "logout": "Sair",
+    "login": "Entrar"
+  },
+  "boundaries": {
+    "title": "Limites da Cidade",
+    "subtitle": "Explore e selecione alternativas de limites",
+    "downloadButton": "Baixar Limite",
+    "refreshButton": "Atualizar Limites",
+    "backToCities": "Voltar para Cidades",
+    "boundaryName": "Nome do Limite",
+    "adminLevel": "Nível Administrativo",
+    "area": "Área",
+    "score": "Pontuação",
+    "loading": "Carregando limites..."
+  },
+  "cityInfo": {
+    "title": "Informações da Cidade",
+    "inventoryCount": "{{count}} inventários disponíveis",
+    "loadingInventories": "Carregando inventários...",
+    "noInventories": "Nenhum inventário encontrado",
+    "year": "Ano",
+    "type": "Tipo",
+    "emissions": "Emissões",
+    "status": "Status"
+  },
+  "user": {
+    "name": "Nome",
+    "email": "E-mail",
+    "title": "Título",
+    "userId": "ID do Usuário",
+    "projects": "Projetos"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "view": "Visualizar",
+    "close": "Fechar",
+    "ok": "OK",
+    "yes": "Sim",
+    "no": "Não",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "select": "Selecionar",
+    "download": "Baixar",
+    "upload": "Enviar",
+    "refresh": "Atualizar"
+  },
+  "errors": {
+    "notFound": "Página não encontrada",
+    "unauthorized": "Acesso não autorizado",
+    "serverError": "Erro interno do servidor",
+    "networkError": "Falha na conexão de rede",
+    "validationError": "Por favor, verifique sua entrada",
+    "authenticationFailed": "Falha na autenticação"
+  },
+  "modals": {
+    "confirmDelete": "Tem certeza de que deseja excluir este item?",
+    "unsavedChanges": "Você tem alterações não salvas. Tem certeza de que deseja sair?",
+    "processingRequest": "Processando sua solicitação...",
+    "downloadComplete": "Download concluído com sucesso"
+  }
+}

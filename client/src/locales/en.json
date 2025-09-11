@@ -1,0 +1,93 @@
+{
+  "login": {
+    "title": "Welcome to a CC POC Module",
+    "subtitle": "Connect your CityCatalyst account to access your data.",
+    "continueButton": "Continue with CityCatalyst",
+    "sampleButton": "Use Sample User (for testing)"
+  },
+  "citySelection": {
+    "title": "Select a City",
+    "subtitle": "Choose a city to see its data",
+    "searchPlaceholder": "Search cities...",
+    "allProjects": "All Projects",
+    "noCitiesFound": "No cities match your search criteria.",
+    "noCitiesAvailable": "No cities available.",
+    "clearSearch": "Clear search"
+  },
+  "header": {
+    "title": "Boundary Editor",
+    "subtitle": "Enhanced City Boundary Visualization"
+  },
+  "navigation": {
+    "home": "Home",
+    "cities": "Cities",
+    "boundaries": "Boundaries",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "boundaries": {
+    "title": "City Boundaries",
+    "subtitle": "Explore and select boundary alternatives",
+    "downloadButton": "Download Boundary",
+    "refreshButton": "Refresh Boundaries",
+    "backToCities": "Back to Cities",
+    "boundaryName": "Boundary Name",
+    "adminLevel": "Admin Level",
+    "area": "Area",
+    "score": "Score",
+    "loading": "Loading boundaries..."
+  },
+  "cityInfo": {
+    "title": "City Information",
+    "inventoryCount": "{{count}} inventories available",
+    "loadingInventories": "Loading inventories...",
+    "noInventories": "No inventories found",
+    "year": "Year",
+    "type": "Type",
+    "emissions": "Emissions",
+    "status": "Status"
+  },
+  "user": {
+    "name": "Name",
+    "email": "Email",
+    "title": "Title",
+    "userId": "User ID",
+    "projects": "Projects"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "select": "Select",
+    "download": "Download",
+    "upload": "Upload",
+    "refresh": "Refresh"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "Unauthorized access",
+    "serverError": "Server error occurred",
+    "networkError": "Network connection failed",
+    "validationError": "Please check your input",
+    "authenticationFailed": "Authentication failed"
+  },
+  "modals": {
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
+    "processingRequest": "Processing your request...",
+    "downloadComplete": "Download completed successfully"
+  }
+}
