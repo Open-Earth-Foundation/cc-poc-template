@@ -8,7 +8,7 @@ import {
   createOrUpdateUser,
   generateSessionToken 
 } from "./services/authService";
-import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity } from "./services/cityService";
+import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails } from "./services/cityService";
 import { registerBoundaryRoutes } from "./modules/boundary/routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -331,6 +331,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Get inventories error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch inventories' });
+    }
+  });
+
+  // Get detailed inventory information by inventory ID
+  app.get('/api/citycatalyst/inventory/:inventoryId', requireAuth, async (req: any, res) => {
+    try {
+      const { inventoryId } = req.params;
+      console.log(`📊 Getting inventory details for ID: ${inventoryId}`);
+      const inventoryDetails = await getInventoryDetails(inventoryId, req.user.accessToken);
+      res.json({ data: inventoryDetails });
+    } catch (error: any) {
+      console.error('Get inventory details error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch inventory details' });
     }
   });
 
