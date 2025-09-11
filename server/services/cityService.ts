@@ -1,10 +1,11 @@
 import { storage } from "../storage";
 import { City, User } from "@shared/schema";
+import type { Feature } from 'geojson';
 
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || 'https://citycatalyst.openearth.dev';
 
 // Debug: Log the base URL being used
-console.log('🔧 CityCatalyst API base URL:', AUTH_BASE_URL);
+// Base URL configured via environment variable
 
 // CityCatalyst API Types
 export interface CityCatalystInventory {
@@ -58,7 +59,6 @@ async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): P
 
   for (const url of cityEndpoints) {
     try {
-      console.log(`🌐 Trying CityCatalyst endpoint: ${url}`);
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -66,7 +66,6 @@ async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): P
         },
       });
 
-      console.log(`📡 Response status for ${url}: ${response.status}`);
       
       if (!response.ok) {
         console.log(`❌ Non-OK response for ${url}: ${response.status} ${response.statusText}`);
@@ -167,9 +166,9 @@ export async function getInventory(locode: string, year: number, accessToken: st
 /**
  * Get city boundary as GeoJSON
  */
-export async function getCityBoundary(locode: string, accessToken: string): Promise<GeoJSON.Feature> {
+export async function getCityBoundary(locode: string, accessToken: string): Promise<Feature> {
   const normalizedLocode = locode.replace(/\s+/g, "_");
-  return cityCatalystApiGet<GeoJSON.Feature>(
+  return cityCatalystApiGet<Feature>(
     `/api/v0/city/${encodeURIComponent(normalizedLocode)}/boundary`, 
     accessToken
   );

@@ -55,9 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/auth/oauth/callback', async (req, res) => {
     try {
-      // Enhanced debugging: Log ALL query parameters
-      console.log('=== OAUTH CALLBACK ===');
-      console.log('Processing callback for code:', req.query.code ? '[present]' : '[missing]');
+      // OAuth callback processing
       
       const { code, state, error, error_description } = req.query;
       
@@ -75,7 +73,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if code was already consumed (prevent "Single-use code" error)
       const codeStr = code as string;
       if (await storage.isCodeConsumed(codeStr)) {
-        console.log('OAuth code already consumed, redirecting to success');
         return res.redirect('/cities');
       }
       
@@ -90,17 +87,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Exchange code for token
-      console.log('Exchanging code for token...');
       let tokenResponse;
       try {
         tokenResponse = await exchangeCodeForToken(codeStr, session.codeVerifier!);
         // Mark code as consumed only after successful exchange
         await storage.markCodeAsConsumed(codeStr);
-        console.log('Token exchange successful, getting user profile...');
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.includes('Single-use code')) {
-          console.log('❌ Single-use code error detected. Generating completely fresh OAuth flow...');
           
           // Clear ALL existing sessions and state for this user
           if (sessionId) {
@@ -112,7 +106,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const timestamp = Date.now();
           const clearCacheUrl = `/?clear_cache=${timestamp}&retry=${Math.random().toString(36).substr(2, 9)}`;
           
-          console.log('🔄 Redirecting with cache-busting parameters to ensure fresh OAuth...');
           return res.redirect(clearCacheUrl);
         }
         throw error;
