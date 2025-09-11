@@ -8,7 +8,11 @@ if (!CLIENT_ID) {
   throw new Error('OAUTH_CLIENT_ID environment variable is required');
 }
 // For production, use the exact redirect URI configured in CityCatalyst OAuth client
-const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI || 'https://cc-boundary-picker.replit.app/api/auth/oauth/callback';
+const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI;
+
+if (!REDIRECT_URI) {
+  throw new Error('OAUTH_REDIRECT_URI environment variable is required. Please set it to your app domain + "/api/auth/oauth/callback"');
+}
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || "https://citycatalyst.openearth.dev";
 
 // Debug logging for redirect URI
