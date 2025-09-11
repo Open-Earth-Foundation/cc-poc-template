@@ -13,10 +13,15 @@ const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI;
 if (!REDIRECT_URI) {
   throw new Error('OAUTH_REDIRECT_URI environment variable is required. Please set it to your app domain + "/api/auth/oauth/callback"');
 }
+
+// Type assertion for better TypeScript support
+const OAUTH_REDIRECT_URI: string = REDIRECT_URI;
 const AUTH_BASE_URL = process.env.AUTH_BASE_URL || "https://citycatalyst.openearth.dev";
 
-// Debug logging for redirect URI
-console.log(`OAuth Redirect URI: ${REDIRECT_URI}`);
+// Only log in development mode
+if (process.env.NODE_ENV === 'development') {
+  console.log(`OAuth Redirect URI: ${REDIRECT_URI}`);
+}
 
 export interface OAuthState {
   codeVerifier: string;
@@ -63,20 +68,12 @@ export function generateOAuthState(): OAuthState {
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: OAUTH_REDIRECT_URI,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state,
     scope: 'read write',  // CityCatalyst valid scopes: read, write
   });
-
-  console.log('🔍 OAuth Params Debug:');
-  console.log('  client_id:', CLIENT_ID);
-  console.log('  redirect_uri:', REDIRECT_URI);
-  console.log('  code_challenge_method:', 'S256');
-  console.log('  scope:', 'read');
-  console.log('  state:', state);
-  console.log('  code_challenge:', codeChallenge);
 
   const authUrl = `${AUTH_BASE_URL}/authorize/?${params.toString()}`;
 
@@ -98,17 +95,9 @@ export async function exchangeCodeForToken(
     grant_type: 'authorization_code',
     client_id: CLIENT_ID,
     code,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: OAUTH_REDIRECT_URI,
     code_verifier: codeVerifier,
   });
-
-  console.log('=== CITYCATALYST TOKEN EXCHANGE DEBUG ===');
-  console.log('URL:', tokenUrl);
-  console.log('Body:', body.toString());
-  console.log('Client ID:', CLIENT_ID);
-  console.log('Redirect URI:', REDIRECT_URI);
-  console.log('Code (first 50 chars):', code.substring(0, 50) + '...');
-  console.log('Code Verifier (first 20 chars):', codeVerifier.substring(0, 20) + '...');
 
   const response = await fetch(tokenUrl, {
     method: 'POST',
@@ -118,19 +107,13 @@ export async function exchangeCodeForToken(
     body: body.toString(),
   });
 
-  console.log('Token exchange response status:', response.status);
-  console.log('Token exchange response headers:', Object.fromEntries(response.headers.entries()));
-  
   if (!response.ok) {
     const errorText = await response.text();
-    console.log('Token exchange error response:', errorText);
-    console.log('=== END TOKEN EXCHANGE DEBUG ===');
+    console.error(`OAuth token exchange failed: ${response.status} ${response.statusText} - ${errorText}`);
     throw new Error(`Token exchange failed: ${response.statusText} - ${errorText}`);
   }
 
   const tokenData = await response.json();
-  console.log('Token exchange successful. Token response:', tokenData);
-  console.log('=== END TOKEN EXCHANGE DEBUG ===');
   return tokenData;
 }
 

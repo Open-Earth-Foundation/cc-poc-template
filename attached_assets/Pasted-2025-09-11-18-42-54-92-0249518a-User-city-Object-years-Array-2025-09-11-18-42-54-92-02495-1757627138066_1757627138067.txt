@@ -1,0 +1,136 @@
+2025-09-11 18:42:54.92
+0249518a
+User
+{ city: [Object], years: [Array] }
+2025-09-11 18:42:54.92
+0249518a
+User
+]
+2025-09-11 18:42:54.92
+0249518a
+User
+}
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Mendoza
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: San Diego
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Guadalajara
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Lusaka
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Caxias do Sul
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Serra
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Rio Branco
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Tokyo
+2025-09-11 18:42:54.92
+0249518a
+User
+📦 Stored city data for: Buenos Aires
+2025-09-11 18:42:54.92
+0249518a
+User
+✅ Successfully processed and stored 9 cities
+2025-09-11 18:42:54.92
+0249518a
+User
+User cities found: [
+2025-09-11 18:42:54.92
+0249518a
+User
+'96bb2e06-5703-4346-80a9-af7ffa61f5a9',
+2025-09-11 18:42:54.92
+0249518a
+User
+'dc213018-96a8-4eb1-b975-99cb03225fd2',
+2025-09-11 18:42:54.92
+0249518a
+User
+'b4c00aaf-4ed6-4e55-8d45-e163a647620b',
+2025-09-11 18:42:54.92
+0249518a
+User
+'59e78667-307b-41c8-a207-4533dcace734',
+2025-09-11 18:42:54.92
+0249518a
+User
+'de6dc3e0-35fc-4e2e-bc01-a0e73accf81d',
+2025-09-11 18:42:54.92
+0249518a
+User
+'603f9e23-e86b-427f-8021-38e550e3c232',
+2025-09-11 18:42:54.92
+0249518a
+User
+'0b297b90-9ae1-4939-bd37-a925b65ef40a',
+2025-09-11 18:42:54.92
+0249518a
+User
+'46d33bc1-52d1-49fc-864e-6eff163e0a66',
+2025-09-11 18:42:54.92
+0249518a
+User
+'c1fe322e-aa7d-4699-b68b-1e197a96e8ae'
+2025-09-11 18:42:54.92
+0249518a
+User
+]
+2025-09-11 18:42:54.92
+0249518a
+User
+9:42:54 PM [express] GET /api/auth/oauth/callback 302 in 441ms
+2025-09-11 18:42:55.60
+0249518a
+User
+9:42:55 PM [express] GET /api/user/profile 200 in 1ms :: {"id":"4e1a316e-7845-4c47-8592-2f98440a65d5…
+2025-09-11 18:42:55.66
+0249518a
+User
+🏙️ Retrieved 9 cities from CityCatalyst API
+2025-09-11 18:42:55.99
+0249518a
+User
+9:42:55 PM [express] GET /api/citycatalyst/inventories 304 in 383ms :: {"data":[{"locode":"AR MDZ","…
+2025-09-11 18:43:03.55
+0249518a
+User
+🏙️ Getting city information for: AR BUE
+2025-09-11 18:43:03.71
+0249518a
+User
+🏙️ Retrieved 9 cities from CityCatalyst API
+2025-09-11 18:43:04.05
+0249518a
+User
+📊 Found 9 cities with inventory data
+2025-09-11 18:43:04.05
+0249518a
+User
+✅ Found city: Buenos Aires (AR BUE)
+2025-09-11 18:43:04.05
+0249518a
+User
+9:43:04 PM [express] GET /api/city-information/AR%20BUE 304 in 499ms :: {"data":{"locode":"AR BUE","…
+
+Wrap
+
+Colors
