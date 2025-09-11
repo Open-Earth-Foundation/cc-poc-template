@@ -9,6 +9,7 @@ import {
   generateSessionToken 
 } from "./services/authService";
 import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails } from "./services/cityService";
+import { registerBoundaryRoutes } from "./modules/boundary/routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -18,12 +19,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Clear any existing session to ensure completely fresh start
       const oldSessionId = req.cookies.session_id;
       if (oldSessionId) {
+        console.log('🧹 Clearing old session for fresh OAuth initiation');
         await storage.deleteSession(oldSessionId);
         res.clearCookie('session_id');
       }
       
       const oauthState = generateOAuthState();
       
+      // Debug: Log the complete authorization URL
+      console.log('🔗 Generated OAuth Authorization URL:', oauthState.authUrl);
+      console.log('🔗 State:', oauthState.state);
+      console.log('🔗 Code Challenge:', oauthState.codeChallenge);
       
       // Store the state and code verifier in session
       const session = await storage.createSession({
@@ -41,6 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxAge: 10 * 60 * 1000, // 10 minutes
       });
       
+      console.log('✅ Fresh OAuth session created with new state and verifier');
       res.json({
         authUrl: oauthState.authUrl,
         state: oauthState.state,
@@ -53,10 +60,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/auth/oauth/callback', async (req, res) => {
     try {
+      // Enhanced debugging: Log ALL query parameters
+      console.log('=== OAUTH CALLBACK DEBUG ===');
+      console.log('Full query object:', req.query);
+      console.log('URL:', req.url);
+      console.log('Headers:', req.headers);
       
       const { code, state, error, error_description } = req.query;
       
+      // Handle OAuth errors with enhanced logging
       if (error) {
+        console.error('❌ OAuth error detected:');
+        console.error('Error:', error);
+        console.error('Error description:', error_description);
+        console.error('All query params:', req.query);
+        console.error('=== END OAUTH CALLBACK DEBUG ===');
         return res.redirect(`/login?error=${encodeURIComponent(error_description as string || error as string)}`);
       }
       
@@ -68,6 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if code was already consumed (prevent "Single-use code" error)
       const codeStr = code as string;
       if (await storage.isCodeConsumed(codeStr)) {
+        console.log('OAuth code already consumed, redirecting to success');
         return res.redirect('/cities');
       }
       
@@ -82,14 +101,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Exchange code for token
+      console.log('Exchanging code for token...');
       let tokenResponse;
       try {
         tokenResponse = await exchangeCodeForToken(codeStr, session.codeVerifier!);
         // Mark code as consumed only after successful exchange
         await storage.markCodeAsConsumed(codeStr);
+        console.log('Token exchange successful, getting user profile...');
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.includes('Single-use code')) {
+          console.log('❌ Single-use code error detected. Generating completely fresh OAuth flow...');
+          
           // Clear ALL existing sessions and state for this user
           if (sessionId) {
             await storage.deleteSession(sessionId);
@@ -100,6 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const timestamp = Date.now();
           const clearCacheUrl = `/?clear_cache=${timestamp}&retry=${Math.random().toString(36).substr(2, 9)}`;
           
+          console.log('🔄 Redirecting with cache-busting parameters to ensure fresh OAuth...');
           return res.redirect(clearCacheUrl);
         }
         throw error;
@@ -108,16 +132,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user profile (pass full token response for ID token access)
       let cityCatalystUser;
       try {
-        cityCatalystUser = await getUserProfile(tokenResponse.access_token);
+        cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
+        console.log('User profile retrieved:', cityCatalystUser.email);
       } catch (profileError) {
+        console.error('❌ Failed to get user profile:', profileError);
         throw new Error('Failed to retrieve user profile');
       }
       
       // Create or update user
       let user;
       try {
-        user = await createOrUpdateUser(cityCatalystUser, tokenResponse);
+        user = await createOrUpdateUser(
+          cityCatalystUser,
+          tokenResponse.access_token,
+          tokenResponse.refresh_token
+        );
+        console.log('✅ User created/updated successfully:', user.email);
       } catch (userError) {
+        console.error('❌ Failed to create/update user:', userError);
         throw new Error('Failed to create or update user');
       }
       
@@ -189,7 +221,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if access token is expired and needs refresh
       if (user.tokenExpiry && user.tokenExpiry < new Date() && user.refreshToken) {
-          // For now, just extend the expiry - proper refresh can be added later
+        console.log('🔄 Access token expired, attempting refresh...');
+        // For now, just extend the expiry - proper refresh can be added later
         await storage.updateUser(user.id, {
           tokenExpiry: new Date(Date.now() + 60 * 60 * 1000), // Extend by 1 hour
         });
@@ -218,11 +251,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // City routes
   app.get('/api/cities', requireAuth, async (req: any, res) => {
     try {
+      console.log('🏙️ /api/cities called for user:', req.user.email);
+      console.log('User access token present:', !!req.user.accessToken);
+      console.log('User projects:', req.user.projects);
+      
       // Pass access token to fetch real city data from CityCatalyst
       const cities = await getUserAccessibleCities(req.user.id, req.user.accessToken);
+      console.log('Cities returned from service:', cities.length);
       
       res.json({ cities });
     } catch (error) {
+      console.error('Get cities error:', error);
       res.status(500).json({ message: 'Failed to fetch cities' });
     }
   });
@@ -246,6 +285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ city });
     } catch (error) {
+      console.error('Get city error:', error);
       res.status(500).json({ message: 'Failed to fetch city' });
     }
   });
@@ -257,6 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cityDetail = await getCityDetail(locode, req.user.accessToken);
       res.json({ data: cityDetail });
     } catch (error: any) {
+      console.error('Get city detail error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch city detail' });
     }
   });
@@ -267,6 +308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const inventory = await getInventory(locode, parseInt(year), req.user.accessToken);
       res.json({ data: inventory });
     } catch (error: any) {
+      console.error('Get inventory error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch inventory' });
     }
   });
@@ -277,6 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const boundary = await getCityBoundary(locode, req.user.accessToken);
       res.json({ data: boundary });
     } catch (error: any) {
+      console.error('Get city boundary error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch city boundary' });
     }
   });
@@ -286,6 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const inventories = await getInventoriesByCity(req.user.accessToken);
       res.json({ data: inventories });
     } catch (error: any) {
+      console.error('Get inventories error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch inventories' });
     }
   });
@@ -294,9 +338,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/citycatalyst/inventory/:inventoryId', requireAuth, async (req: any, res) => {
     try {
       const { inventoryId } = req.params;
+      console.log(`📊 Getting inventory details for ID: ${inventoryId}`);
       const inventoryDetails = await getInventoryDetails(inventoryId, req.user.accessToken);
       res.json({ data: inventoryDetails });
     } catch (error: any) {
+      console.error('Get inventory details error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch inventory details' });
     }
   });
@@ -305,9 +351,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/city-information/:cityId', requireAuth, async (req: any, res) => {
     try {
       const { cityId } = req.params;
+      console.log(`🏙️ Getting city information for: ${cityId}`);
       
       // Get all inventories data (this works!)
       const inventoriesData = await getInventoriesByCity(req.user.accessToken);
+      console.log(`📊 Found ${inventoriesData.length} cities with inventory data`);
       
       // Find the city by cityId or locode
       const cityInfo = inventoriesData.find(city => 
@@ -317,6 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       if (!cityInfo) {
+        console.log(`❌ City not found: ${cityId}`);
         return res.status(404).json({ message: 'City not found' });
       }
       
@@ -342,23 +391,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         country: getCountryFromLocode(cityInfo.locode),
         locodePrefix: cityInfo.locode.split(' ')[0],
         totalInventories: cityInfo.years.length,
-        availableYears: cityInfo.years.map((y: any) => typeof y === 'object' ? y.year : y).filter(Boolean).sort((a: number, b: number) => b - a),
+        availableYears: cityInfo.years.map(y => typeof y === 'object' ? y.year : y).filter(Boolean).sort((a, b) => b - a),
         latestUpdate: (() => {
-          const validTimes = cityInfo.years.map((y: any) => {
+          const validTimes = cityInfo.years.map(y => {
             const updateTime = typeof y === 'object' && y.lastUpdate ? new Date(y.lastUpdate).getTime() : 0;
             return updateTime || 0;
-          }).filter((t: number) => t > 0);
+          }).filter(t => t > 0);
           return validTimes.length > 0 ? Math.max(...validTimes) : null;
         })()
       };
       
+      console.log(`✅ Found city: ${cityInfo.name} (${cityInfo.locode})`);
       res.json({ data: enrichedCityInfo });
     } catch (error: any) {
+      console.error('Get city information error:', error);
       res.status(500).json({ message: 'Failed to fetch city information' });
     }
   });
 
   // Register module routes
+  registerBoundaryRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

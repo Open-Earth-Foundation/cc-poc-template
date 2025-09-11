@@ -5,6 +5,7 @@ export interface City {
   country: string;
   locode?: string;
   projectId: string;
+  currentBoundary?: any;
   metadata: Record<string, any>;
   createdAt: Date;
 }
