@@ -4,11 +4,15 @@ import { initiateOAuth } from "@/core/services/authService";
 import { useToast } from "@/core/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/core/components/i18n/language-switcher';
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/core/components/ui/tooltip";
+import { LogOut } from "lucide-react";
+import { useLocation } from "wouter";
 
 export function Header() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const [, setLocation] = useLocation();
 
   const handleLogin = async () => {
     try {
@@ -44,7 +48,10 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => setLocation('/cities')}
+            >
               <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center p-0">
                 <img 
                   src="/boundary-icon.png" 
@@ -67,15 +74,22 @@ export function Header() {
                   <div className="font-medium text-white" data-testid="user-name">{user.name}</div>
                   <div className="text-white/80" data-testid="user-email">{user.email}</div>
                 </div>
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  data-testid="button-logout"
-                  className="border-white bg-primary text-white hover:bg-white hover:text-primary"
-                >
-                  {t('navigation.logout')}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogout}
+                      data-testid="button-logout"
+                      className="h-8 w-8 p-0 text-white hover:bg-white/10 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t('navigation.logout')}</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             ) : (
               <Button 
