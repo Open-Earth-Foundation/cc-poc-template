@@ -9,7 +9,6 @@ import {
   generateSessionToken 
 } from "./services/authService";
 import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails } from "./services/cityService";
-import { registerBoundaryRoutes } from "./modules/boundary/routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -27,9 +26,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const oauthState = generateOAuthState();
       
       // Debug: Log the complete authorization URL
-      console.log('🔗 Generated OAuth Authorization URL:', oauthState.authUrl);
-      console.log('🔗 State:', oauthState.state);
-      console.log('🔗 Code Challenge:', oauthState.codeChallenge);
+      console.log('🔗 OAuth authorization initiated');
       
       // Store the state and code verifier in session
       const session = await storage.createSession({
@@ -61,20 +58,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/oauth/callback', async (req, res) => {
     try {
       // Enhanced debugging: Log ALL query parameters
-      console.log('=== OAUTH CALLBACK DEBUG ===');
-      console.log('Full query object:', req.query);
-      console.log('URL:', req.url);
-      console.log('Headers:', req.headers);
+      console.log('=== OAUTH CALLBACK ===');
+      console.log('Processing callback for code:', req.query.code ? '[present]' : '[missing]');
       
       const { code, state, error, error_description } = req.query;
       
       // Handle OAuth errors with enhanced logging
       if (error) {
-        console.error('❌ OAuth error detected:');
-        console.error('Error:', error);
-        console.error('Error description:', error_description);
-        console.error('All query params:', req.query);
-        console.error('=== END OAUTH CALLBACK DEBUG ===');
+        console.error('❌ OAuth error detected:', error, error_description);
         return res.redirect(`/login?error=${encodeURIComponent(error_description as string || error as string)}`);
       }
       
@@ -133,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let cityCatalystUser;
       try {
         cityCatalystUser = await getUserProfile(tokenResponse.access_token, tokenResponse);
-        console.log('User profile retrieved:', cityCatalystUser.email);
+        console.log('User profile retrieved successfully');
       } catch (profileError) {
         console.error('❌ Failed to get user profile:', profileError);
         throw new Error('Failed to retrieve user profile');
@@ -147,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           tokenResponse.access_token,
           tokenResponse.refresh_token
         );
-        console.log('✅ User created/updated successfully:', user.email);
+        console.log('✅ User created/updated successfully');
       } catch (userError) {
         console.error('❌ Failed to create/update user:', userError);
         throw new Error('Failed to create or update user');
@@ -251,9 +242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // City routes
   app.get('/api/cities', requireAuth, async (req: any, res) => {
     try {
-      console.log('🏙️ /api/cities called for user:', req.user.email);
-      console.log('User access token present:', !!req.user.accessToken);
-      console.log('User projects:', req.user.projects);
+      console.log('🏙️ /api/cities called');
       
       // Pass access token to fetch real city data from CityCatalyst
       const cities = await getUserAccessibleCities(req.user.id, req.user.accessToken);
@@ -410,7 +399,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Register module routes
-  registerBoundaryRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

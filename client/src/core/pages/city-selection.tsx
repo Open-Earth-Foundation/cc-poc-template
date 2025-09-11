@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Header } from "@/core/components/layout/header";
 import { CityCard } from "@/core/components/city/city-card";
 import { UserDataCard } from "@/core/components/user/user-data-card";
-import { CityCatalystApiTester } from "@/core/components/testing/citycatalyst-api-tester";
 import { useAuth } from "@/core/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { City } from "@/core/types/city";
@@ -32,7 +31,7 @@ export default function CitySelection() {
   };
 
   // Transform CityCatalyst inventories into city format
-  const cities = (inventoriesData?.data || []).map((city: any) => {
+  const cities: City[] = (inventoriesData?.data || []).map((city: any) => {
     const countryMap: Record<string, string> = {
       'AR': 'Argentina', 'BR': 'Brazil', 'US': 'United States',
       'MX': 'Mexico', 'JP': 'Japan', 'ZM': 'Zambia',
@@ -52,7 +51,7 @@ export default function CitySelection() {
   });
   
   // Filter cities based on search and project
-  const filteredCities = cities.filter(city => {
+  const filteredCities = cities.filter((city: City) => {
     const matchesSearch = city.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          city.country.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesProject = selectedProject === "all" || city.projectId === selectedProject;
@@ -60,7 +59,7 @@ export default function CitySelection() {
   });
 
   // Get unique projects for filter
-  const projects = Array.from(new Set(cities.map(city => city.projectId)));
+  const projects = Array.from(new Set(cities.map((city: City) => city.projectId)));
 
   if (authLoading || citiesLoading) {
     return (
@@ -99,8 +98,6 @@ export default function CitySelection() {
           </div>
         )}
 
-        {/* CityCatalyst API Testing Section */}
-        <CityCatalystApiTester />
         
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2" data-testid="text-page-title">
@@ -145,9 +142,9 @@ export default function CitySelection() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Projects</SelectItem>
-              {projects.map(projectId => (
+              {projects.map((projectId: string) => (
                 <SelectItem key={projectId} value={projectId}>
-                  {projectId.replace('project-', '').replace('-', ' ').split(' ').map(word => 
+                  {projectId.replace('project-', '').replace('-', ' ').split(' ').map((word: string) => 
                     word.charAt(0).toUpperCase() + word.slice(1)
                   ).join(' ')}
                 </SelectItem>
@@ -158,7 +155,7 @@ export default function CitySelection() {
         
         {/* Cities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="grid-cities">
-          {filteredCities.map((city) => (
+          {filteredCities.map((city: City) => (
             <CityCard
               key={city.id}
               city={city}

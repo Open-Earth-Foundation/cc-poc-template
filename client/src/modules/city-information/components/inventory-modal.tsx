@@ -77,11 +77,10 @@ export function InventoryModal({ isOpen, onClose, locode, year, cityName }: Inve
           </pre>
         </div>
         
-        {/* TODO: Add proper GPC sector breakdown once we understand the data structure */}
         <div className="text-sm text-muted-foreground">
           <p>
-            <strong>Note:</strong> This data will be organized by GPC sectors once we understand 
-            the exact structure returned by the CityCatalyst API.
+            <strong>Note:</strong> This displays the raw API response structure. 
+            Can be enhanced with custom data parsing and organization.
           </p>
         </div>
       </div>

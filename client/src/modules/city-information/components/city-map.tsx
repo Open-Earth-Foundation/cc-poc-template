@@ -12,12 +12,10 @@ interface CityMapProps {
 export function CityMap({ boundary, isLoading, cityName }: CityMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
 
-  // For now, we'll create a placeholder map component
-  // This will be enhanced with Leaflet integration similar to the boundary module
+  // Placeholder map component - can be enhanced with map library integration
   useEffect(() => {
     if (boundary && mapRef.current) {
-      // TODO: Initialize Leaflet map with boundary data
-      console.log('Boundary data received for', cityName, boundary);
+      // Map initialization would go here
     }
   }, [boundary, cityName]);
 
@@ -42,7 +40,7 @@ export function CityMap({ boundary, isLoading, cityName }: CityMapProps) {
     );
   }
 
-  // Placeholder map container - will be replaced with actual Leaflet map
+  // Placeholder map container
   return (
     <div 
       ref={mapRef}
