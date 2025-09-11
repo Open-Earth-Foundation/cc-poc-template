@@ -168,10 +168,7 @@ async function getUserCities(accessToken: string): Promise<string[]> {
   const citiesUrl = `${AUTH_BASE_URL}/api/v0/user/cities/`;
 
   try {
-    console.log('🏙️ Fetching user cities...');
     const citiesData = await fetchJSON(citiesUrl, accessToken);
-    console.log('✅ Success! Got cities data');
-    console.log('Cities data:', citiesData);
     
     // Handle different response formats
     const cities = citiesData.cities || citiesData.data || citiesData;
@@ -203,43 +200,35 @@ async function getUserCities(accessToken: string): Promise<string[]> {
                   years: item.years,
                 } as Record<string, any>,
               });
-              console.log(`📦 Stored city data for: ${cityData.name || cityId}`);
             } catch (error) {
-              console.log(`⚠️ Failed to store city ${cityId}:`, error);
+              console.error(`Failed to store city ${cityId}:`, error);
             }
           }
         }
       }
       
-      console.log(`✅ Successfully processed and stored ${cityIds.length} cities`);
       return cityIds;
     }
     
     return [];
   } catch (error) {
-    console.log(`❌ Failed to fetch cities:`, error instanceof Error ? error.message : error);
+    console.error(`Failed to fetch user cities:`, error instanceof Error ? error.message : error);
     return [];
   }
 }
 
 export async function getUserProfile(accessToken: string, tokenResponse?: any): Promise<CityCatalystUser> {
-  console.log('Attempting to get real user profile data...');
-  
   try {
     // Use the known working profile endpoint
     const profileUrl = `${AUTH_BASE_URL}/api/v0/user/`;
     
-    console.log('Fetching profile data...');
     const profileData = await fetchJSON(profileUrl, accessToken);
-    console.log('✅ Success! Got profile data');
-    console.log('Profile data:', profileData);
     
     // Handle nested data structure from CityCatalyst API
     const userData = profileData.data || profileData;
     
     // Get user's accessible cities
     const userCities = await getUserCities(accessToken);
-    console.log('User cities found:', userCities);
     
     // Convert to our expected format
     return {
@@ -250,15 +239,12 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
       projects: userCities.length > 0 ? userCities : (userData.defaultCityId ? [userData.defaultCityId] : ['default-project']),
     };
   } catch (error) {
-    console.log(`❌ Failed to fetch profile:`, error instanceof Error ? error.message : error);
+    console.error(`Failed to fetch profile from API:`, error instanceof Error ? error.message : error);
 
     // Strategy 2: Try to decode ID token if available
     if (tokenResponse?.id_token) {
-      console.log('Trying to decode ID token...');
       const claims = decodeJWT(tokenResponse.id_token);
       if (claims) {
-        console.log('✅ Successfully decoded ID token');
-        console.log('ID token claims:', claims);
         
         return {
           id: claims.sub || 'unknown',
@@ -273,11 +259,8 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
     }
 
     // Strategy 3: Try to decode access token (some APIs encode user info in access tokens)
-    console.log('Trying to decode access token for user info...');
     const accessClaims = decodeJWT(accessToken);
     if (accessClaims && (accessClaims.email || accessClaims.sub)) {
-      console.log('✅ Found user info in access token');
-      console.log('Access token claims:', accessClaims);
       
       return {
         id: accessClaims.sub || 'unknown',
@@ -288,7 +271,7 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
       };
     }
 
-    console.error('❌ All profile retrieval strategies failed, falling back to sample data');
+    console.error('All profile retrieval strategies failed, falling back to sample data');
     
     return {
       id: 'sample-user-1',

@@ -107,20 +107,13 @@ export async function getUserCities(user: User, accessToken?: string): Promise<C
     return [];
   }
   
-  console.log('🏙️ Getting user cities...');
-  console.log('User project IDs:', user.projects);
   
   // First check our local storage for cities with these project IDs
   const localCities = await storage.getCitiesByProjectIds(user.projects);
-  console.log(`📦 Found ${localCities.length} cities in local storage`);
   
   if (localCities.length > 0) {
-    console.log('✅ Using stored city data');
-    console.log('City names:', localCities.map(c => c.name));
     return localCities;
   }
-  
-  console.log('⚠️ No cities found in local storage, returning empty array');
   return [];
 }
 
@@ -243,13 +236,12 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
   const citiesUrl = '/api/v0/user/cities/';
   const citiesData = await cityCatalystApiGet<any>(citiesUrl, accessToken);
   
-  console.log(`🏙️ Retrieved ${Array.isArray(citiesData?.cities || citiesData?.data || citiesData) ? (citiesData?.cities || citiesData?.data || citiesData).length : 0} cities from CityCatalyst API`);
   
   // Handle different response formats (same logic as authService.ts)
   const cities = citiesData.cities || citiesData.data || citiesData;
   
   if (!Array.isArray(cities)) {
-    console.log('❌ Cities data is not in expected format');
+    console.error('Cities data is not in expected format');
     return [];
   }
 
