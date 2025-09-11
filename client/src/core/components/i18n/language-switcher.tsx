@@ -29,7 +29,6 @@ export function LanguageSwitcher() {
               <span className="text-sm font-medium">{currentLanguage.name}</span>
             </span>
           </SelectValue>
-          <ChevronDown className="h-3 w-3 opacity-70" />
         </SelectTrigger>
         <SelectContent className="min-w-[120px]">
           {languages.map((language) => (
