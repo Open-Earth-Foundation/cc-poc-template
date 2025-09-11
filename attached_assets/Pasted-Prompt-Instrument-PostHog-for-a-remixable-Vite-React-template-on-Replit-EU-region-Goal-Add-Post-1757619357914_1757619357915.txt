@@ -1,0 +1,120 @@
+Prompt: Instrument PostHog for a remixable Vite/React template on Replit (EU region)
+
+Goal: Add PostHog analytics so every remix of this template reports to the same PostHog project (EU), while each remix is distinguishable by URL/host and a stable app_id. Also create a tiny analytics utility and instrument a handful of key events.
+
+0) Manual installation (use one)
+npm install posthog-js
+# OR
+yarn add posthog-js
+# OR
+pnpm add posthog-js
+
+1) Replit/Vite environment variables
+
+Create secrets (or a .env) with these names (Vite requires the VITE_ prefix to expose them client-side):
+
+VITE_PUBLIC_POSTHOG_KEY=phc_cqJp3RdY3wz8iYGRZ6A1KiOSNgL3iHXqvPaH8OfOAJN
+VITE_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+
+# Per-remix identifiers (set unique values per Repl):
+VITE_PUBLIC_APP_ID=<your-repl-slug-or-custom-id>
+VITE_PUBLIC_APP_ENV=<dev|staging|prod>
+
+2) Initialize at the app root (Vite + React)
+
+Integrate PostHog via the React provider at the root (e.g., main.tsx).
+Also add a small “boot” component that registers persistent properties and an “app” group so each remix is analyzable on its own.
+
+// main.tsx
+import { StrictMode, useEffect } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+import { PostHogProvider } from 'posthog-js/react'
+import posthog from 'posthog-js'
+
+// Read env
+const PH_KEY   = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
+const PH_HOST  = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
+const APP_ID   = import.meta.env.VITE_PUBLIC_APP_ID
+const APP_ENV  = import.meta.env.VITE_PUBLIC_APP_ENV
+
+// Provider options (EU host + SPA pageviews)
+const options = {
+  api_host: PH_HOST,
+  capture_pageview: 'history_change', // SPA pageviews on router changes
+  defaults: '2025-05-24',            // (kept from your snippet)
+}
+
+// Boot component: runs once to register shared props & grouping
+function PosthogBoot() {
+  useEffect(() => {
+    // Attach properties to ALL events from this remix
+    posthog.register({
+      app_id: APP_ID,
+      app_env: APP_ENV,
+      app_url: window.location.host,
+    })
+
+    // Group analytics: treat each remix as an "app" group
+    posthog.group('app', APP_ID, {
+      name: APP_ID,
+      url: window.location.host,
+      template: 'your-template-name', // optional
+    })
+
+    // Optional: a clear startup event you can use in dashboards
+    posthog.capture('App — Loaded', { path: window.location.pathname })
+  }, [])
+
+  return null
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <PostHogProvider apiKey={PH_KEY} options={options}>
+      <PosthogBoot />
+      <App />
+    </PostHogProvider>
+  </StrictMode>,
+)
+
+3) Minimal analytics utility
+
+A tiny wrapper keeps event names consistent and always includes context.
+
+// src/analytics.ts
+import posthog from 'posthog-js'
+
+export function track(event: string, props: Record<string, any> = {}) {
+  posthog.capture(event, {
+    path: window.location.pathname,
+    ...props,
+  })
+}
+
+export function identify(user?: { id: string; email?: string; role?: string }) {
+  if (!user) return
+  posthog.identify(user.id, { email: user.email, role: user.role })
+}
+
+4) Key events to instrument (examples)
+
+Use a consistent taxonomy like Feature — Action — Result and attach useful properties.
+
+import { track } from './analytics'
+
+// Import flow
+track('Import — Opened')
+track('Import — Completed', { rows: 134, skipped: 2 })
+track('Import — Failed', { reason: 'schema_mismatch' })
+
+// Search
+track('Search — Performed', { query: 'park', results: 17 })
+
+// Errors
+track('Error — Boundary Upload', { message: err.message })
+
+// Optional manual event anywhere:
+import posthog from 'posthog-js'
+posthog.capture('my event', { property: 'value' })
