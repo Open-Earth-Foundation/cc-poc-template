@@ -308,6 +308,8 @@ export async function exchangeCodeForToken(code: string, codeVerifier: string): 
 
   const tokens: TokenResponse = await response.json();
   
+  console.log(`✅ Token exchange successful: ${tokens.token_type} token received, expires in ${tokens.expires_in}s`);
+  
   // Validate required fields
   if (!tokens.access_token || !tokens.token_type || !tokens.expires_in) {
     throw new Error('Invalid token response: missing required fields');
@@ -355,6 +357,8 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.log(`❌ Profile fetch failed: ${response.status} ${response.statusText}`);
+    console.log(`❌ Error response: ${errorText.slice(0, 300)}`);
     throw new Error(`Failed to get user profile: ${response.status} ${response.statusText} — ${errorText}`);
   }
 
