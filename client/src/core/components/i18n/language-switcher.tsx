@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { ChevronDown } from "lucide-react";
+import { analytics } from '@/core/lib/analytics';
 
 const languages = [
   { code: 'en', name: 'EN', flag: '🇺🇸' },
@@ -11,6 +12,8 @@ export function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
   const handleLanguageChange = (languageCode: string) => {
+    const currentLang = i18n.resolvedLanguage || 'en';
+    analytics.preferences.languageChanged(currentLang, languageCode);
     i18n.changeLanguage(languageCode);
   };
 

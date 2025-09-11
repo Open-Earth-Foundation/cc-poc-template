@@ -7,6 +7,8 @@ import { LanguageSwitcher } from '@/core/components/i18n/language-switcher';
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/core/components/ui/tooltip";
 import { LogOut } from "lucide-react";
 import { useLocation } from "wouter";
+import { analytics } from '@/core/lib/analytics';
+import posthog from 'posthog-js';
 
 export function Header() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -29,7 +31,13 @@ export function Header() {
 
   const handleLogout = async () => {
     try {
+      const userId = user?.id || 'unknown';
+      analytics.auth.logout(userId);
       await logout();
+      // Reset PostHog user identification on logout
+      if (posthog) {
+        posthog.reset();
+      }
       toast({
         title: t('navigation.logout'),
         description: t('common.success'),

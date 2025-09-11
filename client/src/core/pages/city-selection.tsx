@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Input } from "@/core/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
@@ -9,11 +9,17 @@ import { useAuth } from "@/core/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { City } from "@/core/types/city";
 import { useTranslation } from 'react-i18next';
+import { analytics, track } from '@/core/lib/analytics';
 
 export default function CitySelection() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { t } = useTranslation();
+
+  // Track page view on component mount
+  useEffect(() => {
+    analytics.navigation.pageViewed('City Selection');
+  }, []);
   // Use CityCatalyst inventories data instead of local database
   const { data: inventoriesData, isLoading: citiesLoading } = useQuery({
     queryKey: ['/api/citycatalyst/inventories'],
@@ -29,6 +35,10 @@ export default function CitySelection() {
   }
 
   const handleCitySelect = (cityId: string) => {
+    const city = cities.find(c => c.id === cityId);
+    if (city) {
+      analytics.navigation.citySelected(cityId, city.name);
+    }
     setLocation(`/city-information/${cityId}`);
   };
 
@@ -118,7 +128,18 @@ export default function CitySelection() {
                 type="text"
                 placeholder={t('citySelection.searchPlaceholder')}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setSearchTerm(newValue);
+                  if (newValue) {
+                    // Calculate results based on new search term
+                    const futureResults = cities.filter(city => 
+                      city.name.toLowerCase().includes(newValue.toLowerCase()) ||
+                      city.country.toLowerCase().includes(newValue.toLowerCase())
+                    );
+                    analytics.search.performed(newValue, futureResults.length);
+                  }
+                }}
                 className="pl-10"
                 data-testid="input-city-search"
               />
@@ -138,7 +159,10 @@ export default function CitySelection() {
             </div>
           </div>
           
-          <Select value={selectedProject} onValueChange={setSelectedProject}>
+          <Select value={selectedProject} onValueChange={(value) => {
+            analytics.filter.applied('project', value, selectedProject);
+            setSelectedProject(value);
+          }}>
             <SelectTrigger className="w-full sm:w-48" data-testid="select-project-filter">
               <SelectValue placeholder={t('citySelection.allProjects')} />
             </SelectTrigger>
@@ -174,7 +198,10 @@ export default function CitySelection() {
             </div>
             {searchTerm && (
               <button
-                onClick={() => setSearchTerm("")}
+                onClick={() => {
+                  analytics.search.cleared(searchTerm);
+                  setSearchTerm("");
+                }}
                 className="text-primary hover:underline"
                 data-testid="button-clear-search"
               >

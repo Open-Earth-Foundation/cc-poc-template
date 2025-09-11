@@ -6,6 +6,7 @@ import { useAuth } from "@/core/hooks/useAuth";
 import { initiateOAuth } from "@/core/services/authService";
 import { useToast } from "@/core/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
+import { analytics } from '@/core/lib/analytics';
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -19,11 +20,18 @@ export default function Login() {
     }
   }, [isAuthenticated, setLocation]);
 
+  // Track page view on component mount
+  useEffect(() => {
+    analytics.navigation.pageViewed('Login');
+  }, []);
+
   const handleOAuthLogin = async () => {
     try {
+      analytics.auth.loginAttempt('oauth');
       const oauthResponse = await initiateOAuth();
       window.location.href = oauthResponse.authUrl;
     } catch (error: any) {
+      analytics.auth.loginFailure(error.message || 'network_error', 'oauth');
       toast({
         title: t('errors.authenticationFailed'),
         description: error.message || t('errors.networkError'),
@@ -34,9 +42,11 @@ export default function Login() {
 
   const handleSampleLogin = async () => {
     try {
+      analytics.auth.loginAttempt('sample');
       // For development: trigger the sample user creation
       await handleOAuthLogin();
     } catch (error: any) {
+      analytics.auth.loginFailure(error.message || 'validation_error', 'sample');
       toast({
         title: t('errors.authenticationFailed'),
         description: error.message || t('errors.validationError'),

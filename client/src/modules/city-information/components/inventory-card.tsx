@@ -4,6 +4,7 @@ import { Badge } from "@/core/components/ui/badge";
 import { CityCatalystInventory } from "../types/city-info";
 import { Calendar, Database, ExternalLink, Activity } from "lucide-react";
 import { InventoryDetailsModal } from "./inventory-details-modal";
+import { analytics } from '@/core/lib/analytics';
 
 interface InventoryCardProps {
   inventory: {
@@ -23,6 +24,11 @@ export function InventoryCard({ inventory, cityName, locode, onSelect }: Invento
     } catch {
       return 'Unknown';
     }
+  };
+
+  const handleInventorySelect = () => {
+    analytics.inventory.itemSelected(inventory.inventoryId, 'emissions');
+    onSelect?.();
   };
 
   return (
@@ -65,6 +71,7 @@ export function InventoryCard({ inventory, cityName, locode, onSelect }: Invento
             className="w-full"
             variant="outline"
             data-testid={`button-view-inventory-${inventory.year}`}
+            onClick={handleInventorySelect}
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             View Details

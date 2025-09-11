@@ -6,6 +6,7 @@ import { ExternalLink, Calendar, Database, Building2, Activity, Clock } from "lu
 import { useInventoryDetails } from "../hooks/useInventoryDetails";
 import { format } from "date-fns";
 import { useState } from "react";
+import { analytics } from '@/core/lib/analytics';
 
 interface InventoryDetailsModalProps {
   inventoryId: string;
@@ -17,6 +18,13 @@ interface InventoryDetailsModalProps {
 export function InventoryDetailsModal({ inventoryId, year, cityName, children }: InventoryDetailsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { data: inventoryData, isLoading, error } = useInventoryDetails(isOpen ? inventoryId : undefined);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      analytics.inventory.detailsOpened(inventoryId);
+    }
+  };
 
   const formattedDate = (dateStr: string) => {
     try {
@@ -198,7 +206,7 @@ export function InventoryDetailsModal({ inventoryId, year, cityName, children }:
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         {renderContent()}

@@ -5,6 +5,7 @@ import { extractOAuthParams } from "@/core/utils/oauth";
 import { useToast } from "@/core/hooks/use-toast";
 import { Spinner } from "@/core/components/ui/spinner";
 import { useAuth } from "@/core/hooks/useAuth";
+import { analytics, identify } from '@/core/lib/analytics';
 
 export function OAuthCallback() {
   const [, setLocation] = useLocation();
@@ -16,6 +17,7 @@ export function OAuthCallback() {
       const { code, state, error } = extractOAuthParams();
       
       if (error) {
+        analytics.auth.loginFailure(error, 'oauth');
         toast({
           title: "Authentication Error",
           description: error,
@@ -26,6 +28,7 @@ export function OAuthCallback() {
       }
       
       if (!code || !state) {
+        analytics.auth.loginFailure('missing_code_or_state', 'oauth');
         toast({
           title: "Authentication Error",
           description: "Missing authorization code or state",
@@ -36,8 +39,17 @@ export function OAuthCallback() {
       }
       
       try {
-        await handleOAuthCallback(code, state);
+        const loginResponse = await handleOAuthCallback(code, state);
         await refetch(); // Refetch user profile
+        
+        // Track successful login and identify user
+        analytics.auth.loginSuccess(loginResponse.user?.id || 'unknown', 'oauth');
+        identify({
+          id: loginResponse.user?.id || 'unknown',
+          email: loginResponse.user?.email,
+          name: loginResponse.user?.name
+        });
+        
         toast({
           title: "Welcome!",
           description: "You have been successfully authenticated.",
@@ -45,6 +57,7 @@ export function OAuthCallback() {
         setLocation("/cities");
       } catch (error: any) {
         console.error("OAuth callback error:", error);
+        analytics.auth.loginFailure(error.message || 'callback_error', 'oauth');
         toast({
           title: "Authentication Failed",
           description: error.message || "Failed to complete authentication",
