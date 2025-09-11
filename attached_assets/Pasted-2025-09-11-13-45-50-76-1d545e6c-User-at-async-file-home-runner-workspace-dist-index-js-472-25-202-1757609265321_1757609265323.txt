@@ -1,0 +1,104 @@
+2025-09-11 13:45:50.76
+1d545e6c
+User
+at async file:///home/runner/workspace/dist/index.js:472:25
+2025-09-11 13:45:50.76
+1d545e6c
+User
+4:45:50 PM [express] GET /api/auth/oauth/callback 302 in 505ms
+2025-09-11 13:45:51.45
+1d545e6c
+User
+4:45:51 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"User not found"}
+2025-09-11 13:45:56.67
+1d545e6c
+User
+4:45:56 PM [express] GET /api/auth/oauth/initiate 200 in 2ms :: {"authUrl":"https://citycatalyst.ope…
+2025-09-11 13:45:59.39
+1d545e6c
+User
+❌ OAuth callback error: SyntaxError: Unexpected token '<', "
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at JSON.parse ()
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at parseJSONFromBytes (node:internal/deps/undici/undici:5738:19)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at successSteps (node:internal/deps/undici/undici:5719:27)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at fullyReadBody (node:internal/deps/undici/undici:4609:9)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at async consumeBody (node:internal/deps/undici/undici:5728:7)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at async exchangeCodeForToken (file:///home/runner/workspace/dist/index.js:240:18)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at async file:///home/runner/workspace/dist/index.js:472:25
+2025-09-11 13:45:59.39
+1d545e6c
+User
+Error message: Unexpected token '<', "
+2025-09-11 13:45:59.39
+1d545e6c
+User
+Error stack: SyntaxError: Unexpected token '<', "
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at JSON.parse ()
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at parseJSONFromBytes (node:internal/deps/undici/undici:5738:19)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at successSteps (node:internal/deps/undici/undici:5719:27)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at fullyReadBody (node:internal/deps/undici/undici:4609:9)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at async consumeBody (node:internal/deps/undici/undici:5728:7)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at async exchangeCodeForToken (file:///home/runner/workspace/dist/index.js:240:18)
+2025-09-11 13:45:59.39
+1d545e6c
+User
+at async file:///home/runner/workspace/dist/index.js:472:25
+2025-09-11 13:45:59.39
+1d545e6c
+User
+4:45:59 PM [express] GET /api/auth/oauth/callback 302 in 542ms
+2025-09-11 13:46:00.00
+1d545e6c
+User
+4:46:00 PM [express] GET /api/user/profile 401 in 1ms :: {"message":"User not found"}
+2025-09-11 13:46:07.02
+1d545e6c
+User
+4:46:07 PM [express] GET /api/auth/oauth/initiate 200 in 1ms :: {"authUrl":"https://citycatalyst.ope…
