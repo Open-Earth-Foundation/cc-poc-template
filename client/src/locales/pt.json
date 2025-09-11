@@ -15,8 +15,9 @@
     "clearSearch": "Limpar pesquisa"
   },
   "header": {
-    "title": "Editor de Limites",
-    "subtitle": "Visualização Aprimorada de Limites Urbanos"
+    "title": "Módulo CC POC",
+    "subtitle": "Módulo de Exemplo de Integração",
+    "iconAlt": "Ícone do Módulo CC POC"
   },
   "navigation": {
     "home": "Início",
@@ -43,12 +44,30 @@
     "inventoryCount": "{{count}} inventários disponíveis",
     "loadingInventories": "Carregando inventários...",
     "noInventories": "Nenhum inventário encontrado",
+    "noInventoriesDescription": "Esta cidade não possui inventários de emissões disponíveis no momento.",
     "year": "Ano",
     "type": "Tipo",
     "emissions": "Emissões",
-    "status": "Status"
+    "status": "Status",
+    "cityName": "Nome da Cidade",
+    "country": "País",
+    "locode": "UN/LOCODE",
+    "countryCode": "Código do País",
+    "availableDataYears": "Anos de Dados Disponíveis",
+    "lastUpdated": "Última Atualização",
+    "dataOverview": "Visão Geral dos Dados",
+    "totalInventories": "Inventários Totais",
+    "latestYear": "Último Ano",
+    "earliestYear": "Primeiro Ano",
+    "yearRange": "Intervalo de Anos",
+    "emissionsInventories": "Inventários de Emissões",
+    "backToCities": "Voltar para Cidades",
+    "errorLoadingCity": "Erro ao Carregar Informações da Cidade",
+    "failedToLoadCity": "Falha ao carregar informações da cidade",
+    "unknownError": "Erro desconhecido ocorreu"
   },
   "user": {
+    "userData": "Dados do Usuário",
     "name": "Nome",
     "email": "E-mail",
     "title": "Título",

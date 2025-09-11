@@ -15,8 +15,9 @@
     "clearSearch": "Clear search"
   },
   "header": {
-    "title": "Boundary Editor",
-    "subtitle": "Enhanced City Boundary Visualization"
+    "title": "CC POC Module",
+    "subtitle": "Example Integration Module",
+    "iconAlt": "CC POC Module Icon"
   },
   "navigation": {
     "home": "Home",
@@ -43,12 +44,30 @@
     "inventoryCount": "{{count}} inventories available",
     "loadingInventories": "Loading inventories...",
     "noInventories": "No inventories found",
+    "noInventoriesDescription": "This city doesn't have any emissions inventories available at the moment.",
     "year": "Year",
     "type": "Type",
     "emissions": "Emissions",
-    "status": "Status"
+    "status": "Status",
+    "cityName": "City Name",
+    "country": "Country",
+    "locode": "UN/LOCODE",
+    "countryCode": "Country Code",
+    "availableDataYears": "Available Data Years",
+    "lastUpdated": "Last Updated",
+    "dataOverview": "Data Overview",
+    "totalInventories": "Total Inventories",
+    "latestYear": "Latest Year",
+    "earliestYear": "Earliest Year",
+    "yearRange": "Year Range",
+    "emissionsInventories": "Emissions Inventories",
+    "backToCities": "Back to Cities",
+    "errorLoadingCity": "Error Loading City Information",
+    "failedToLoadCity": "Failed to load information for city",
+    "unknownError": "Unknown error occurred"
   },
   "user": {
+    "userData": "User Data",
     "name": "Name",
     "email": "Email",
     "title": "Title",
