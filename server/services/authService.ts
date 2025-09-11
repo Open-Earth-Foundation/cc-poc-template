@@ -356,6 +356,7 @@ export async function getUserProfile(accessToken: string): Promise<CityCatalystU
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.log(`Profile fetch failed: ${response.status} ${response.statusText} - ${errorText.slice(0, 200)}`);
     throw new Error(`Failed to get user profile: ${response.status} ${response.statusText} — ${errorText}`);
   }
 
