@@ -4,6 +4,16 @@ The Enhanced Boundary Editor is a standalone React + Express web application tha
 
 The system enables urban planners, GIS professionals, and researchers to discover alternative city boundaries beyond official administrative boundaries, visualize them on interactive maps, and export selected boundaries for further use in urban planning and analysis workflows.
 
+# Development Contract
+
+## ⚠️ Required for ALL New Features
+Every new feature must include:
+1. **Internationalization**: Add keys to both `en.json` and `pt.json`, use `useTranslation()` hook
+2. **Analytics**: Track with PostHog using "Feature — Action — Result" naming convention
+
+📚 **Documentation**: [docs/i18n.md](./docs/i18n.md) | [docs/analytics.md](./docs/analytics.md)  
+📋 **Full Guidelines**: [CONTRIBUTING.md](./CONTRIBUTING.md)
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
