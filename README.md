@@ -78,6 +78,7 @@ Emphasize HIAP recommendations, add action tracking and progress monitoring.
 
 ## 📖 Learn More
 
+- **[CityCatalyst Documentation](https://citycatalyst.openearth.dev/docs/)** - **When in doubt, check here first!**
 - **[CityCatalyst Platform](https://citycatalyst.openearth.dev)** - Main platform
 - **[Replit](https://replit.com)** - Development and hosting platform
 - **[Full Documentation](./docs/)** - Detailed guides and examples

@@ -157,3 +157,5 @@ Comprehensive API documentation is maintained in the service files for easy deve
 - Review existing hooks in `client/src/modules/city-information/hooks/` for integration patterns
 - Use type definitions in `city-info.ts` for frontend development
 - Follow authentication patterns established in existing routes
+
+**💡 When in doubt**: Always refer to the official [CityCatalyst Documentation](https://citycatalyst.openearth.dev/docs/) for the latest API specifications, authentication requirements, and best practices.

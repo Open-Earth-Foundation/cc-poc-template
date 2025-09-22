@@ -34,6 +34,8 @@ This template demonstrates a **comprehensive CityCatalyst integration** designed
 4. **🎨 Customize the UI** to match your specific requirements
 5. **📋 Update Documentation** to reflect your new use case
 
+💡 **Important**: When in doubt about CityCatalyst APIs or features, always check the official [CityCatalyst Documentation](https://citycatalyst.openearth.dev/docs/) for the most up-to-date information and best practices.
+
 ## Authentication Flow
 
 ### 1. OAuth 2.0 PKCE Flow

@@ -13,6 +13,8 @@ This is a **proof-of-concept template** designed for **remixing and adaptation**
 
 **For Remix Developers**: Use this documentation as your foundation, then adapt the APIs to your specific use case requirements.
 
+💡 **When in doubt**: Check the official [CityCatalyst Documentation](https://citycatalyst.openearth.dev/docs/) for the latest API specifications and best practices.
+
 ## Table of Contents
 - [Authentication](#authentication)
 - [API Endpoints](#api-endpoints)

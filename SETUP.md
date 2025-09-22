@@ -19,6 +19,8 @@ This is a **proof-of-concept template** that demonstrates comprehensive CityCata
 3. **🔧 Customize the template** by adapting features to your needs
 4. **📋 Update documentation** to reflect your new purpose
 
+💡 **Developer Tip**: When in doubt about CityCatalyst APIs, authentication, or data structures, always refer to the official [CityCatalyst Documentation](https://citycatalyst.openearth.dev/docs/) for the most current information.
+
 ## Prerequisites
 
 - Node.js 18+ installed
