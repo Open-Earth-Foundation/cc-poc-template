@@ -1,7 +1,7 @@
 
-# CityCatalyst OAuth Integration Guide
+# CityCatalyst Template Integration Guide
 
-A complete guide for building applications that integrate with CityCatalyst's OAuth 2.0 PKCE authentication system and API endpoints.
+A complete **proof-of-concept template** for building climate action applications that integrate with CityCatalyst's comprehensive data platform.
 
 ## Table of Contents
 
@@ -10,20 +10,29 @@ A complete guide for building applications that integrate with CityCatalyst's OA
 3. [API Endpoints](#api-endpoints)
 4. [Data Schemas](#data-schemas)
 5. [Implementation Examples](#implementation-examples)
-6. [Complete Skeleton App](#complete-skeleton-app)
+6. [Complete Template Application](#complete-template-application)
 7. [Environment Setup](#environment-setup)
 8. [Deployment on Replit](#deployment-on-replit)
 
 ## Overview
 
-This guide provides everything needed to create applications that authenticate with CityCatalyst and display user profile and city data. The implementation uses OAuth 2.0 with PKCE (Proof Key for Code Exchange) for secure authentication.
+This template demonstrates a **comprehensive CityCatalyst integration** designed for **remixing and adaptation** to specific climate action use cases.
 
-### Key Features
-- Secure OAuth 2.0 PKCE authentication
-- User profile data retrieval
-- Access to user's authorized cities
-- Complete API documentation with examples
-- Ready-to-use skeleton application
+### Template Capabilities
+- ✅ **Authentication**: Secure OAuth 2.0 PKCE flow with CityCatalyst
+- ✅ **Emissions Data**: Complete inventory display with GPC sector breakdowns
+- ✅ **Risk Assessment**: CCRA dashboard with climate risk visualization  
+- ✅ **Policy Actions**: HIAP recommendations for mitigation and adaptation
+- ✅ **API Documentation**: Comprehensive guides for all CityCatalyst endpoints
+- ✅ **Remix-Ready**: Modular architecture for easy customization to specific use cases
+
+### How to Use This Template
+
+1. **🔄 Remix** this project on Replit
+2. **🎯 Define Your Use Case** (e.g., carbon tracking, risk analysis, policy planning)
+3. **🔧 Adapt the Template** by removing unnecessary features and enhancing relevant ones
+4. **🎨 Customize the UI** to match your specific requirements
+5. **📋 Update Documentation** to reflect your new use case
 
 ## Authentication Flow
 

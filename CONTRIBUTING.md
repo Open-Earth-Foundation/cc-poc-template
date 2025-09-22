@@ -1,4 +1,8 @@
-# Development Contract - Agent Playbook
+# Development Contract - CityCatalyst Template
+
+## About This Template
+
+This is a **proof-of-concept template** for CityCatalyst integrations, designed for **remixing and adaptation** to specific climate action use cases. When you remix this template, adapt these requirements to your specific needs.
 
 ## ⚠️ Non-Negotiable Requirements
 

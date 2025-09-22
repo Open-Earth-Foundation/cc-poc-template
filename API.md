@@ -1,6 +1,17 @@
 # CityCatalyst Template API Documentation
 
-This document provides comprehensive documentation for all API endpoints, schemas, and usage examples in this CityCatalyst OAuth integration template.
+This document provides comprehensive documentation for all API endpoints, schemas, and usage examples in this **CityCatalyst integration template**.
+
+## About This Template
+
+This is a **proof-of-concept template** designed for **remixing and adaptation** to specific climate action use cases. The template demonstrates comprehensive CityCatalyst API integration including:
+
+- 🔐 **OAuth 2.0 PKCE Authentication**
+- 🏙️ **City & Emissions Inventory Data**
+- ⚠️ **Climate Change Risk Assessment (CCRA)**
+- 🎯 **Health Impact Assessment Policy (HIAP)**
+
+**For Remix Developers**: Use this documentation as your foundation, then adapt the APIs to your specific use case requirements.
 
 ## Table of Contents
 - [Authentication](#authentication)

@@ -1,8 +1,15 @@
 # Overview
 
-The Enhanced Boundary Editor is a standalone React + Express web application that allows users to view, explore, and select city boundaries from OpenStreetMap (OSM) data. The application integrates with CityCatalyst's OAuth 2.0 authentication system and provides an interactive mapping interface for boundary visualization and selection.
+This is a **template for CityCatalyst API integration modules** - a comprehensive proof-of-concept that demonstrates how to build applications that connect with CityCatalyst's climate data platform. The template showcases OAuth 2.0 authentication, emissions inventory display, climate risk assessment (CCRA), and health impact assessment policy (HIAP) data integration.
 
-The system enables urban planners, GIS professionals, and researchers to discover alternative city boundaries beyond official administrative boundaries, visualize them on interactive maps, and export selected boundaries for further use in urban planning and analysis workflows.
+**Purpose**: This template is designed for **remixing and adaptation** to specific use cases. When you remix this project, you should define your specific use case and adapt the template accordingly.
+
+**What it demonstrates:**
+- Complete CityCatalyst OAuth 2.0 PKCE authentication flow
+- City emissions inventory data display with GPC sector breakdowns
+- Climate Change Risk Assessment (CCRA) visualization
+- Health Impact Assessment Policy (HIAP) action recommendations
+- Comprehensive API integration patterns for climate data applications
 
 # Development Contract
 

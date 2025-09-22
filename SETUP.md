@@ -1,6 +1,23 @@
 # CityCatalyst Template Setup Guide
 
-This guide provides step-by-step instructions for setting up and customizing this CityCatalyst OAuth integration template.
+This guide provides step-by-step instructions for setting up and customizing this **CityCatalyst integration template**.
+
+## About This Template
+
+This is a **proof-of-concept template** that demonstrates comprehensive CityCatalyst API integration. It's designed for **remixing and adaptation** to specific climate action use cases.
+
+### What This Template Includes
+- ✅ Complete OAuth 2.0 PKCE authentication flow
+- ✅ City emissions inventory data with GPC sector breakdowns
+- ✅ Climate Change Risk Assessment (CCRA) dashboard
+- ✅ Health Impact Assessment Policy (HIAP) action recommendations
+- ✅ Comprehensive API documentation for future development
+
+### Remix Workflow
+1. **🔄 Remix** this template on Replit
+2. **🎯 Define your specific use case** (e.g., municipal carbon tracking, risk assessment tool, policy planning dashboard)
+3. **🔧 Customize the template** by adapting features to your needs
+4. **📋 Update documentation** to reflect your new purpose
 
 ## Prerequisites
 
@@ -41,7 +58,9 @@ SESSION_SECRET=your-very-long-random-session-secret
 
 ## Installation
 
-1. **Clone/Fork this template:**
+1. **Remix this template on Replit:**
+   - Click the "Fork" or "Remix" button on the Replit interface
+   - Or clone locally:
    ```bash
    git clone <this-repository>
    cd citycatalyst-template
