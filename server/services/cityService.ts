@@ -223,6 +223,81 @@ export async function getInventoryDetails(inventoryId: string, accessToken: stri
 }
 
 /**
+ * Get detailed inventory data with emissions breakdown from the download endpoint
+ * GET /api/v0/inventory/{inventory}/download
+ * 
+ * Returns comprehensive inventory data including:
+ * - All basic inventory details
+ * - inventoryValues array with GPC sectors/subsectors
+ * - Detailed emissions data for each sector
+ * - Activity values and gas values
+ * - Data source information
+ */
+export async function getInventoryDownload(inventoryId: string, accessToken: string): Promise<{
+  inventoryId: string;
+  inventoryName: string;
+  year: number;
+  totalEmissions: number | null;
+  cityId: string;
+  totalCountryEmissions: number | null;
+  isPublic: boolean;
+  publishedAt: string | null;
+  inventoryType: string;
+  globalWarmingPotentialType: string;
+  lastUpdated: string;
+  created: string;
+  last_updated: string;
+  city: {
+    cityId: string;
+    locode: string;
+    name: string;
+    shape: any;
+    country: string;
+    region: string;
+    countryLocode: string;
+    regionLocode: string;
+    area: string;
+    projectId: string;
+    created: string;
+    last_updated: string;
+  };
+  inventoryValues: Array<{
+    id: string;
+    gpcReferenceNumber: string;
+    activityUnits: string | null;
+    activityValue: string | null;
+    co2eq: string;
+    co2eqYears: number;
+    unavailableReason: string | null;
+    unavailableExplanation: string | null;
+    inputMethodology: string | null;
+    sectorId: string;
+    subSectorId: string;
+    subCategoryId: string;
+    inventoryId: string;
+    datasourceId: string | null;
+    created: string;
+    last_updated: string;
+    activityValues: any[];
+    dataSource: {
+      datasourceId: string;
+      sourceType: string;
+      datasetName: {
+        [key: string]: string;
+      };
+      datasourceName: string;
+      dataQuality: string;
+    } | null;
+    subSector: {
+      subsectorId: string;
+      subsectorName: string;
+    };
+  }>;
+}> {
+  return cityCatalystApiGet(`/api/v0/inventory/${inventoryId}/download`, accessToken);
+}
+
+/**
  * Get all inventories for multiple cities (used for overview)
  */
 export async function getInventoriesByCity(accessToken: string): Promise<Array<{

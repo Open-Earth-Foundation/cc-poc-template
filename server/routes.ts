@@ -8,7 +8,7 @@ import {
   createOrUpdateUser,
   generateSessionToken 
 } from "./services/authService";
-import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails } from "./services/cityService";
+import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails, getInventoryDownload } from "./services/cityService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -326,6 +326,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Get inventory details error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch inventory details' });
+    }
+  });
+
+  // Get comprehensive inventory data with emissions breakdown (download endpoint)
+  app.get('/api/citycatalyst/inventory/:inventoryId/download', requireAuth, async (req: any, res) => {
+    try {
+      const { inventoryId } = req.params;
+      console.log(`📊 Getting inventory download data for ID: ${inventoryId}`);
+      const inventoryDownload = await getInventoryDownload(inventoryId, req.user.accessToken);
+      res.json({ data: inventoryDownload });
+    } catch (error: any) {
+      console.error('Get inventory download error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch inventory download data' });
     }
   });
 
