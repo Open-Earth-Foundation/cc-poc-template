@@ -540,3 +540,83 @@ export async function getCCRADashboard(cityId: string, inventoryId: string, acce
     accessToken
   );
 }
+
+/**
+ * Get HIAP (Health Impact Assessment and Policy) data for an inventory
+ * GET /api/v0/inventory/{inventory}/hiap
+ * 
+ * @param inventoryId - UUID of the inventory
+ * @param actionType - Type of actions to retrieve ("mitigation" | "adaptation")
+ * @param language - Language code (e.g., "en", "pt")
+ * @param accessToken - User's CityCatalyst access token
+ * @param ignoreExisting - Optional boolean to ignore existing actions
+ * @returns HIAP insights with action recommendations
+ * 
+ * This endpoint provides health impact assessment and policy recommendations for climate actions.
+ * Returns ranked lists of mitigation and adaptation actions tailored to the specific inventory context.
+ * 
+ * **Parameters:**
+ * - `actionType`: "mitigation" for emission reduction actions, "adaptation" for resilience actions
+ * - `language`: ISO language code for localized action descriptions
+ * - `ignoreExisting`: Optional flag to exclude actions already implemented
+ * 
+ * **Response Structure:**
+ * The response structure varies by actionType but typically includes:
+ * - Array of ranked action recommendations
+ * - Action metadata (title, description, impact scores)
+ * - Implementation guidance and resources
+ * - Health co-benefits analysis
+ * 
+ * **Frontend Integration:**
+ * Use the `useHIAPData` hook to fetch data for both mitigation and adaptation:
+ * ```typescript
+ * const { data: mitigationData } = useHIAPData(inventoryId, 'mitigation', 'en');
+ * const { data: adaptationData } = useHIAPData(inventoryId, 'adaptation', 'en');
+ * ```
+ * 
+ * **API Route:** `/api/citycatalyst/inventory/:inventoryId/hiap`
+ * - Query parameters: actionType, lng, ignoreExisting
+ * - Requires authentication via CityCatalyst OAuth
+ * - Returns action-specific HIAP insights
+ * 
+ * Usage example:
+ * ```typescript
+ * // Get mitigation actions
+ * const mitigationActions = await getHIAPData(inventoryId, 'mitigation', 'en', userToken);
+ * 
+ * // Get adaptation actions  
+ * const adaptationActions = await getHIAPData(inventoryId, 'adaptation', 'en', userToken);
+ * ```
+ */
+export async function getHIAPData(
+  inventoryId: string, 
+  actionType: 'mitigation' | 'adaptation', 
+  language: string, 
+  accessToken: string,
+  ignoreExisting?: boolean
+): Promise<any> {
+  if (!inventoryId || !actionType || !language) {
+    throw new Error('inventoryId, actionType, and language are required for HIAP data');
+  }
+  
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(inventoryId)) {
+    throw new Error(`Invalid inventoryId format. Expected UUID, got: ${inventoryId}`);
+  }
+  
+  // Build query parameters
+  const params = new URLSearchParams({
+    actionType,
+    lng: language,
+  });
+  
+  if (ignoreExisting !== undefined) {
+    params.append('ignoreExisting', ignoreExisting.toString());
+  }
+  
+  return cityCatalystApiGet(
+    `/api/v0/inventory/${encodeURIComponent(inventoryId)}/hiap?${params.toString()}`, 
+    accessToken
+  );
+}
