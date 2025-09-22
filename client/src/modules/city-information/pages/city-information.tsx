@@ -8,7 +8,8 @@ import { Skeleton } from "@/core/components/ui/skeleton";
 import { useCityInformation } from "../hooks/useCityInformation";
 import { useCCRADashboard } from "../hooks/useCCRADashboard";
 import { InventoryCard } from "../components/inventory-card";
-import { MapPin, Globe, Calendar, Database, ArrowLeft, Building2, Clock, Shield, AlertTriangle } from "lucide-react";
+import { HIAPActionsModal } from "../components/hiap-actions-modal";
+import { MapPin, Globe, Calendar, Database, ArrowLeft, Building2, Clock, Shield, AlertTriangle, Leaf, HeartHandshake } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
 export default function CityInformation() {
@@ -332,6 +333,75 @@ export default function CityInformation() {
                 )}
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* HIAP Actions Section */}
+        {latestInventory && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-6">
+              <HeartHandshake className="h-5 w-5" />
+              <h2 className="text-2xl font-bold">{t('cityInfo.climateActions', 'Climate Actions')}</h2>
+              <Badge variant="outline" data-testid="badge-hiap-year">
+                {latestInventory.year || 'N/A'}
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Mitigation Actions Card */}
+              <HIAPActionsModal
+                inventoryId={latestInventory.inventoryId}
+                actionType="mitigation"
+                title={t('cityInfo.mitigationActions', 'Mitigation Actions')}
+                description={t('cityInfo.mitigationDescription', 'Actions to reduce greenhouse gas emissions and limit climate change.')}
+                trigger={
+                  <Card className="cursor-pointer hover:shadow-md transition-shadow" data-testid="card-mitigation-actions">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Leaf className="h-5 w-5 text-green-600" />
+                        {t('cityInfo.mitigationActions', 'Mitigation Actions')}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {t('cityInfo.mitigationCardDescription', 'Explore evidence-based actions to reduce emissions and achieve climate targets.')}
+                      </p>
+                      <div className="flex items-center text-sm text-primary font-medium">
+                        {t('cityInfo.viewActions', 'View Actions')}
+                        <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                }
+              />
+
+              {/* Adaptation Actions Card */}
+              <HIAPActionsModal
+                inventoryId={latestInventory.inventoryId}
+                actionType="adaptation"
+                title={t('cityInfo.adaptationActions', 'Adaptation Actions')}
+                description={t('cityInfo.adaptationDescription', 'Actions to build resilience and adapt to climate change impacts.')}
+                trigger={
+                  <Card className="cursor-pointer hover:shadow-md transition-shadow" data-testid="card-adaptation-actions">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-blue-600" />
+                        {t('cityInfo.adaptationActions', 'Adaptation Actions')}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {t('cityInfo.adaptationCardDescription', 'Discover strategies to strengthen resilience against climate risks and impacts.')}
+                      </p>
+                      <div className="flex items-center text-sm text-primary font-medium">
+                        {t('cityInfo.viewActions', 'View Actions')}
+                        <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                }
+              />
+            </div>
           </div>
         )}
 
