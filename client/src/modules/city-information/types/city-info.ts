@@ -104,17 +104,78 @@ export interface AssessmentSummary {
   lastUpdated?: string;
 }
 
-// HIAP (Health Impact Assessment and Policy) Types
+// HIAP (Health Impact Assessment and Policy) Types - Actual API Response Structure
 export interface HIAPData {
-  // Flexible structure to accommodate various HIAP response formats
-  [key: string]: any;
-  
-  // Common HIAP fields that might be present
-  actions?: HIAPAction[];
-  recommendations?: HIAPRecommendation[];
-  metadata?: HIAPMetadata;
+  id: string;
+  locode: string;
+  inventoryId: string;
+  type: 'mitigation' | 'adaptation';
+  langs: string[];
+  jobId: string;
+  status: string;
+  created: string;
+  last_updated: string;
+  rankedActions: HIAPRankedAction[];
 }
 
+export interface HIAPRankedAction {
+  id: string;
+  hiaRankingId: string;
+  lang: string;
+  type: 'mitigation' | 'adaptation';
+  name: string;
+  hazards: string[] | null;
+  sectors: string[];
+  subsectors: string[];
+  primaryPurposes: string[];
+  description: string;
+  dependencies: string[];
+  cobenefits: {
+    habitat: number;
+    housing: number;
+    mobility: number;
+    air_quality: number;
+    water_quality: number;
+    cost_of_living: number;
+    stakeholder_engagement: number;
+  };
+  equityAndInclusionConsiderations: string | null;
+  GHGReductionPotential: {
+    ippu: string | null;
+    afolu: string | null;
+    waste: string | null;
+    transportation: string | null;
+    stationary_energy: string | null;
+  };
+  adaptationEffectiveness: string | null;
+  adaptationEffectivenessPerHazard: {
+    floods: string | null;
+    storms: string | null;
+    diseases: string | null;
+    droughts: string | null;
+    heatwaves: string | null;
+    wildfires: string | null;
+    landslides: string | null;
+    'sea-level-rise': string | null;
+  };
+  costInvestmentNeeded: 'low' | 'medium' | 'high';
+  timelineForImplementation: string;
+  keyPerformanceIndicators: string[];
+  powersAndMandates: string[];
+  biome: string | null;
+  isSelected: boolean;
+  actionId: string;
+  rank: number;
+  explanation: {
+    explanations: {
+      [lang: string]: string;
+    };
+  };
+  created: string;
+  last_updated: string;
+}
+
+// Legacy types kept for backward compatibility
 export interface HIAPAction {
   id: string;
   title: string;

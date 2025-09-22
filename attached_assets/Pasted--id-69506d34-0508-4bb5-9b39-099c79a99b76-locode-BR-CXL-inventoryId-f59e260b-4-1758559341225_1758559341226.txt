@@ -1,0 +1,245 @@
+{
+  "id": "69506d34-0508-4bb5-9b39-099c79a99b76",
+  "locode": "BR CXL",
+  "inventoryId": "f59e260b-440e-4996-8283-a63cef60c224",
+  "type": "mitigation",
+  "langs": [
+    "en",
+    "es",
+    "pt",
+    "de",
+    "fr"
+  ],
+  "jobId": "379814f1-a066-4dc7-b977-34af1af531f2",
+  "status": "SUCCESS",
+  "created": "2025-09-22T16:27:10.655Z",
+  "last_updated": "2025-09-22T16:34:13.112Z",
+  "rankedActions": [
+    {
+      "id": "21d15747-29bf-4231-834e-29afc0b8fe8a",
+      "hiaRankingId": "69506d34-0508-4bb5-9b39-099c79a99b76",
+      "lang": "en",
+      "type": "mitigation",
+      "name": "Prioritize Procurement of Locally Produced Agroecological Products in Public Purchases",
+      "hazards": null,
+      "sectors": [
+        "afolu"
+      ],
+      "subsectors": [
+        "agriculture_forestry_and_fishing_activities"
+      ],
+      "primaryPurposes": [
+        "ghg_reduction"
+      ],
+      "description": "Focus on buying sustainable, locally produced food for public institutions.",
+      "dependencies": [
+        "Development of procurement policies and identification of reliable local suppliers.",
+        "Partnerships with producers and allocation of funding for sustainable procurement programs.",
+        "Establishment of monitoring systems to ensure compliance with sustainability criteria."
+      ],
+      "cobenefits": {
+        "habitat": 2,
+        "housing": 0,
+        "mobility": 0,
+        "air_quality": 1,
+        "water_quality": 2,
+        "cost_of_living": 1,
+        "stakeholder_engagement": 2
+      },
+      "equityAndInclusionConsiderations": null,
+      "GHGReductionPotential": {
+        "ippu": null,
+        "afolu": "20-39",
+        "waste": null,
+        "transportation": null,
+        "stationary_energy": null
+      },
+      "adaptationEffectiveness": null,
+      "adaptationEffectivenessPerHazard": {
+        "floods": null,
+        "storms": null,
+        "diseases": null,
+        "droughts": null,
+        "heatwaves": null,
+        "wildfires": null,
+        "landslides": null,
+        "sea-level-rise": null
+      },
+      "costInvestmentNeeded": "low",
+      "timelineForImplementation": "<5 years",
+      "keyPerformanceIndicators": [
+        "Percentage of the total volume of public purchases coming from local agroecological producers.",
+        "Amount of CO₂ emissions avoided due to reduced transport distance (tCO₂e).",
+        "Number of agroecological producers benefiting from public purchases."
+      ],
+      "powersAndMandates": [
+        "local"
+      ],
+      "biome": null,
+      "isSelected": false,
+      "actionId": "icare_0131",
+      "rank": 1,
+      "explanation": {
+        "explanations": {
+          "de": "Die Priorisierung des Einkaufs lokal produzierter agroökologischer Produkte bei öffentlichen Beschaffungen ist für Caxias do Sul wichtig, um nachhaltige Landwirtschaft zu fördern und lokale Ernährungssysteme zu stärken. Diese Maßnahme steht im Einklang mit der nationalen Strategie AGR.I.17, die bis 2035 agroökologische Korridore in Metropolregionen etablieren will und dabei Agroökologie sowie nachhaltige Landnutzungspraktiken fördert. Durch den Fokus auf lokale Beschaffung trägt die Stadt zur Klimaminderung, Ernährungssicherheit und Umweltwiederherstellung bei, wie im Ziel der nationalen Strategie beschrieben.",
+          "en": "Prioritizing the procurement of locally produced agroecological products in public purchases is essential for Caxias do Sul to support sustainable agriculture and strengthen local food systems. This action aligns with the national strategy AGR.I.17, which aims to establish agroecological corridors in metropolitan regions by 2035, promoting agroecology and sustainable land-use practices. By focusing on local sourcing, the city contributes to climate mitigation, food security, and environmental restoration as outlined in the national strategy's target.",
+          "es": "Priorizar la adquisición de productos agroecológicos producidos localmente en las compras públicas es fundamental para Caxias do Sul, ya que apoya la agricultura sostenible y fortalece los sistemas alimentarios locales. Esta acción está alineada con la estrategia nacional AGR.I.17, que busca establecer corredores agroecológicos en regiones metropolitanas para 2035, promoviendo la agroecología y prácticas sostenibles del uso del suelo. Al enfocarse en el abastecimiento local, la ciudad contribuye a la mitigación del clima, la seguridad alimentaria y la restauración ambiental según el objetivo de la estrategia nacional.",
+          "fr": "Prioriser l'achat de produits agroécologiques locaux dans les achats publics est crucial pour Caxias do Sul afin de soutenir l'agriculture durable et renforcer les systèmes alimentaires locaux. Cette action est en accord avec la stratégie nationale AGR.I.17, qui vise à établir des corridors agroécologiques dans les régions métropolitaines d'ici 2035, en promouvant l'agroécologie et des pratiques durables d'utilisation des terres. En se concentrant sur l'approvisionnement local, la ville contribue à l'atténuation du changement climatique, à la sécurité alimentaire et à la restauration environnementale conformément à l'objectif de la stratégie nationale.",
+          "pt": "Priorizar a compra de produtos agroecológicos produzidos localmente em aquisições públicas é essencial para Caxias do Sul apoiar a agricultura sustentável e fortalecer os sistemas alimentares locais. Esta ação está alinhada com a estratégia nacional AGR.I.17, que visa estabelecer corredores agroecológicos em regiões metropolitanas até 2035, promovendo a agroecologia e práticas sustentáveis de uso da terra. Ao focar na compra local, a cidade contribui para a mitigação climática, segurança alimentar e restauração ambiental conforme o objetivo da estratégia nacional."
+        }
+      },
+      "created": "2025-09-22T16:34:12.861Z",
+      "last_updated": "2025-09-22T16:34:12.861Z"
+    },
+    {
+      "id": "ff20e952-8284-4cf3-9bbb-69a13d673580",
+      "hiaRankingId": "69506d34-0508-4bb5-9b39-099c79a99b76",
+      "lang": "en",
+      "type": "mitigation",
+      "name": "Support the Implementation of Ecological Fiscal Incentives",
+      "hazards": null,
+      "sectors": [
+        "afolu"
+      ],
+      "subsectors": [
+        "land"
+      ],
+      "primaryPurposes": [
+        "ghg_reduction"
+      ],
+      "description": "Encourage the application of ecological taxes and incentives to promote environmental conservation.",
+      "dependencies": [
+        "Establish a clear regulatory framework with fair tax rates and incentives for sustainability.",
+        "Implement effective monitoring systems to track compliance and measure impact.",
+        "Promote public awareness and foster collaboration between governments, businesses, and communities."
+      ],
+      "cobenefits": {
+        "habitat": 2,
+        "housing": 0,
+        "mobility": 0,
+        "air_quality": 1,
+        "water_quality": 1,
+        "cost_of_living": 1,
+        "stakeholder_engagement": 2
+      },
+      "equityAndInclusionConsiderations": null,
+      "GHGReductionPotential": {
+        "ippu": null,
+        "afolu": "20-39",
+        "waste": null,
+        "transportation": null,
+        "stationary_energy": null
+      },
+      "adaptationEffectiveness": null,
+      "adaptationEffectivenessPerHazard": {
+        "floods": null,
+        "storms": null,
+        "diseases": null,
+        "droughts": null,
+        "heatwaves": null,
+        "wildfires": null,
+        "landslides": null,
+        "sea-level-rise": null
+      },
+      "costInvestmentNeeded": "low",
+      "timelineForImplementation": "<5 years",
+      "keyPerformanceIndicators": [
+        "Number of municipalities that have adopted environmental tax incentives.",
+        "Percentage of tax revenue spent on sustainable practices.",
+        "Acreage or number of properties benefiting from conservation practices as a result of incentives."
+      ],
+      "powersAndMandates": [
+        "state"
+      ],
+      "biome": null,
+      "isSelected": false,
+      "actionId": "icare_0136",
+      "rank": 2,
+      "explanation": {
+        "explanations": {
+          "de": "Die Unterstützung der Umsetzung ökologischer fiskalischer Anreize ist für Caxias do Sul wichtig, um den Umweltschutz zu fördern und die Gesundheit der lokalen Ökosysteme zu verbessern. Diese Maßnahme steht im Einklang mit der nationalen Strategie zur Elektrifizierung industrieller Prozesse (IND.I.02), die darauf abzielt, den Anteil des Stroms am industriellen Energieverbrauch bis 2035 zu erhöhen und so nachhaltige Praktiken zu unterstützen und Umweltauswirkungen zu verringern.",
+          "en": "Supporting the implementation of ecological fiscal incentives is important for Caxias do Sul to promote environmental conservation and improve local ecosystem health. This action aligns with the national strategy's focus on electrifying industrial processes (IND.I.02), which aims to increase the share of electricity in industrial energy consumption by 2035, indirectly supporting sustainable practices and reducing environmental impact.",
+          "es": "Apoyar la implementación de incentivos fiscales ecológicos es importante para Caxias do Sul para promover la conservación ambiental y mejorar la salud de los ecosistemas locales. Esta acción está alineada con la estrategia nacional que se centra en electrificar los procesos industriales (IND.I.02), cuyo objetivo es aumentar la participación de la electricidad en el consumo energético industrial para 2035, apoyando indirectamente prácticas sostenibles y reduciendo el impacto ambiental.",
+          "fr": "Soutenir la mise en œuvre d'incitations fiscales écologiques est essentiel pour Caxias do Sul afin de promouvoir la conservation de l'environnement et d'améliorer la santé des écosystèmes locaux. Cette action est en accord avec la stratégie nationale visant à électrifier les processus industriels (IND.I.02), qui a pour objectif d'augmenter la part de l'électricité dans la consommation énergétique industrielle d'ici 2035, soutenant indirectement des pratiques durables et réduisant l'impact environnemental.",
+          "pt": "Apoiar a implementação de incentivos fiscais ecológicos é importante para Caxias do Sul promover a conservação ambiental e melhorar a saúde dos ecossistemas locais. Esta ação está alinhada com a estratégia nacional que foca na eletrificação dos processos industriais (IND.I.02), que visa aumentar a participação da eletricidade no consumo energético industrial até 2035, apoiando indiretamente práticas sustentáveis e reduzindo o impacto ambiental."
+        }
+      },
+      "created": "2025-09-22T16:34:12.861Z",
+      "last_updated": "2025-09-22T16:34:12.861Z"
+    },
+    {
+      "id": "0382c8c2-72d2-4435-895d-885e4bc0a346",
+      "hiaRankingId": "69506d34-0508-4bb5-9b39-099c79a99b76",
+      "lang": "en",
+      "type": "mitigation",
+      "name": "Encourage Local Agroecological Production and Short Supply Chains",
+      "hazards": null,
+      "sectors": [
+        "afolu"
+      ],
+      "subsectors": [
+        "agriculture_forestry_and_fishing_activities"
+      ],
+      "primaryPurposes": [
+        "ghg_reduction"
+      ],
+      "description": "Support local, sustainable agricultural practices and reduce emissions associated with food transport.",
+      "dependencies": [
+        "Incentives for sustainable agricultural practices and development of local food distribution networks.",
+        "Partnerships with producers and investment in infrastructure to support local markets.",
+        "Policies to prioritize low-emission transportation methods."
+      ],
+      "cobenefits": {
+        "habitat": 1,
+        "housing": 0,
+        "mobility": 0,
+        "air_quality": 1,
+        "water_quality": 2,
+        "cost_of_living": 1,
+        "stakeholder_engagement": 2
+      },
+      "equityAndInclusionConsiderations": null,
+      "GHGReductionPotential": {
+        "ippu": null,
+        "afolu": "20-39",
+        "waste": null,
+        "transportation": null,
+        "stationary_energy": null
+      },
+      "adaptationEffectiveness": null,
+      "adaptationEffectivenessPerHazard": {
+        "floods": null,
+        "storms": null,
+        "diseases": null,
+        "droughts": null,
+        "heatwaves": null,
+        "wildfires": null,
+        "landslides": null,
+        "sea-level-rise": null
+      },
+      "costInvestmentNeeded": "low",
+      "timelineForImplementation": "<5 years",
+      "keyPerformanceIndicators": [
+        "Number of producers adhering to local agroecological practices.",
+        "Percentage of food consumed in the city from short chains.",
+        "Reduction in emissions associated with food transport (tCO₂e)."
+      ],
+      "powersAndMandates": [
+        "local"
+      ],
+      "biome": null,
+      "isSelected": false,
+      "actionId": "icare_0132",
+      "rank": 3,
+      "explanation": {
+        "explanations": {
+          "de": "Die Förderung lokaler agroökologischer Produktion und kurzer Lieferketten ist für Caxias do Sul wichtig, um nachhaltige Landwirtschaft zu unterstützen und Emissionen durch Lebensmitteltransport zu reduzieren. Diese Maßnahme stärkt die lokalen Ernährungssysteme und erhöht die Klimaanpassungsfähigkeit der Stadt. Sie steht im Einklang mit der nationalen Strategie AGR.I.17, die bis 2035 100 Hektar produktive agroökologische Korridore in Metropolregionen etablieren will und dabei Ernährungssicherheit, Klimaschutz und nachhaltige Landnutzung verbindet.",
+          "en": "Encouraging local agroecological production and short supply chains is vital for Caxias do Sul to promote sustainable agriculture and reduce emissions from food transport. This action supports the city's environmental goals by fostering local food systems and enhancing climate resilience. It aligns with the national strategy AGR.I.17, which aims to establish 100 hectares of productive agroecological corridors in metropolitan regions by 2035, linking food security, climate mitigation, and sustainable land use.",
+          "es": "Fomentar la producción agroecológica local y las cadenas de suministro cortas es fundamental para Caxias do Sul, ya que promueve una agricultura sostenible y reduce las emisiones asociadas al transporte de alimentos. Esta acción apoya los objetivos ambientales de la ciudad al fortalecer los sistemas alimentarios locales y mejorar la resiliencia climática. Está alineada con la estrategia nacional AGR.I.17, que busca establecer 100 hectáreas de corredores agroecológicos productivos en regiones metropolitanas para 2035, vinculando la seguridad alimentaria, la mitigación climática y el uso sostenible del suelo.",
+          "fr": "Encourager la production agroécologique locale et les circuits courts est essentiel pour Caxias do Sul afin de promouvoir une agriculture durable et de réduire les émissions liées au transport des aliments. Cette action soutient les objectifs environnementaux de la ville en renforçant les systèmes alimentaires locaux et la résilience climatique. Elle s'aligne sur la stratégie nationale AGR.I.17, qui vise à établir 100 hectares de corridors agroécologiques productifs dans les régions métropolitaines d'ici 2035, en reliant sécurité alimentaire, atténuation du changement climatique et utilisation durable des terres.",
+          "pt": "Incentivar a produção agroecológica local e cadeias curtas de abastecimento é essencial para Caxias do Sul, promovendo a agricultura sustentável e reduzindo as emissões associadas ao transporte de alimentos. Esta ação apoia as metas ambientais da cidade ao fortalecer os sistemas alimentares locais e aumentar a resiliência climática. Está alinhada com a estratégia nacional AGR.I.17, que visa estabelecer 100 hectares de corredores agroecológicos produtivos em regiões metropolitanas até 2035, conectando segurança alimentar, mitigação climática e uso sustentável do solo."
+        }
+      },
+      "created": "2025-09-22T16:34:12.861Z",
+      "last_updated": "2025-09-22T16:34:12.861Z"
+    },
