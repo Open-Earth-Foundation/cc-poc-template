@@ -561,11 +561,54 @@ export async function getCCRADashboard(cityId: string, inventoryId: string, acce
  * - `ignoreExisting`: Optional flag to exclude actions already implemented
  * 
  * **Response Structure:**
- * The response structure varies by actionType but typically includes:
- * - Array of ranked action recommendations
- * - Action metadata (title, description, impact scores)
- * - Implementation guidance and resources
- * - Health co-benefits analysis
+ * ```typescript
+ * {
+ *   id: string;                    // HIAP job identifier
+ *   locode: string;               // City UN/LOCODE (e.g., "BR CXL")
+ *   inventoryId: string;          // Inventory UUID
+ *   type: "mitigation" | "adaptation";
+ *   langs: string[];              // Available languages
+ *   jobId: string;                // Processing job identifier
+ *   status: string;               // "SUCCESS" | "PENDING" | "ERROR"
+ *   created: string;              // ISO timestamp
+ *   last_updated: string;        // ISO timestamp
+ *   rankedActions: Array<{        // Ranked list of climate actions
+ *     id: string;
+ *     rank: number;               // Priority ranking (1 = highest)
+ *     name: string;               // Action title
+ *     description: string;        // Detailed description
+ *     sectors: string[];          // Applicable sectors (e.g., "afolu")
+ *     subsectors: string[];       // Subsector categories
+ *     dependencies: string[];     // Implementation requirements
+ *     cobenefits: {               // Co-benefit scores (0-2)
+ *       habitat: number;
+ *       housing: number;
+ *       mobility: number;
+ *       air_quality: number;
+ *       water_quality: number;
+ *       cost_of_living: number;
+ *       stakeholder_engagement: number;
+ *     };
+ *     GHGReductionPotential: {    // Emissions reduction by sector
+ *       afolu: string | null;     // e.g., "20-39" (percentage range)
+ *       transportation: string | null;
+ *       stationary_energy: string | null;
+ *       ippu: string | null;
+ *       waste: string | null;
+ *     };
+ *     costInvestmentNeeded: "low" | "medium" | "high";
+ *     timelineForImplementation: string;  // e.g., "<5 years"
+ *     keyPerformanceIndicators: string[];  // Success metrics
+ *     powersAndMandates: string[];        // "local" | "state" | "national"
+ *     actionId: string;                   // Catalog reference (e.g., "icare_0131")
+ *     explanation: {
+ *       explanations: {
+ *         [lang: string]: string;  // Detailed rationale by language
+ *       };
+ *     };
+ *   }>;
+ * }
+ * ```
  * 
  * **Frontend Integration:**
  * Use the `useHIAPData` hook to fetch data for both mitigation and adaptation:
@@ -583,6 +626,14 @@ export async function getCCRADashboard(cityId: string, inventoryId: string, acce
  * ```typescript
  * // Get mitigation actions
  * const mitigationActions = await getHIAPData(inventoryId, 'mitigation', 'en', userToken);
+ * console.log(`Found ${mitigationActions.rankedActions.length} mitigation actions`);
+ * 
+ * // Access ranked actions
+ * mitigationActions.rankedActions.forEach(action => {
+ *   console.log(`#${action.rank}: ${action.name}`);
+ *   console.log(`Cost: ${action.costInvestmentNeeded}, Timeline: ${action.timelineForImplementation}`);
+ *   console.log(`Co-benefits: Air Quality=${action.cobenefits.air_quality}/2`);
+ * });
  * 
  * // Get adaptation actions  
  * const adaptationActions = await getHIAPData(inventoryId, 'adaptation', 'en', userToken);

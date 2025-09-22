@@ -242,6 +242,119 @@ All proxy routes return data wrapped under a `data` key and forward the user's a
 }
 ```
 
+#### GET /api/citycatalyst/inventory/:inventoryId/ccra
+**Purpose**: Get Climate Change Risk Assessment (CCRA) dashboard data  
+**Authentication**: Required  
+**Parameters**:
+- `inventoryId` (path): Inventory UUID
+
+**Backend Processing**: 
+- Fetches inventory details to get city UUID
+- Calls CityCatalyst CCRA endpoint with both city UUID and inventory UUID
+- Returns CCRA dashboard data with climate risk assessment
+
+**Response**:
+```json
+{
+  "data": {
+    "topRisks": [
+      {
+        "keyimpact": "infrastructure",
+        "hazard": "landslides", 
+        "latest_year": 2024,
+        "scenario": "current",
+        "actor_id": "BR CXL",
+        "risk_score": 0.75,
+        "normalised_risk_score": 0.75,
+        "hazard_score": 0.8,
+        "exposure_score": 0.9,
+        "vulnerability_score": 0.85,
+        "adaptive_capacity_score": null,
+        "sensitivity_score": null,
+        "risk_lower_limit": 0.7,
+        "risk_upper_limit": 0.8,
+        "original_risk_score": 0.75,
+        "original_vulnerability_score": 0.85
+      }
+    ],
+    "inventoryId": "inventory-uuid-here"
+  }
+}
+```
+
+*Note: The backend automatically handles the city UUID lookup and parameter passing to CityCatalyst's CCRA API.*
+
+#### GET /api/citycatalyst/inventory/:inventoryId/hiap
+**Purpose**: Get Health Impact Assessment and Policy (HIAP) climate action recommendations  
+**Authentication**: Required  
+**Parameters**:
+- `inventoryId` (path): Inventory UUID
+- `actionType` (query): Action type - "mitigation" or "adaptation"
+- `lng` (query): Language code (e.g., "en", "pt", "es", "de", "fr")
+- `ignoreExisting` (query, optional): Boolean to ignore existing actions
+
+**Example Request**: `/api/citycatalyst/inventory/f59e260b-4996-8283-a63cef60c224/hiap?actionType=mitigation&lng=en`
+
+**Response**:
+```json
+{
+  "data": {
+    "id": "69506d34-0508-4bb5-9b39-099c79a99b76",
+    "locode": "BR CXL",
+    "inventoryId": "f59e260b-4996-8283-a63cef60c224",
+    "type": "mitigation",
+    "langs": ["en", "es", "pt", "de", "fr"],
+    "status": "SUCCESS",
+    "created": "2025-09-22T16:27:10.655Z",
+    "last_updated": "2025-09-22T16:34:13.112Z",
+    "rankedActions": [
+      {
+        "id": "21d15747-29bf-4231-834e-29afc0b8fe8a",
+        "rank": 1,
+        "name": "Prioritize Procurement of Locally Produced Agroecological Products",
+        "description": "Focus on buying sustainable, locally produced food for public institutions.",
+        "sectors": ["afolu"],
+        "subsectors": ["agriculture_forestry_and_fishing_activities"],
+        "dependencies": [
+          "Development of procurement policies and identification of reliable local suppliers.",
+          "Partnerships with producers and allocation of funding for sustainable procurement programs."
+        ],
+        "cobenefits": {
+          "habitat": 2,
+          "air_quality": 1,
+          "water_quality": 2,
+          "cost_of_living": 1,
+          "stakeholder_engagement": 2
+        },
+        "GHGReductionPotential": {
+          "afolu": "20-39",
+          "transportation": null,
+          "stationary_energy": null
+        },
+        "costInvestmentNeeded": "low",
+        "timelineForImplementation": "<5 years",
+        "keyPerformanceIndicators": [
+          "Percentage of the total volume of public purchases coming from local agroecological producers.",
+          "Amount of CO₂ emissions avoided due to reduced transport distance (tCO₂e)."
+        ],
+        "powersAndMandates": ["local"],
+        "actionId": "icare_0131"
+      }
+    ]
+  }
+}
+```
+
+**Key Features**:
+- Returns ranked climate actions (rank 1 = highest priority)
+- Includes co-benefit scores (0-2 scale)
+- Shows GHG reduction potential by sector (percentage ranges)
+- Provides implementation costs, timelines, and KPIs
+- Multi-language support for action descriptions
+- Separate endpoints for mitigation vs adaptation actions
+
+**Frontend Integration**: Use `useHIAPData` hook and `HIAPActionsModal` component for displaying action recommendations in modals with structured cards.
+
 ### Enriched Data Routes
 
 #### GET /api/city-information/:cityId

@@ -127,6 +127,13 @@ Comprehensive API documentation is maintained in the service files for easy deve
   - Supports infrastructure and public health impact categories
   - Provides normalized risk scores for comparative analysis
 
+**Health Impact Assessment & Policy (HIAP):**
+- `getHIAPData(inventoryId, actionType, language)` - Get ranked climate action recommendations
+  - Returns ranked lists of mitigation and adaptation actions
+  - Includes co-benefits analysis, GHG reduction potential, and implementation guidance
+  - Supports multiple languages (en, pt, es, de, fr)
+  - Provides detailed action metadata: costs, timelines, KPIs, and dependencies
+
 ### Frontend Integration Patterns
 - **React Query Hooks**: Located in `client/src/modules/city-information/hooks/`
 - **Type Definitions**: Located in `client/src/modules/city-information/types/city-info.ts`
