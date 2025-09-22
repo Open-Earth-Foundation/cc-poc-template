@@ -95,6 +95,9 @@ export default function Login() {
                 {t('login.continueButton')}
               </Button>
               
+              {/* Sample User Button - Currently not working properly */}
+              {/* TODO: Fix sample user authentication flow */}
+              {/*
               <div className="text-center">
                 <Button 
                   variant="link"
@@ -104,6 +107,7 @@ export default function Login() {
                   {t('login.sampleButton')}
                 </Button>
               </div>
+              */}
             </div>
             
           </CardContent>
