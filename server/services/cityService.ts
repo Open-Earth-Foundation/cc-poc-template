@@ -460,3 +460,51 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
 
   return details;
 }
+
+/**
+ * Get CCRA (Climate Change Risk Assessment) dashboard data for a city inventory
+ * GET /api/v0/city/{city}/modules/ccra/dashboard
+ * 
+ * @param cityId - UUID of the city (from inventory.city.cityId)  
+ * @param inventoryId - UUID of the inventory
+ * @param accessToken - User's CityCatalyst access token
+ * @returns CCRA dashboard data with climate risk assessment information
+ * 
+ * This endpoint provides climate change risk assessment data for a specific city and inventory:
+ * - Climate hazard information
+ * - Vulnerability assessments  
+ * - Risk scores and indicators
+ * - Adaptation measures and recommendations
+ * 
+ * Usage example:
+ * ```
+ * // Get inventory details first to extract city UUID
+ * const inventoryDetails = await getInventoryDetails(inventoryId, userToken);
+ * const cityId = inventoryDetails.city.cityId;
+ * 
+ * // Then fetch CCRA data using both city and inventory UUIDs
+ * const ccraData = await getCCRADashboard(cityId, inventoryId, userToken);
+ * ```
+ * 
+ * Note: The city parameter is the city UUID (not LOCODE), which can be obtained 
+ * from inventory.city.cityId when fetching inventory details.
+ */
+export async function getCCRADashboard(cityId: string, inventoryId: string, accessToken: string): Promise<any> {
+  if (!cityId || !inventoryId) {
+    throw new Error('Both cityId and inventoryId are required for CCRA dashboard');
+  }
+  
+  // Validate UUID formats
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(cityId)) {
+    throw new Error(`Invalid cityId format. Expected UUID, got: ${cityId}`);
+  }
+  if (!uuidRegex.test(inventoryId)) {
+    throw new Error(`Invalid inventoryId format. Expected UUID, got: ${inventoryId}`);
+  }
+  
+  return cityCatalystApiGet(
+    `/api/v0/city/${encodeURIComponent(cityId)}/modules/ccra/dashboard?inventoryId=${encodeURIComponent(inventoryId)}`, 
+    accessToken
+  );
+}
