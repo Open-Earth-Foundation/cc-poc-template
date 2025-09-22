@@ -1,12 +1,14 @@
 import { useParams, Link } from "wouter";
+import { useMemo } from "react";
 import { Header } from "@/core/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Badge } from "@/core/components/ui/badge";
 import { Button } from "@/core/components/ui/button";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { useCityInformation } from "../hooks/useCityInformation";
+import { useCCRADashboard } from "../hooks/useCCRADashboard";
 import { InventoryCard } from "../components/inventory-card";
-import { MapPin, Globe, Calendar, Database, ArrowLeft, Building2, Clock } from "lucide-react";
+import { MapPin, Globe, Calendar, Database, ArrowLeft, Building2, Clock, Shield, AlertTriangle } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
 export default function CityInformation() {
@@ -15,6 +17,16 @@ export default function CityInformation() {
   
   // Use our new working API
   const { data: cityInfo, isLoading, error } = useCityInformation(cityId);
+  
+  // Get the most recent inventory for CCRA data (safe computation)
+  const latestInventory = useMemo(() => {
+    if (!cityInfo?.data?.years || cityInfo.data.years.length === 0) return null;
+    return [...cityInfo.data.years]
+      .sort((a, b) => (b.year || 0) - (a.year || 0))[0];
+  }, [cityInfo?.data?.years]);
+  
+  // Fetch CCRA data for the latest inventory (hooks rules compliance)
+  const { data: ccraData, isLoading: ccraLoading, error: ccraError } = useCCRADashboard(latestInventory?.inventoryId || undefined);
 
   if (isLoading) {
     return (
@@ -209,6 +221,99 @@ export default function CityInformation() {
             </CardContent>
           </Card>
         </div>
+
+        {/* CCRA Dashboard Section */}
+        {latestInventory && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-6">
+              <Shield className="h-5 w-5" />
+              <h2 className="text-2xl font-bold">{t('cityInfo.climateRiskAssessment', 'Climate Risk Assessment')}</h2>
+              <Badge variant="outline" data-testid="badge-ccra-year">
+                {latestInventory.year || 'N/A'}
+              </Badge>
+            </div>
+
+            <Card data-testid="card-ccra-dashboard">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  {t('cityInfo.ccraDashboard', 'CCRA Dashboard')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {ccraLoading ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-20 w-full" />
+                  </div>
+                ) : ccraError ? (
+                  <div className="text-center py-8">
+                    <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">{t('cityInfo.ccraErrorTitle', 'Unable to load CCRA data')}</h3>
+                    <p className="text-muted-foreground text-sm" data-testid="text-ccra-error">
+                      {ccraError instanceof Error ? ccraError.message : t('cityInfo.ccraErrorMessage', 'Failed to fetch climate risk assessment data')}
+                    </p>
+                  </div>
+                ) : ccraData?.data ? (
+                  <div className="space-y-4">
+                    {ccraData.data.assessmentSummary ? (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium">{t('cityInfo.overallRiskLevel', 'Overall Risk Level')}</label>
+                          <p className="text-sm text-muted-foreground" data-testid="text-overall-risk">
+                            {ccraData.data.assessmentSummary.overallRiskLevel}
+                          </p>
+                        </div>
+                        
+                        {ccraData.data.assessmentSummary.majorHazards && ccraData.data.assessmentSummary.majorHazards.length > 0 && (
+                          <div>
+                            <label className="text-sm font-medium">{t('cityInfo.majorClimateHazards', 'Major Climate Hazards')}</label>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {ccraData.data.assessmentSummary.majorHazards.map((hazard, index) => (
+                                <Badge key={index} variant="destructive" data-testid={`badge-hazard-${index}`}>
+                                  {hazard}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {ccraData.data.assessmentSummary.prioritySectors && ccraData.data.assessmentSummary.prioritySectors.length > 0 && (
+                          <div>
+                            <label className="text-sm font-medium">{t('cityInfo.prioritySectors', 'Priority Sectors')}</label>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {ccraData.data.assessmentSummary.prioritySectors.map((sector, index) => (
+                                <Badge key={index} variant="secondary" data-testid={`badge-priority-sector-${index}`}>
+                                  {sector}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <h4 className="font-medium">{t('cityInfo.rawCcraData', 'Raw CCRA Data')}</h4>
+                        <pre className="text-xs bg-muted p-3 rounded-md overflow-x-auto" data-testid="text-ccra-raw-data">
+                          {JSON.stringify(ccraData.data, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">{t('cityInfo.noCcraData', 'No CCRA data available')}</h3>
+                    <p className="text-muted-foreground">
+                      {t('cityInfo.noCcraDataMessage', 'Climate risk assessment data is not available for this inventory.')}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Inventories Section */}
         <div>
