@@ -257,40 +257,60 @@ export default function CityInformation() {
                   </div>
                 ) : ccraData?.data ? (
                   <div className="space-y-4">
-                    {ccraData.data.assessmentSummary ? (
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-sm font-medium">{t('cityInfo.overallRiskLevel', 'Overall Risk Level')}</label>
-                          <p className="text-sm text-muted-foreground" data-testid="text-overall-risk">
-                            {ccraData.data.assessmentSummary.overallRiskLevel}
-                          </p>
-                        </div>
-                        
-                        {ccraData.data.assessmentSummary.majorHazards && ccraData.data.assessmentSummary.majorHazards.length > 0 && (
-                          <div>
-                            <label className="text-sm font-medium">{t('cityInfo.majorClimateHazards', 'Major Climate Hazards')}</label>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {ccraData.data.assessmentSummary.majorHazards.map((hazard, index) => (
-                                <Badge key={index} variant="destructive" data-testid={`badge-hazard-${index}`}>
-                                  {hazard}
+                    {ccraData.data.topRisks && ccraData.data.topRisks.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {ccraData.data.topRisks.map((risk: any, index: number) => (
+                          <Card key={index} className="border" data-testid={`card-risk-${index}`}>
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <Badge variant={risk.hazard === 'landslides' ? 'destructive' : 'default'} className="text-xs">
+                                  {risk.hazard}
                                 </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {ccraData.data.assessmentSummary.prioritySectors && ccraData.data.assessmentSummary.prioritySectors.length > 0 && (
-                          <div>
-                            <label className="text-sm font-medium">{t('cityInfo.prioritySectors', 'Priority Sectors')}</label>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {ccraData.data.assessmentSummary.prioritySectors.map((sector, index) => (
-                                <Badge key={index} variant="secondary" data-testid={`badge-priority-sector-${index}`}>
-                                  {sector}
+                                <Badge variant="outline" className="text-xs">
+                                  {risk.latest_year}
                                 </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                              </div>
+                            </CardHeader>
+                            <CardContent className="pt-0 space-y-3">
+                              <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                  {risk.keyimpact === 'infrastructure' ? 
+                                    <Building2 className="h-4 w-4 text-muted-foreground" /> : 
+                                    <Shield className="h-4 w-4 text-muted-foreground" />
+                                  }
+                                  <span className="text-sm font-medium capitalize">{risk.keyimpact}</span>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-muted-foreground">Risk Score:</span>
+                                  <span className="font-medium" data-testid={`text-risk-score-${index}`}>
+                                    {(risk.risk_score * 100).toFixed(1)}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-muted-foreground">Hazard:</span>
+                                  <span className="font-medium">
+                                    {(risk.hazard_score * 100).toFixed(1)}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-muted-foreground">Exposure:</span>
+                                  <span className="font-medium">
+                                    {(risk.exposure_score * 100).toFixed(1)}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-muted-foreground">Vulnerability:</span>
+                                  <span className="font-medium">
+                                    {(risk.vulnerability_score * 100).toFixed(1)}%
+                                  </span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
                       </div>
                     ) : (
                       <div className="space-y-2">
