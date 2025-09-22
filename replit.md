@@ -96,3 +96,50 @@ Preferred communication style: Simple, everyday language.
 - **Drizzle Kit**: Database migration and introspection tools
 - **TypeScript**: Static type checking for both frontend and backend
 - **ESBuild**: Fast JavaScript/TypeScript bundler for production builds
+
+# API Documentation
+
+## CityCatalyst API Integration
+Comprehensive API documentation is maintained in the service files for easy developer reference:
+
+### Core Service Documentation
+- **Primary API Reference**: `server/services/cityService.ts` 
+  - Complete endpoint documentation with usage examples
+  - Request/response type definitions
+  - Error handling patterns
+  - Authentication requirements
+
+### Available API Endpoints
+
+**Inventory Management:**
+- `getInventoriesByCity()` - List all inventories for multiple cities
+- `getInventoryDetails(inventoryId)` - Get basic inventory metadata
+- `getInventoryDownload(inventoryId)` - Get comprehensive emissions data with GPC sector breakdown
+- `getInventory(locode, year)` - Legacy endpoint for LOCODE-based access
+
+**City Information:**
+- `getCityDetail(cityId)` - Get detailed city information using UUID
+- `getCityBoundary(locode)` - Retrieve city boundary as GeoJSON
+
+**Climate Risk Assessment:**
+- `getCCRADashboard(cityId, inventoryId)` - Get climate change risk assessment data
+  - Returns topRisks array with hazard, exposure, and vulnerability scores
+  - Supports infrastructure and public health impact categories
+  - Provides normalized risk scores for comparative analysis
+
+### Frontend Integration Patterns
+- **React Query Hooks**: Located in `client/src/modules/city-information/hooks/`
+- **Type Definitions**: Located in `client/src/modules/city-information/types/city-info.ts`
+- **Service Functions**: Located in `client/src/modules/city-information/services/`
+
+### Development Guidelines
+- All API functions include comprehensive JSDoc documentation
+- TypeScript interfaces ensure type safety across frontend/backend
+- Error handling follows consistent patterns with proper HTTP status codes
+- Authentication is handled automatically via OAuth 2.0 PKCE flow
+
+**For Future Remixes:**
+- Check `server/services/cityService.ts` for complete API documentation
+- Review existing hooks in `client/src/modules/city-information/hooks/` for integration patterns
+- Use type definitions in `city-info.ts` for frontend development
+- Follow authentication patterns established in existing routes

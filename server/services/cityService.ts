@@ -470,21 +470,53 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
  * @param accessToken - User's CityCatalyst access token
  * @returns CCRA dashboard data with climate risk assessment information
  * 
- * This endpoint provides climate change risk assessment data for a specific city and inventory:
- * - Climate hazard information
- * - Vulnerability assessments  
- * - Risk scores and indicators
- * - Adaptation measures and recommendations
+ * This endpoint provides climate change risk assessment data for a specific city and inventory.
+ * The response contains detailed risk analysis including climate hazards, exposure, and vulnerability scores.
+ * 
+ * **Response Structure:**
+ * ```typescript
+ * {
+ *   topRisks: Array<{
+ *     keyimpact: string;           // "infrastructure" | "public health" | etc.
+ *     hazard: string;             // "landslides" | "floods" | "heat" | etc.
+ *     latest_year: number;        // Assessment year (e.g., 2024)
+ *     scenario: string;           // "current" | "future" scenarios
+ *     actor_id: string;           // City identifier (e.g., "BR CXL")
+ *     risk_score: number;         // Normalized risk score (0-1)
+ *     normalised_risk_score: number;
+ *     hazard_score: number;       // Hazard component score (0-1)
+ *     exposure_score: number;     // Exposure component score (0-1)
+ *     vulnerability_score: number; // Vulnerability component score (0-1)
+ *     adaptive_capacity_score: number | null;
+ *     sensitivity_score: number | null;
+ *     risk_lower_limit: number;
+ *     risk_upper_limit: number;
+ *     original_risk_score: number;
+ *     original_vulnerability_score: number;
+ *   }>;
+ *   inventoryId: string;          // Associated inventory UUID
+ * }
+ * ```
+ * 
+ * **Frontend Integration:**
+ * Use the `useCCRADashboard` hook in React components to fetch and display this data.
+ * The frontend automatically formats scores as percentages and displays them in cards.
  * 
  * Usage example:
- * ```
- * // Get inventory details first to extract city UUID
+ * ```typescript
+ * // Backend service usage
  * const inventoryDetails = await getInventoryDetails(inventoryId, userToken);
  * const cityId = inventoryDetails.city.cityId;
- * 
- * // Then fetch CCRA data using both city and inventory UUIDs
  * const ccraData = await getCCRADashboard(cityId, inventoryId, userToken);
+ * 
+ * // Frontend hook usage
+ * const { data: ccraData, isLoading, error } = useCCRADashboard(inventoryId);
  * ```
+ * 
+ * **API Route:** `/api/citycatalyst/inventory/:inventoryId/ccra`
+ * - Automatically extracts city UUID from inventory details
+ * - Requires authentication via CityCatalyst OAuth
+ * - Returns comprehensive climate risk assessment data
  * 
  * Note: The city parameter is the city UUID (not LOCODE), which can be obtained 
  * from inventory.city.cityId when fetching inventory details.
