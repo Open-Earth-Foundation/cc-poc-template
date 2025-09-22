@@ -103,3 +103,71 @@ export interface AssessmentSummary {
   keyRecommendations: string[];
   lastUpdated?: string;
 }
+
+// HIAP (Health Impact Assessment and Policy) Types
+export interface HIAPData {
+  // Flexible structure to accommodate various HIAP response formats
+  [key: string]: any;
+  
+  // Common HIAP fields that might be present
+  actions?: HIAPAction[];
+  recommendations?: HIAPRecommendation[];
+  metadata?: HIAPMetadata;
+}
+
+export interface HIAPAction {
+  id: string;
+  title: string;
+  description: string;
+  actionType: 'mitigation' | 'adaptation';
+  category?: string;
+  sector?: string;
+  priority?: string | number;
+  healthImpact?: HealthImpact;
+  implementationDetails?: ImplementationDetails;
+  resources?: Resource[];
+}
+
+export interface HIAPRecommendation {
+  id: string;
+  title: string;
+  description: string;
+  priority: string | number;
+  category: string;
+  healthBenefits?: string[];
+  implementationSteps?: string[];
+  estimatedCost?: string | number;
+  timeframe?: string;
+}
+
+export interface HealthImpact {
+  score?: number;
+  benefits?: string[];
+  risks?: string[];
+  affectedPopulation?: number | string;
+  healthSectors?: string[];
+}
+
+export interface ImplementationDetails {
+  steps?: string[];
+  requirements?: string[];
+  barriers?: string[];
+  enablers?: string[];
+  timeline?: string;
+  stakeholders?: string[];
+}
+
+export interface Resource {
+  type: string;
+  title: string;
+  url?: string;
+  description?: string;
+}
+
+export interface HIAPMetadata {
+  language: string;
+  actionType: 'mitigation' | 'adaptation';
+  inventoryId: string;
+  generatedAt?: string;
+  totalActions?: number;
+}
