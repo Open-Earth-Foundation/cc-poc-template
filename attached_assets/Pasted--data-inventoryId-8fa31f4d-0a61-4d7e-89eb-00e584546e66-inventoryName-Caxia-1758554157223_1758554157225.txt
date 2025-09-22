@@ -1,0 +1,384 @@
+{
+  "data": {
+    "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+    "inventoryName": "Caxias do Sul - 2022",
+    "year": 2022,
+    "totalEmissions": null,
+    "cityId": "de6dc3e0-35fc-4e2e-bc01-a0e73accf81d",
+    "totalCountryEmissions": null,
+    "isPublic": true,
+    "publishedAt": "2025-09-19T15:54:18.736Z",
+    "inventoryType": "gpc_basic",
+    "globalWarmingPotentialType": "ar6",
+    "lastUpdated": "2025-09-19T15:54:18.736Z",
+    "created": "2024-11-24T10:44:26.771Z",
+    "last_updated": "2025-09-19T15:54:18.736Z",
+    "city": {
+      "cityId": "de6dc3e0-35fc-4e2e-bc01-a0e73accf81d",
+      "locode": "BR CXL",
+      "name": "Caxias do Sul",
+      "shape": null,
+      "country": "Brazil",
+      "region": "Rio Grande do Sul",
+      "countryLocode": "BR",
+      "regionLocode": "BR-RS",
+      "area": "1647",
+      "projectId": "ebe82f61-b51b-4015-90ef-8b94f86fb0b7",
+      "created": "2024-11-14T16:44:54.711Z",
+      "last_updated": "2025-03-14T17:21:43.428Z"
+    },
+    "inventoryValues": [
+      {
+        "id": "495fed33-6f93-4ba8-94da-8a9f4d6742b5",
+        "gpcReferenceNumber": "III.1.1",
+        "activityUnits": null,
+        "activityValue": null,
+        "co2eq": "90765236",
+        "co2eqYears": 100,
+        "unavailableReason": "",
+        "unavailableExplanation": "",
+        "inputMethodology": "direct-measure",
+        "sectorId": "d5acb72e-d915-310f-b3a3-77f634bcbf5e",
+        "subSectorId": "172d10c0-6b80-3173-902e-eca5c0af84c8",
+        "subCategoryId": "d4fc29ec-a073-34fb-abdb-3c27066451f3",
+        "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+        "datasourceId": null,
+        "created": "2024-11-27T18:31:11.719Z",
+        "last_updated": "2024-11-27T18:31:11.732Z",
+        "activityValues": [
+          {
+            "id": "bf4de811-5249-4018-bcb5-372b3a92abc3",
+            "activityData": {
+              "ch4_amount": 3240234,
+              "co2_amount": 32324,
+              "n2o_amount": 24,
+              "landfill-id": "adasd",
+              "landfill-address": "asdasd",
+              "direct-measure-solid-waste-inboundary-source": "Test"
+            },
+            "co2eq": "90765236",
+            "co2eqYears": 100,
+            "inventoryValueId": "495fed33-6f93-4ba8-94da-8a9f4d6742b5",
+            "datasourceId": null,
+            "metadata": {
+              "activityId": null,
+              "dataQuality": "low",
+              "activityTitle": "",
+              "sourceExplanation": "Test ",
+              "emissionFactorType": ""
+            },
+            "created": "2024-11-27T18:31:11.728Z",
+            "last_updated": "2024-11-27T18:31:11.738Z",
+            "gasValues": [
+              {
+                "id": "6a717871-562e-4378-9d55-2cfe1d719826",
+                "inventoryValueId": "495fed33-6f93-4ba8-94da-8a9f4d6742b5",
+                "emissionsFactorId": "54726446-687b-4141-9a3e-a55385d16637",
+                "gas": "CH4",
+                "gasAmount": "3240234",
+                "activityValueId": "bf4de811-5249-4018-bcb5-372b3a92abc3",
+                "created": "2025-06-03T14:55:18.120Z",
+                "last_updated": "2025-06-03T14:55:18.129Z",
+                "emissionsFactor": {
+                  "id": "54726446-687b-4141-9a3e-a55385d16637",
+                  "gpcReferenceNumber": "III.1.1",
+                  "emissionsPerActivity": "3240234",
+                  "url": null,
+                  "gas": "CH4",
+                  "units": "",
+                  "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+                  "metadata": null,
+                  "region": null,
+                  "actorId": null,
+                  "methodologyName": null,
+                  "methodologyId": null,
+                  "reference": null,
+                  "deprecated": true,
+                  "created": "2024-11-27T18:31:11.740Z",
+                  "last_updated": "2025-09-22T14:58:47.534Z"
+                }
+              },
+              {
+                "id": "9e2d104b-64a2-4df7-8c25-c26c1cba60ae",
+                "inventoryValueId": "495fed33-6f93-4ba8-94da-8a9f4d6742b5",
+                "emissionsFactorId": "3c7a8a53-b9ca-4350-b755-b54ee732ddc7",
+                "gas": "CO2",
+                "gasAmount": "32324",
+                "activityValueId": "bf4de811-5249-4018-bcb5-372b3a92abc3",
+                "created": "2025-06-03T14:55:18.120Z",
+                "last_updated": "2025-06-03T14:55:18.129Z",
+                "emissionsFactor": {
+                  "id": "3c7a8a53-b9ca-4350-b755-b54ee732ddc7",
+                  "gpcReferenceNumber": "III.1.1",
+                  "emissionsPerActivity": "32324",
+                  "url": null,
+                  "gas": "CO2",
+                  "units": "",
+                  "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+                  "metadata": null,
+                  "region": null,
+                  "actorId": null,
+                  "methodologyName": null,
+                  "methodologyId": null,
+                  "reference": null,
+                  "deprecated": true,
+                  "created": "2024-11-27T18:31:11.744Z",
+                  "last_updated": "2025-09-22T14:58:47.534Z"
+                }
+              },
+              {
+                "id": "69ce2363-d23f-497a-9b2c-66e87bcb15cf",
+                "inventoryValueId": "495fed33-6f93-4ba8-94da-8a9f4d6742b5",
+                "emissionsFactorId": "a6b438e3-9500-49e8-a43f-94655b9a70e4",
+                "gas": "N2O",
+                "gasAmount": "24",
+                "activityValueId": "bf4de811-5249-4018-bcb5-372b3a92abc3",
+                "created": "2025-06-03T14:55:18.120Z",
+                "last_updated": "2025-06-03T14:55:18.129Z",
+                "emissionsFactor": {
+                  "id": "a6b438e3-9500-49e8-a43f-94655b9a70e4",
+                  "gpcReferenceNumber": "III.1.1",
+                  "emissionsPerActivity": "24",
+                  "url": null,
+                  "gas": "N2O",
+                  "units": "",
+                  "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+                  "metadata": null,
+                  "region": null,
+                  "actorId": null,
+                  "methodologyName": null,
+                  "methodologyId": null,
+                  "reference": null,
+                  "deprecated": true,
+                  "created": "2024-11-27T18:31:11.747Z",
+                  "last_updated": "2025-09-22T14:58:47.534Z"
+                }
+              }
+            ]
+          }
+        ],
+        "dataSource": null,
+        "subSector": {
+          "subsectorId": "172d10c0-6b80-3173-902e-eca5c0af84c8",
+          "subsectorName": "Solid waste disposal"
+        }
+      },
+      {
+        "id": "2b792800-e2f5-4ac6-b8d5-32dd63393d5b",
+        "gpcReferenceNumber": "I.5.1",
+        "activityUnits": null,
+        "activityValue": null,
+        "co2eq": "327709",
+        "co2eqYears": 100,
+        "unavailableReason": null,
+        "unavailableExplanation": null,
+        "inputMethodology": null,
+        "sectorId": "5da765a9-1ca6-37e1-bcd6-7b387f909a4e",
+        "subSectorId": "95c049d1-eff9-3b26-af49-2b32982e7dd9",
+        "subCategoryId": "c7025070-1f90-3034-b366-6ec4ac178666",
+        "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+        "datasourceId": "c1a1a270-172b-49aa-bc9c-e3aa7d7620a6",
+        "created": "2024-11-14T16:46:23.622Z",
+        "last_updated": "2024-11-14T16:46:23.622Z",
+        "activityValues": [],
+        "dataSource": {
+          "datasourceId": "c1a1a270-172b-49aa-bc9c-e3aa7d7620a6",
+          "sourceType": "Third-party",
+          "datasetName": {
+            "de": "SEEG Brennstoffverbrennung in Landwirtschaft, Forstwirtschaft und Fischerei",
+            "en": "SEEG Fuel Combustion in Agriculture, Forestry and Fishing",
+            "es": "SEEG Combustión de Combustibles en Agricultura, Silvicultura y Pesca",
+            "fr": "SEEG Combustion de Combustibles dans l'Agriculture, la Sylviculture et la Pêche",
+            "pt": "SEEG Combustão de Combustíveis na Agricultura, Silvicultura e Pesca"
+          },
+          "datasourceName": "Sistema de Estimativa de Emissão de Gases do Efeito Estufa",
+          "dataQuality": "medium"
+        },
+        "subSector": {
+          "subsectorId": "95c049d1-eff9-3b26-af49-2b32982e7dd9",
+          "subsectorName": "Agriculture, forestry and fishing activities"
+        }
+      },
+      {
+        "id": "c86dc2f0-4149-4d61-842f-7415f733010d",
+        "gpcReferenceNumber": "II.1.1",
+        "activityUnits": null,
+        "activityValue": null,
+        "co2eq": "548963292",
+        "co2eqYears": 100,
+        "unavailableReason": null,
+        "unavailableExplanation": null,
+        "inputMethodology": null,
+        "sectorId": "73eb7b71-159c-3eda-b7fc-f6eb53754dc3",
+        "subSectorId": "48fcfadb-90ed-34aa-80d9-fa31a90bef80",
+        "subCategoryId": "064d8e7c-cddb-3766-8c70-579a1908c866",
+        "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+        "datasourceId": "567bcd46-f6c4-499f-9597-6240592c1e35",
+        "created": "2024-11-14T16:54:48.619Z",
+        "last_updated": "2024-11-14T16:54:48.619Z",
+        "activityValues": [],
+        "dataSource": {
+          "datasourceId": "567bcd46-f6c4-499f-9597-6240592c1e35",
+          "sourceType": "Third-party",
+          "datasetName": {
+            "de": "SEEG Emissionen des Straßenverkehrs",
+            "en": "SEEG On-Road Transportation Emissions",
+            "es": "Emisiones de Transporte por Carretera del SEEG",
+            "fr": "Émissions de Transport Routier du SEEG",
+            "pt": "Emissões de Transporte Rodoviário do SEEG"
+          },
+          "datasourceName": "Sistema de Estimativa de Emissão de Gases do Efeito Estufa",
+          "dataQuality": "medium"
+        },
+        "subSector": {
+          "subsectorId": "48fcfadb-90ed-34aa-80d9-fa31a90bef80",
+          "subsectorName": "On-road transportation"
+        }
+      },
+      {
+        "id": "01016b34-7e92-4cb2-b611-01a7b07a101f",
+        "gpcReferenceNumber": "II.4.3",
+        "activityUnits": null,
+        "activityValue": null,
+        "co2eq": "5242145",
+        "co2eqYears": 100,
+        "unavailableReason": null,
+        "unavailableExplanation": null,
+        "inputMethodology": null,
+        "sectorId": "73eb7b71-159c-3eda-b7fc-f6eb53754dc3",
+        "subSectorId": "5b84b809-1878-3b1b-bf6b-250c64d5e920",
+        "subCategoryId": "ce889acf-9acd-3498-965a-3d4e5c88f57e",
+        "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+        "datasourceId": "d8bf703a-0b3f-305d-b2a0-6d1c9419044e",
+        "created": "2024-11-14T16:54:41.120Z",
+        "last_updated": "2024-11-14T16:54:41.120Z",
+        "activityValues": [],
+        "dataSource": {
+          "datasourceId": "d8bf703a-0b3f-305d-b2a0-6d1c9419044e",
+          "sourceType": "third_party",
+          "datasetName": {
+            "de": "Geschätzte Emissionen der nationalen Luftfahrt",
+            "en": "Domestic aviation estimated emissions",
+            "es": "Emisiones estimadas de la aviación nacional",
+            "fr": "Émissions estimées de l'aviation domestique",
+            "pt": "Emissões estimadas da aviação doméstica"
+          },
+          "datasourceName": "ClimateTRACE",
+          "dataQuality": "medium"
+        },
+        "subSector": {
+          "subsectorId": "5b84b809-1878-3b1b-bf6b-250c64d5e920",
+          "subsectorName": "Aviation"
+        }
+      },
+      {
+        "id": "92e7ed9f-c885-4ef1-b81c-aca65ae39d99",
+        "gpcReferenceNumber": "I.2.1",
+        "activityUnits": null,
+        "activityValue": null,
+        "co2eq": "10609080",
+        "co2eqYears": 100,
+        "unavailableReason": null,
+        "unavailableExplanation": null,
+        "inputMethodology": null,
+        "sectorId": "5da765a9-1ca6-37e1-bcd6-7b387f909a4e",
+        "subSectorId": "a235005c-f223-3c64-a0d2-f55d6f22f32f",
+        "subCategoryId": "942f2e36-ab1f-3fbf-af9e-31d997f518c7",
+        "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+        "datasourceId": "54e965a4-3bd0-4f6a-a425-e843bb955712",
+        "created": "2024-11-14T16:46:34.305Z",
+        "last_updated": "2024-11-14T16:46:34.305Z",
+        "activityValues": [],
+        "dataSource": {
+          "datasourceId": "54e965a4-3bd0-4f6a-a425-e843bb955712",
+          "sourceType": "Third-party",
+          "datasetName": {
+            "de": "SEEG Brennstoffverbrennung in Gewerblichen Gebäuden",
+            "en": "SEEG Fuel Combustion in Commercial Buildings",
+            "es": "Combustión de Combustibles SEEG en Edificios Comerciales",
+            "fr": "Combustion de combustibles SEEG dans les bâtiments commerciaux",
+            "pt": "Combustão de Combustíveis SEEG em Edifícios Comerciais"
+          },
+          "datasourceName": "Sistema de Estimativa de Emissão de Gases do Efeito Estufa",
+          "dataQuality": "medium"
+        },
+        "subSector": {
+          "subsectorId": "a235005c-f223-3c64-a0d2-f55d6f22f32f",
+          "subsectorName": "Commercial and institutional buildings and facilities"
+        }
+      },
+      {
+        "id": "cc486a85-cd39-43aa-963d-cccfe3cfa57d",
+        "gpcReferenceNumber": "I.1.1",
+        "activityUnits": null,
+        "activityValue": null,
+        "co2eq": "51233379",
+        "co2eqYears": 100,
+        "unavailableReason": null,
+        "unavailableExplanation": null,
+        "inputMethodology": null,
+        "sectorId": "5da765a9-1ca6-37e1-bcd6-7b387f909a4e",
+        "subSectorId": "abe4c7b0-242d-3ed2-a146-48885d6fb38d",
+        "subCategoryId": "58a9822a-fae0-3831-9f8b-4ec1fb48a54f",
+        "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+        "datasourceId": "45196fcf-eb15-4037-b763-33e4d33f04d6",
+        "created": "2024-11-14T16:46:38.017Z",
+        "last_updated": "2024-11-14T16:46:38.017Z",
+        "activityValues": [],
+        "dataSource": {
+          "datasourceId": "45196fcf-eb15-4037-b763-33e4d33f04d6",
+          "sourceType": "Third-party",
+          "datasetName": {
+            "de": "SEEG Brennstoffverbrennung in Wohngebäuden",
+            "en": "SEEG Fuel Combustion in Residential Buildings",
+            "es": "SEEG Combustión de Combustibles en Edificios Residenciales",
+            "fr": "SEEG Combustion de Carburant dans les Bâtiments Résidentiels",
+            "pt": "SEEG Combustão de Combustíveis em Edifícios Residenciais"
+          },
+          "datasourceName": "Sistema de Estimativa de Emissão de Gases do Efeito Estufa",
+          "dataQuality": "medium"
+        },
+        "subSector": {
+          "subsectorId": "abe4c7b0-242d-3ed2-a146-48885d6fb38d",
+          "subsectorName": "Residential buildings"
+        }
+      },
+      {
+        "id": "9eb8e765-72c9-496b-bd62-8d99469d89a7",
+        "gpcReferenceNumber": "I.3.1",
+        "activityUnits": null,
+        "activityValue": null,
+        "co2eq": "21395193",
+        "co2eqYears": 100,
+        "unavailableReason": null,
+        "unavailableExplanation": null,
+        "inputMethodology": null,
+        "sectorId": "5da765a9-1ca6-37e1-bcd6-7b387f909a4e",
+        "subSectorId": "8de1d11d-4146-35f3-a973-e66930e68a50",
+        "subCategoryId": "7752e771-bd0f-35ee-b016-c592c6d52338",
+        "inventoryId": "8fa31f4d-0a61-4d7e-89eb-00e584546e66",
+        "datasourceId": "31a76645-f430-4695-a431-c173dae1d224",
+        "created": "2024-11-14T16:46:38.881Z",
+        "last_updated": "2024-11-14T16:46:38.881Z",
+        "activityValues": [],
+        "dataSource": {
+          "datasourceId": "31a76645-f430-4695-a431-c173dae1d224",
+          "sourceType": "Third-party",
+          "datasetName": {
+            "de": "SEEG Brennstoffverbrennung in Industriegebäuden",
+            "en": "SEEG Fuel Combustion in Industrial Buildings",
+            "es": "SEEG Combustión de Combustibles en Edificios Industriales",
+            "fr": "SEEG Combustion de Carburant dans les Bâtiments Industriels",
+            "pt": "SEEG Combustão de Combustíveis em Edifícios Industriais"
+          },
+          "datasourceName": "Sistema de Estimativa de Emissão de Gases do Efeito Estufa",
+          "dataQuality": "medium"
+        },
+        "subSector": {
+          "subsectorId": "8de1d11d-4146-35f3-a973-e66930e68a50",
+          "subsectorName": "Manufacturing industries and construction"
+        }
+      }
+    ]
+  }
+}
