@@ -129,7 +129,44 @@ export async function getUserAccessibleCities(userId: string, accessToken?: stri
   return await getUserCities(user, accessToken);
 }
 
-// NEW CityCatalyst API Functions
+// ============================================================================
+// CityCatalyst Inventory API Documentation
+// ============================================================================
+/**
+ * INVENTORY DATA RETRIEVAL GUIDE
+ * 
+ * This service provides multiple endpoints for retrieving inventory data from CityCatalyst.
+ * Choose the appropriate function based on your specific use case:
+ * 
+ * 1. BASIC INVENTORY OVERVIEW:
+ *    - Use: getInventoriesByCity()
+ *    - Purpose: Get list of all cities and their available inventory years
+ *    - Returns: Array of cities with basic inventory metadata
+ *    - Use case: City selection screens, overview dashboards
+ * 
+ * 2. DETAILED INVENTORY METADATA:
+ *    - Use: getInventoryDetails(inventoryId, accessToken)
+ *    - Purpose: Get comprehensive metadata for a specific inventory
+ *    - Returns: Full inventory details, city info, project context, timestamps
+ *    - Use case: Inventory information panels, audit trails, basic inventory display
+ * 
+ * 3. COMPREHENSIVE INVENTORY DATA WITH EMISSIONS BREAKDOWN:
+ *    - Use: getInventoryDownload(inventoryId, accessToken) 
+ *    - Purpose: Get complete inventory with GPC sector/subsector emissions data
+ *    - Returns: All metadata + inventoryValues array with detailed emissions by sector
+ *    - Use case: Detailed analysis, emissions breakdown charts, sector comparisons
+ * 
+ * 4. LEGACY CITY/YEAR LOOKUP:
+ *    - Use: getInventory(locode, year, accessToken)
+ *    - Purpose: Get inventory data by city LOCODE and year (legacy endpoint)
+ *    - Returns: Raw inventory data for specific city/year
+ *    - Use case: Legacy integrations, when only LOCODE/year are available
+ * 
+ * RECOMMENDATION:
+ * - For UI display with emissions breakdown: Use getInventoryDownload()
+ * - For basic inventory info: Use getInventoryDetails()
+ * - For overview/listing: Use getInventoriesByCity()
+ */
 
 /**
  * Get detailed city information including inventories list
@@ -153,7 +190,19 @@ export async function getCityDetail(cityId: string, accessToken: string): Promis
 }
 
 /**
- * Get inventory data for a specific city and year
+ * Get inventory data for a specific city and year (LEGACY ENDPOINT)
+ * 
+ * @param locode - UN/LOCODE format city identifier (e.g., "BR CXL" for Caxias do Sul)
+ * @param year - Inventory year (e.g., 2022)
+ * @param accessToken - User's CityCatalyst access token
+ * @returns Raw inventory data structure
+ * 
+ * @deprecated Consider using getInventoryDetails() or getInventoryDownload() with inventoryId for better data structure
+ * 
+ * Usage example:
+ * ```
+ * const inventory = await getInventory("BR CXL", 2022, userToken);
+ * ```
  */
 export async function getInventory(locode: string, year: number, accessToken: string): Promise<CityCatalystInventoryData> {
   const normalizedLocode = locode.replace(/\s+/g, "_");
@@ -175,14 +224,27 @@ export async function getCityBoundary(locode: string, accessToken: string): Prom
 }
 
 /**
- * Get detailed inventory information by inventory ID
+ * Get detailed inventory information by inventory ID (METADATA ONLY)
  * GET /api/v0/inventory/{inventory}
  * 
+ * @param inventoryId - Unique inventory identifier (UUID format)
+ * @param accessToken - User's CityCatalyst access token
+ * @returns Comprehensive inventory metadata without emissions breakdown
+ * 
  * Returns comprehensive inventory details including:
- * - inventoryId, inventoryName, year
- * - totalEmissions, inventoryType
- * - globalWarmingPotentialType, lastUpdated
+ * - inventoryId, inventoryName, year, totalEmissions, inventoryType
+ * - globalWarmingPotentialType, lastUpdated, created, publishedAt
  * - Full city details with project information
+ * - Does NOT include detailed emissions by sector/subsector
+ * 
+ * Usage example:
+ * ```
+ * const inventoryInfo = await getInventoryDetails("8fa31f4d-0a61-4d7e-89eb-00e584546e66", userToken);
+ * console.log(inventoryInfo.inventoryName); // "Caxias do Sul - 2022"
+ * console.log(inventoryInfo.totalEmissions); // 123456789
+ * ```
+ * 
+ * @see getInventoryDownload() for detailed emissions breakdown by GPC sectors
  */
 export async function getInventoryDetails(inventoryId: string, accessToken: string): Promise<{
   inventoryId: string;
@@ -226,12 +288,37 @@ export async function getInventoryDetails(inventoryId: string, accessToken: stri
  * Get detailed inventory data with emissions breakdown from the download endpoint
  * GET /api/v0/inventory/{inventory}/download
  * 
- * Returns comprehensive inventory data including:
- * - All basic inventory details
- * - inventoryValues array with GPC sectors/subsectors
- * - Detailed emissions data for each sector
- * - Activity values and gas values
- * - Data source information
+ * @param inventoryId - Unique inventory identifier (UUID format)
+ * @param accessToken - User's CityCatalyst access token
+ * @returns Complete inventory data with detailed emissions breakdown by GPC sectors/subsectors
+ * 
+ * This is the MOST COMPREHENSIVE inventory endpoint that includes:
+ * - All basic inventory metadata (same as getInventoryDetails())
+ * - inventoryValues array with detailed emissions data organized by:
+ *   - GPC reference numbers (I.1.1, II.1.1, III.1.1, etc.)
+ *   - Sector and subsector information
+ *   - CO2 equivalent emissions per sector
+ *   - Data source information and data quality indicators
+ *   - Activity values and gas breakdown
+ *   - Unavailable reasons for missing data
+ * 
+ * Usage example:
+ * ```
+ * const fullData = await getInventoryDownload("8fa31f4d-0a61-4d7e-89eb-00e584546e66", userToken);
+ * 
+ * // Access basic info
+ * console.log(fullData.inventoryName); // "Caxias do Sul - 2022"
+ * 
+ * // Access detailed emissions by sector
+ * fullData.inventoryValues.forEach(value => {
+ *   console.log(`${value.gpcReferenceNumber}: ${value.subSector.subsectorName}`);
+ *   console.log(`Emissions: ${value.co2eq} CO2e`);
+ *   console.log(`Data source: ${value.dataSource?.datasourceName || 'N/A'}`);
+ * });
+ * ```
+ * 
+ * @see getInventoryDetails() for basic metadata without emissions breakdown
+ * @see organizeInventoryValuesBySector() helper function in frontend for organizing data by sector
  */
 export async function getInventoryDownload(inventoryId: string, accessToken: string): Promise<{
   inventoryId: string;

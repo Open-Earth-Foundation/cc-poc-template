@@ -316,7 +316,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get detailed inventory information by inventory ID
+  // INVENTORY API ENDPOINTS
+  // See server/services/cityService.ts for detailed documentation on when to use each endpoint
+
+  // Get detailed inventory information by inventory ID (metadata only)
   app.get('/api/citycatalyst/inventory/:inventoryId', requireAuth, async (req: any, res) => {
     try {
       const { inventoryId } = req.params;
@@ -330,6 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get comprehensive inventory data with emissions breakdown (download endpoint)
+  // This endpoint provides detailed GPC sector/subsector emissions data
   app.get('/api/citycatalyst/inventory/:inventoryId/download', requireAuth, async (req: any, res) => {
     try {
       const { inventoryId } = req.params;
