@@ -8,7 +8,7 @@ import {
   createOrUpdateUser,
   generateSessionToken 
 } from "./services/authService";
-import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails, getInventoryDownload } from "./services/cityService";
+import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails, getInventoryDownload, getCCRADashboard } from "./services/cityService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -343,6 +343,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Get inventory download error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch inventory download data' });
+    }
+  });
+
+  // Get CCRA dashboard data for a city inventory
+  // Requires both city UUID (from inventory.city.cityId) and inventory UUID
+  app.get('/api/citycatalyst/inventory/:inventoryId/ccra', requireAuth, async (req: any, res) => {
+    try {
+      const { inventoryId } = req.params;
+      console.log(`🌡️ Getting CCRA dashboard data for inventory ID: ${inventoryId}`);
+      
+      // First get inventory details to extract city UUID
+      const inventoryDetails = await getInventoryDetails(inventoryId, req.user.accessToken);
+      const cityId = inventoryDetails.city.cityId;
+      
+      console.log(`🏙️ Extracted city UUID: ${cityId} from inventory`);
+      
+      // Now fetch CCRA data using both city and inventory UUIDs
+      const ccraData = await getCCRADashboard(cityId, inventoryId, req.user.accessToken);
+      res.json({ data: ccraData });
+    } catch (error: any) {
+      console.error('Get CCRA dashboard error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch CCRA dashboard data' });
     }
   });
 
