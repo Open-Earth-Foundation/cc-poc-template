@@ -49,3 +49,57 @@ export interface CityInventorySummary {
   years: number[];
   inventories: CityCatalystInventory[];
 }
+
+// CCRA (Climate Change Risk Assessment) Dashboard Types
+export interface CCRADashboardData {
+  // Flexible structure to accommodate various CCRA data formats
+  [key: string]: any;
+  
+  // Common CCRA fields that might be present
+  hazards?: ClimateHazard[];
+  vulnerabilities?: VulnerabilityAssessment[];
+  riskScores?: RiskScore[];
+  adaptationMeasures?: AdaptationMeasure[];
+  assessmentSummary?: AssessmentSummary;
+}
+
+export interface ClimateHazard {
+  id: string;
+  name: string;
+  type: string;
+  severity?: string | number;
+  likelihood?: string | number;
+  description?: string;
+}
+
+export interface VulnerabilityAssessment {
+  sector: string;
+  vulnerabilityLevel: string | number;
+  description?: string;
+  affectedPopulation?: number;
+}
+
+export interface RiskScore {
+  category: string;
+  score: number;
+  level: 'Low' | 'Medium' | 'High' | 'Critical';
+  description?: string;
+}
+
+export interface AdaptationMeasure {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priority?: string;
+  status?: string;
+  estimatedCost?: number;
+}
+
+export interface AssessmentSummary {
+  overallRiskLevel: string;
+  majorHazards: string[];
+  prioritySectors: string[];
+  keyRecommendations: string[];
+  lastUpdated?: string;
+}
