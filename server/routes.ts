@@ -8,7 +8,7 @@ import {
   createOrUpdateUser,
   generateSessionToken 
 } from "./services/authService";
-import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails, getInventoryDownload, getCCRADashboard } from "./services/cityService";
+import { getUserAccessibleCities, getCityById, getCityDetail, getInventory, getCityBoundary, getInventoriesByCity, getInventoryDetails, getInventoryDownload, getCCRADashboard, getHIAPData } from "./services/cityService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -365,6 +365,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Get CCRA dashboard error:', error);
       res.status(500).json({ message: error.message || 'Failed to fetch CCRA dashboard data' });
+    }
+  });
+
+  // Get HIAP data for an inventory (mitigation and adaptation actions)
+  // Query parameters: actionType, lng, ignoreExisting
+  app.get('/api/citycatalyst/inventory/:inventoryId/hiap', requireAuth, async (req: any, res) => {
+    try {
+      const { inventoryId } = req.params;
+      const { actionType, lng, ignoreExisting } = req.query;
+      
+      console.log(`🌱 Getting HIAP data for inventory ID: ${inventoryId}, actionType: ${actionType}, language: ${lng}`);
+      
+      if (!actionType || !lng) {
+        return res.status(400).json({ message: 'actionType and lng query parameters are required' });
+      }
+      
+      if (!['mitigation', 'adaptation'].includes(actionType)) {
+        return res.status(400).json({ message: 'actionType must be either "mitigation" or "adaptation"' });
+      }
+      
+      const hiapData = await getHIAPData(
+        inventoryId, 
+        actionType as 'mitigation' | 'adaptation', 
+        lng as string, 
+        req.user.accessToken,
+        ignoreExisting ? ignoreExisting === 'true' : undefined
+      );
+      
+      res.json({ data: hiapData });
+    } catch (error: any) {
+      console.error('Get HIAP data error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch HIAP data' });
     }
   });
 
