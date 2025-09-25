@@ -1,9 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/core/lib/queryClient";
-import { CCRADashboardData } from "../types/city-info";
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/core/lib/queryClient';
+import { CCRADashboardData } from '../types/city-info';
 
-async function getCCRADashboard(inventoryId: string): Promise<{ data: CCRADashboardData }> {
-  const res = await apiRequest("GET", `/api/citycatalyst/inventory/${inventoryId}/ccra`);
+async function getCCRADashboard(
+  inventoryId: string
+): Promise<{ data: CCRADashboardData }> {
+  const res = await apiRequest(
+    'GET',
+    `/api/citycatalyst/inventory/${inventoryId}/ccra`
+  );
   return await res.json();
 }
 

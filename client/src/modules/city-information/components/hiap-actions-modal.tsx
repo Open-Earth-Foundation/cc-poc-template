@@ -1,19 +1,38 @@
-import { useState } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/core/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
-import { Badge } from "@/core/components/ui/badge";
-import { Button } from "@/core/components/ui/button";
-import { Skeleton } from "@/core/components/ui/skeleton";
-import { useHIAPData } from "../hooks/useHIAPData";
-import { HIAPData, HIAPRankedAction } from "../types/city-info";
-import { Leaf, Shield, AlertTriangle, Clock, DollarSign, Target, Users, TreePine, Droplets, Wind, Home, Car, Factory } from "lucide-react";
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/core/components/ui/dialog';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/core/components/ui/card';
+import { Badge } from '@/core/components/ui/badge';
+import { Button } from '@/core/components/ui/button';
+import { Skeleton } from '@/core/components/ui/skeleton';
+import { useHIAPData } from '../hooks/useHIAPData';
+import { HIAPData, HIAPRankedAction } from '../types/city-info';
+import {
+  Leaf,
+  Shield,
+  AlertTriangle,
+  Clock,
+  DollarSign,
+  Target,
+  Users,
+  TreePine,
+  Droplets,
+  Wind,
+  Home,
+  Car,
+  Factory,
+} from 'lucide-react';
 
 interface HIAPActionsModalProps {
   inventoryId: string;
@@ -23,16 +42,20 @@ interface HIAPActionsModalProps {
   description: string;
 }
 
-export function HIAPActionsModal({ 
-  inventoryId, 
-  actionType, 
-  trigger, 
-  title, 
-  description 
+export function HIAPActionsModal({
+  inventoryId,
+  actionType,
+  trigger,
+  title,
+  description,
 }: HIAPActionsModalProps) {
   const [open, setOpen] = useState(false);
-  
-  const { data: hiapData, isLoading, error } = useHIAPData(
+
+  const {
+    data: hiapData,
+    isLoading,
+    error,
+  } = useHIAPData(
     open ? inventoryId : undefined, // Only fetch when modal is open
     actionType,
     'en'
@@ -40,10 +63,14 @@ export function HIAPActionsModal({
 
   const getCostColor = (cost: string) => {
     switch (cost) {
-      case 'low': return 'text-green-600 bg-green-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
-      case 'high': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'low':
+        return 'text-green-600 bg-green-50';
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-50';
+      case 'high':
+        return 'text-red-600 bg-red-50';
+      default:
+        return 'text-gray-600 bg-gray-50';
     }
   };
 
@@ -61,57 +88,65 @@ export function HIAPActionsModal({
       air_quality: Wind,
       water_quality: Droplets,
       cost_of_living: DollarSign,
-      stakeholder_engagement: Users
+      stakeholder_engagement: Users,
     };
-    
+
     const Icon = icons[key] || Target;
     const benefit = getCobenefit(value);
-    
+
     return (
-      <div key={key} className="flex items-center gap-1">
+      <div key={key} className='flex items-center gap-1'>
         <Icon className={`h-3 w-3 ${benefit.color}`} />
-        <span className="text-xs capitalize">
-          {key.replace(/_/g, ' ')}: <span className={benefit.color}>{benefit.label}</span>
+        <span className='text-xs capitalize'>
+          {key.replace(/_/g, ' ')}:{' '}
+          <span className={benefit.color}>{benefit.label}</span>
         </span>
       </div>
     );
   };
 
   const renderActionCard = (action: HIAPRankedAction, index: number) => (
-    <Card key={action.id} className="border" data-testid={`card-action-${index}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between mb-2">
-          <Badge 
-            variant={actionType === 'mitigation' ? 'default' : 'secondary'} 
-            className="text-xs"
+    <Card
+      key={action.id}
+      className='border'
+      data-testid={`card-action-${index}`}
+    >
+      <CardHeader className='pb-3'>
+        <div className='flex items-center justify-between mb-2'>
+          <Badge
+            variant={actionType === 'mitigation' ? 'default' : 'secondary'}
+            className='text-xs'
           >
             Rank #{action.rank}
           </Badge>
-          <div className="flex gap-2">
-            <Badge variant="outline" className={`text-xs ${getCostColor(action.costInvestmentNeeded)}`}>
+          <div className='flex gap-2'>
+            <Badge
+              variant='outline'
+              className={`text-xs ${getCostColor(action.costInvestmentNeeded)}`}
+            >
               {action.costInvestmentNeeded} cost
             </Badge>
-            <Badge variant="outline" className="text-xs">
-              <Clock className="h-3 w-3 mr-1" />
+            <Badge variant='outline' className='text-xs'>
+              <Clock className='h-3 w-3 mr-1' />
               {action.timelineForImplementation}
             </Badge>
           </div>
         </div>
-        <CardTitle className="text-sm font-medium leading-tight">
+        <CardTitle className='text-sm font-medium leading-tight'>
           {action.name}
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {action.description}
-        </p>
-        
+      <CardContent className='pt-0 space-y-4'>
+        <p className='text-sm text-muted-foreground'>{action.description}</p>
+
         {/* Sectors & Subsectors */}
         <div>
-          <label className="text-xs font-medium text-muted-foreground">Sectors:</label>
-          <div className="flex flex-wrap gap-1 mt-1">
+          <label className='text-xs font-medium text-muted-foreground'>
+            Sectors:
+          </label>
+          <div className='flex flex-wrap gap-1 mt-1'>
             {action.sectors.map((sector, idx) => (
-              <Badge key={idx} variant="outline" className="text-xs">
+              <Badge key={idx} variant='outline' className='text-xs'>
                 {sector.toUpperCase()}
               </Badge>
             ))}
@@ -120,8 +155,10 @@ export function HIAPActionsModal({
 
         {/* Co-benefits */}
         <div>
-          <label className="text-xs font-medium text-muted-foreground">Co-benefits:</label>
-          <div className="grid grid-cols-2 gap-1 mt-2">
+          <label className='text-xs font-medium text-muted-foreground'>
+            Co-benefits:
+          </label>
+          <div className='grid grid-cols-2 gap-1 mt-2'>
             {Object.entries(action.cobenefits)
               .filter(([_, value]) => value > 0)
               .map(([key, value]) => renderCobenefit(key, value))}
@@ -129,30 +166,35 @@ export function HIAPActionsModal({
         </div>
 
         {/* GHG Reduction Potential */}
-        {action.GHGReductionPotential && Object.values(action.GHGReductionPotential).some(v => v) && (
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">GHG Reduction Potential:</label>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {Object.entries(action.GHGReductionPotential)
-                .filter(([_, value]) => value)
-                .map(([sector, potential]) => (
-                  <Badge key={sector} variant="secondary" className="text-xs">
-                    {sector}: {potential}%
-                  </Badge>
-                ))}
+        {action.GHGReductionPotential &&
+          Object.values(action.GHGReductionPotential).some(v => v) && (
+            <div>
+              <label className='text-xs font-medium text-muted-foreground'>
+                GHG Reduction Potential:
+              </label>
+              <div className='flex flex-wrap gap-1 mt-1'>
+                {Object.entries(action.GHGReductionPotential)
+                  .filter(([_, value]) => value)
+                  .map(([sector, potential]) => (
+                    <Badge key={sector} variant='secondary' className='text-xs'>
+                      {sector}: {potential}%
+                    </Badge>
+                  ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Dependencies */}
         {action.dependencies && action.dependencies.length > 0 && (
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Key Dependencies:</label>
-            <ul className="text-xs text-muted-foreground mt-1 space-y-1">
+            <label className='text-xs font-medium text-muted-foreground'>
+              Key Dependencies:
+            </label>
+            <ul className='text-xs text-muted-foreground mt-1 space-y-1'>
               {action.dependencies.slice(0, 2).map((dep, idx) => (
-                <li key={idx} className="flex items-start gap-1">
-                  <span className="text-primary">•</span>
-                  <span className="flex-1">{dep}</span>
+                <li key={idx} className='flex items-start gap-1'>
+                  <span className='text-primary'>•</span>
+                  <span className='flex-1'>{dep}</span>
                 </li>
               ))}
             </ul>
@@ -160,26 +202,29 @@ export function HIAPActionsModal({
         )}
 
         {/* Key Performance Indicators */}
-        {action.keyPerformanceIndicators && action.keyPerformanceIndicators.length > 0 && (
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Key Performance Indicators:</label>
-            <ul className="text-xs text-muted-foreground mt-1 space-y-1">
-              {action.keyPerformanceIndicators.slice(0, 2).map((kpi, idx) => (
-                <li key={idx} className="flex items-start gap-1">
-                  <Target className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="flex-1">{kpi}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {action.keyPerformanceIndicators &&
+          action.keyPerformanceIndicators.length > 0 && (
+            <div>
+              <label className='text-xs font-medium text-muted-foreground'>
+                Key Performance Indicators:
+              </label>
+              <ul className='text-xs text-muted-foreground mt-1 space-y-1'>
+                {action.keyPerformanceIndicators.slice(0, 2).map((kpi, idx) => (
+                  <li key={idx} className='flex items-start gap-1'>
+                    <Target className='h-3 w-3 text-primary mt-0.5 flex-shrink-0' />
+                    <span className='flex-1'>{kpi}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
         {/* Powers and Mandates */}
-        <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">Implementation Level:</span>
-          <div className="flex gap-1">
+        <div className='flex justify-between text-xs'>
+          <span className='text-muted-foreground'>Implementation Level:</span>
+          <div className='flex gap-1'>
             {action.powersAndMandates.map((power, idx) => (
-              <Badge key={idx} variant="outline" className="text-xs">
+              <Badge key={idx} variant='outline' className='text-xs'>
                 {power}
               </Badge>
             ))}
@@ -192,11 +237,11 @@ export function HIAPActionsModal({
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {[1, 2, 3].map(i => (
-            <div key={i} className="space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-32 w-full" />
+            <div key={i} className='space-y-2'>
+              <Skeleton className='h-4 w-3/4' />
+              <Skeleton className='h-32 w-full' />
             </div>
           ))}
         </div>
@@ -205,11 +250,16 @@ export function HIAPActionsModal({
 
     if (error) {
       return (
-        <div className="text-center py-8">
-          <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Unable to load actions</h3>
-          <p className="text-muted-foreground text-sm" data-testid="text-hiap-error">
-            {error instanceof Error ? error.message : 'Failed to fetch action data'}
+        <div className='text-center py-8'>
+          <AlertTriangle className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
+          <h3 className='text-lg font-semibold mb-2'>Unable to load actions</h3>
+          <p
+            className='text-muted-foreground text-sm'
+            data-testid='text-hiap-error'
+          >
+            {error instanceof Error
+              ? error.message
+              : 'Failed to fetch action data'}
           </p>
         </div>
       );
@@ -217,12 +267,16 @@ export function HIAPActionsModal({
 
     if (!hiapData?.data) {
       return (
-        <div className="text-center py-8">
-          <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-            {actionType === 'mitigation' ? <Leaf className="h-6 w-6" /> : <Shield className="h-6 w-6" />}
+        <div className='text-center py-8'>
+          <div className='h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4'>
+            {actionType === 'mitigation' ? (
+              <Leaf className='h-6 w-6' />
+            ) : (
+              <Shield className='h-6 w-6' />
+            )}
           </div>
-          <h3 className="text-lg font-semibold mb-2">No actions available</h3>
-          <p className="text-muted-foreground">
+          <h3 className='text-lg font-semibold mb-2'>No actions available</h3>
+          <p className='text-muted-foreground'>
             No {actionType} actions are available for this inventory.
           </p>
         </div>
@@ -234,9 +288,12 @@ export function HIAPActionsModal({
 
     if (!Array.isArray(actions) || actions.length === 0) {
       return (
-        <div className="space-y-2">
-          <h4 className="font-medium">Raw HIAP Data</h4>
-          <pre className="text-xs bg-muted p-3 rounded-md overflow-x-auto max-h-96" data-testid="text-hiap-raw-data">
+        <div className='space-y-2'>
+          <h4 className='font-medium'>Raw HIAP Data</h4>
+          <pre
+            className='text-xs bg-muted p-3 rounded-md overflow-x-auto max-h-96'
+            data-testid='text-hiap-raw-data'
+          >
             {JSON.stringify(hiapData.data, null, 2)}
           </pre>
         </div>
@@ -244,16 +301,16 @@ export function HIAPActionsModal({
     }
 
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h4 className="font-medium text-sm">
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <h4 className='font-medium text-sm'>
             {actions.length} Ranked Actions
           </h4>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant='outline' className='text-xs'>
             Status: {hiapData.data.status}
           </Badge>
         </div>
-        <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
+        <div className='grid grid-cols-1 gap-4 max-h-96 overflow-y-auto'>
           {actions.map((action, index) => renderActionCard(action, index))}
         </div>
       </div>
@@ -262,25 +319,20 @@ export function HIAPActionsModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent className='max-w-4xl max-h-[80vh] overflow-hidden'>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {actionType === 'mitigation' ? 
-              <Leaf className="h-5 w-5 text-green-600" /> : 
-              <Shield className="h-5 w-5 text-blue-600" />
-            }
+          <DialogTitle className='flex items-center gap-2'>
+            {actionType === 'mitigation' ? (
+              <Leaf className='h-5 w-5 text-green-600' />
+            ) : (
+              <Shield className='h-5 w-5 text-blue-600' />
+            )}
             {title}
           </DialogTitle>
-          <DialogDescription>
-            {description}
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="mt-4">
-          {renderContent()}
-        </div>
+        <div className='mt-4'>{renderContent()}</div>
       </DialogContent>
     </Dialog>
   );

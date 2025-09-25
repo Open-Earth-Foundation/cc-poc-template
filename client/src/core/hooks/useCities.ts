@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { City } from "@/core/types/city";
-import { getCities, getCity } from "@/core/services/cityService";
+import { useQuery } from '@tanstack/react-query';
+import { City } from '@/core/types/city';
+import { getCities, getCity } from '@/core/services/cityService';
 
 export function useCities() {
   return useQuery<{ cities: City[] }>({
