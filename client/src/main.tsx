@@ -1,14 +1,16 @@
-import { StrictMode } from 'react'
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import "./lib/i18n"; // Initialize i18n
-import { PostHogProvider } from 'posthog-js/react'
-import { PostHogBoot } from '@/core/components/analytics/posthog-boot'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './index.css';
+import './lib/i18n'; // Initialize i18n
+import { PostHogProvider } from 'posthog-js/react';
+import { PostHogBoot } from '@/core/components/analytics/posthog-boot';
+import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
+import { appTheme } from './app-theme';
 
 // Read PostHog environment variables
-const PH_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
-const PH_HOST = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
+const PH_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
+const PH_HOST = import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
 
 // PostHog provider options (EU host + SPA pageviews)
 const options = {
@@ -17,13 +19,13 @@ const options = {
   capture_pageleave: true, // Track when users leave pages
   loaded: (posthog: any) => {
     if (import.meta.env.DEV) {
-      console.log('PostHog loaded for development')
+      console.log('PostHog loaded for development');
     }
   },
   bootstrap: {
     distinctID: undefined, // Let PostHog generate this
   },
-}
+};
 
 // Only render with PostHog if API key is available
 const AppWithAnalytics = PH_KEY ? (
@@ -31,10 +33,12 @@ const AppWithAnalytics = PH_KEY ? (
     <PostHogBoot />
     <App />
   </PostHogProvider>
-) : <App />;
+) : (
+  <App />
+);
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {AppWithAnalytics}
+    <ChakraProvider value={appTheme}>{AppWithAnalytics}</ChakraProvider>
   </StrictMode>
 );

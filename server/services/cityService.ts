@@ -1,8 +1,9 @@
-import { storage } from "../storage";
-import { City, User } from "@shared/schema";
+import { storage } from '../storage';
+import { City, User } from '@shared/schema';
 import type { Feature } from 'geojson';
 
-const AUTH_BASE_URL = process.env.AUTH_BASE_URL || 'https://citycatalyst.openearth.dev';
+const AUTH_BASE_URL =
+  process.env.AUTH_BASE_URL || 'https://citycatalyst.openearth.dev';
 
 // Debug: Log the base URL being used
 // Base URL configured via environment variable
@@ -27,31 +28,41 @@ export interface CityCatalystInventoryData {
 }
 
 // Generic API helper function
-async function cityCatalystApiGet<T>(path: string, accessToken: string): Promise<T> {
+async function cityCatalystApiGet<T>(
+  path: string,
+  accessToken: string
+): Promise<T> {
   const url = `${AUTH_BASE_URL}${path}`;
-  
+
   const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/json',
     },
   });
 
   if (!response.ok) {
     const text = await response.text();
-    console.error(`❌ CityCatalyst API error ${response.status}: ${text.slice(0, 300)}`);
-    throw new Error(`GET ${path} failed: ${response.status} ${response.statusText} — ${text.slice(0, 300)}`);
+    console.error(
+      `❌ CityCatalyst API error ${response.status}: ${text.slice(0, 300)}`
+    );
+    throw new Error(
+      `GET ${path} failed: ${response.status} ${response.statusText} — ${text.slice(0, 300)}`
+    );
   }
 
   const json = await response.json();
   // Response received successfully
-  
+
   // API wraps content under `data`
   return (json.data ?? json) as T;
 }
 
 // Fetch city details from CityCatalyst API
-async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): Promise<City | null> {
+async function fetchCityFromCityCatalyst(
+  cityId: string,
+  accessToken: string
+): Promise<City | null> {
   const cityEndpoints = [
     `${AUTH_BASE_URL}/api/v0/cities/${cityId}`,
     `${AUTH_BASE_URL}/api/v0/cities/${cityId}/`,
@@ -61,23 +72,24 @@ async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): P
     try {
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/json',
         },
       });
 
-      
       if (!response.ok) {
-        console.log(`❌ Non-OK response for ${url}: ${response.status} ${response.statusText}`);
+        console.log(
+          `❌ Non-OK response for ${url}: ${response.status} ${response.statusText}`
+        );
         continue;
       }
-      
+
       const contentType = response.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) continue;
-      
+
       const cityData = await response.json();
       const city = cityData.data || cityData;
-      
+
       // Convert to our City format
       return {
         id: city.cityId || city.id || cityId,
@@ -97,19 +109,21 @@ async function fetchCityFromCityCatalyst(cityId: string, accessToken: string): P
       continue; // Try next endpoint
     }
   }
-  
+
   return null;
 }
 
-export async function getUserCities(user: User, accessToken?: string): Promise<City[]> {
+export async function getUserCities(
+  user: User,
+  accessToken?: string
+): Promise<City[]> {
   if (!user.projects || user.projects.length === 0) {
     return [];
   }
-  
-  
+
   // First check our local storage for cities with these project IDs
   const localCities = await storage.getCitiesByProjectIds(user.projects);
-  
+
   if (localCities.length > 0) {
     return localCities;
   }
@@ -120,12 +134,15 @@ export async function getCityById(cityId: string): Promise<City | undefined> {
   return await storage.getCity(cityId);
 }
 
-export async function getUserAccessibleCities(userId: string, accessToken?: string): Promise<City[]> {
+export async function getUserAccessibleCities(
+  userId: string,
+  accessToken?: string
+): Promise<City[]> {
   const user = await storage.getUser(userId);
   if (!user) {
     throw new Error('User not found');
   }
-  
+
   return await getUserCities(user, accessToken);
 }
 
@@ -134,34 +151,34 @@ export async function getUserAccessibleCities(userId: string, accessToken?: stri
 // ============================================================================
 /**
  * INVENTORY DATA RETRIEVAL GUIDE
- * 
+ *
  * This service provides multiple endpoints for retrieving inventory data from CityCatalyst.
  * Choose the appropriate function based on your specific use case:
- * 
+ *
  * 1. BASIC INVENTORY OVERVIEW:
  *    - Use: getInventoriesByCity()
  *    - Purpose: Get list of all cities and their available inventory years
  *    - Returns: Array of cities with basic inventory metadata
  *    - Use case: City selection screens, overview dashboards
- * 
+ *
  * 2. DETAILED INVENTORY METADATA:
  *    - Use: getInventoryDetails(inventoryId, accessToken)
  *    - Purpose: Get comprehensive metadata for a specific inventory
  *    - Returns: Full inventory details, city info, project context, timestamps
  *    - Use case: Inventory information panels, audit trails, basic inventory display
- * 
+ *
  * 3. COMPREHENSIVE INVENTORY DATA WITH EMISSIONS BREAKDOWN:
- *    - Use: getInventoryDownload(inventoryId, accessToken) 
+ *    - Use: getInventoryDownload(inventoryId, accessToken)
  *    - Purpose: Get complete inventory with GPC sector/subsector emissions data
  *    - Returns: All metadata + inventoryValues array with detailed emissions by sector
  *    - Use case: Detailed analysis, emissions breakdown charts, sector comparisons
- * 
+ *
  * 4. LEGACY CITY/YEAR LOOKUP:
  *    - Use: getInventory(locode, year, accessToken)
  *    - Purpose: Get inventory data by city LOCODE and year (legacy endpoint)
  *    - Returns: Raw inventory data for specific city/year
  *    - Use case: Legacy integrations, when only LOCODE/year are available
- * 
+ *
  * RECOMMENDATION:
  * - For UI display with emissions breakdown: Use getInventoryDownload()
  * - For basic inventory info: Use getInventoryDetails()
@@ -172,42 +189,50 @@ export async function getUserAccessibleCities(userId: string, accessToken?: stri
  * Get detailed city information including inventories list
  * @param cityId - UUID format city identifier (not LOCODE)
  */
-export async function getCityDetail(cityId: string, accessToken: string): Promise<CityCatalystCityDetail> {
+export async function getCityDetail(
+  cityId: string,
+  accessToken: string
+): Promise<CityCatalystCityDetail> {
   if (!cityId || cityId === 'undefined') {
     throw new Error(`Invalid cityId provided: ${cityId}`);
   }
-  
+
   // Validate UUID format
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(cityId)) {
     throw new Error(`Invalid cityId format. Expected UUID, got: ${cityId}`);
   }
-  
+
   return cityCatalystApiGet<CityCatalystCityDetail>(
-    `/api/v0/city/${encodeURIComponent(cityId)}`, 
+    `/api/v0/city/${encodeURIComponent(cityId)}`,
     accessToken
   );
 }
 
 /**
  * Get inventory data for a specific city and year (LEGACY ENDPOINT)
- * 
+ *
  * @param locode - UN/LOCODE format city identifier (e.g., "BR CXL" for Caxias do Sul)
  * @param year - Inventory year (e.g., 2022)
  * @param accessToken - User's CityCatalyst access token
  * @returns Raw inventory data structure
- * 
+ *
  * @deprecated Consider using getInventoryDetails() or getInventoryDownload() with inventoryId for better data structure
- * 
+ *
  * Usage example:
  * ```
  * const inventory = await getInventory("BR CXL", 2022, userToken);
  * ```
  */
-export async function getInventory(locode: string, year: number, accessToken: string): Promise<CityCatalystInventoryData> {
-  const normalizedLocode = locode.replace(/\s+/g, "_");
+export async function getInventory(
+  locode: string,
+  year: number,
+  accessToken: string
+): Promise<CityCatalystInventoryData> {
+  const normalizedLocode = locode.replace(/\s+/g, '_');
   return cityCatalystApiGet<CityCatalystInventoryData>(
-    `/api/v0/city/${encodeURIComponent(normalizedLocode)}/inventory/${year}?format=json`, 
+    `/api/v0/city/${encodeURIComponent(normalizedLocode)}/inventory/${year}?format=json`,
     accessToken
   );
 }
@@ -215,10 +240,13 @@ export async function getInventory(locode: string, year: number, accessToken: st
 /**
  * Get city boundary as GeoJSON
  */
-export async function getCityBoundary(locode: string, accessToken: string): Promise<Feature> {
-  const normalizedLocode = locode.replace(/\s+/g, "_");
+export async function getCityBoundary(
+  locode: string,
+  accessToken: string
+): Promise<Feature> {
+  const normalizedLocode = locode.replace(/\s+/g, '_');
   return cityCatalystApiGet<Feature>(
-    `/api/v0/city/${encodeURIComponent(normalizedLocode)}/boundary`, 
+    `/api/v0/city/${encodeURIComponent(normalizedLocode)}/boundary`,
     accessToken
   );
 }
@@ -226,27 +254,30 @@ export async function getCityBoundary(locode: string, accessToken: string): Prom
 /**
  * Get detailed inventory information by inventory ID (METADATA ONLY)
  * GET /api/v0/inventory/{inventory}
- * 
+ *
  * @param inventoryId - Unique inventory identifier (UUID format)
  * @param accessToken - User's CityCatalyst access token
  * @returns Comprehensive inventory metadata without emissions breakdown
- * 
+ *
  * Returns comprehensive inventory details including:
  * - inventoryId, inventoryName, year, totalEmissions, inventoryType
  * - globalWarmingPotentialType, lastUpdated, created, publishedAt
  * - Full city details with project information
  * - Does NOT include detailed emissions by sector/subsector
- * 
+ *
  * Usage example:
  * ```
  * const inventoryInfo = await getInventoryDetails("8fa31f4d-0a61-4d7e-89eb-00e584546e66", userToken);
  * console.log(inventoryInfo.inventoryName); // "Caxias do Sul - 2022"
  * console.log(inventoryInfo.totalEmissions); // 123456789
  * ```
- * 
+ *
  * @see getInventoryDownload() for detailed emissions breakdown by GPC sectors
  */
-export async function getInventoryDetails(inventoryId: string, accessToken: string): Promise<{
+export async function getInventoryDetails(
+  inventoryId: string,
+  accessToken: string
+): Promise<{
   inventoryId: string;
   inventoryName: string;
   year: number;
@@ -280,18 +311,21 @@ export async function getInventoryDetails(inventoryId: string, accessToken: stri
   };
 }> {
   // Use 'default' for user's default inventory, or specific inventory ID
-  const endpoint = inventoryId === 'default' ? '/api/v0/inventory/default' : `/api/v0/inventory/${inventoryId}`;
+  const endpoint =
+    inventoryId === 'default'
+      ? '/api/v0/inventory/default'
+      : `/api/v0/inventory/${inventoryId}`;
   return cityCatalystApiGet(endpoint, accessToken);
 }
 
 /**
  * Get detailed inventory data with emissions breakdown from the download endpoint
  * GET /api/v0/inventory/{inventory}/download
- * 
+ *
  * @param inventoryId - Unique inventory identifier (UUID format)
  * @param accessToken - User's CityCatalyst access token
  * @returns Complete inventory data with detailed emissions breakdown by GPC sectors/subsectors
- * 
+ *
  * This is the MOST COMPREHENSIVE inventory endpoint that includes:
  * - All basic inventory metadata (same as getInventoryDetails())
  * - inventoryValues array with detailed emissions data organized by:
@@ -301,14 +335,14 @@ export async function getInventoryDetails(inventoryId: string, accessToken: stri
  *   - Data source information and data quality indicators
  *   - Activity values and gas breakdown
  *   - Unavailable reasons for missing data
- * 
+ *
  * Usage example:
  * ```
  * const fullData = await getInventoryDownload("8fa31f4d-0a61-4d7e-89eb-00e584546e66", userToken);
- * 
+ *
  * // Access basic info
  * console.log(fullData.inventoryName); // "Caxias do Sul - 2022"
- * 
+ *
  * // Access detailed emissions by sector
  * fullData.inventoryValues.forEach(value => {
  *   console.log(`${value.gpcReferenceNumber}: ${value.subSector.subsectorName}`);
@@ -316,11 +350,14 @@ export async function getInventoryDetails(inventoryId: string, accessToken: stri
  *   console.log(`Data source: ${value.dataSource?.datasourceName || 'N/A'}`);
  * });
  * ```
- * 
+ *
  * @see getInventoryDetails() for basic metadata without emissions breakdown
  * @see organizeInventoryValuesBySector() helper function in frontend for organizing data by sector
  */
-export async function getInventoryDownload(inventoryId: string, accessToken: string): Promise<{
+export async function getInventoryDownload(
+  inventoryId: string,
+  accessToken: string
+): Promise<{
   inventoryId: string;
   inventoryName: string;
   year: number;
@@ -381,79 +418,84 @@ export async function getInventoryDownload(inventoryId: string, accessToken: str
     };
   }>;
 }> {
-  return cityCatalystApiGet(`/api/v0/inventory/${inventoryId}/download`, accessToken);
+  return cityCatalystApiGet(
+    `/api/v0/inventory/${inventoryId}/download`,
+    accessToken
+  );
 }
 
 /**
  * Get all inventories for multiple cities (used for overview)
  */
-export async function getInventoriesByCity(accessToken: string): Promise<Array<{
-  locode: string;
-  name: string;
-  years: number[];
-  inventories: CityCatalystInventory[];
-}>> {
+export async function getInventoriesByCity(accessToken: string): Promise<
+  Array<{
+    locode: string;
+    name: string;
+    years: number[];
+    inventories: CityCatalystInventory[];
+  }>
+> {
   // Use the same endpoint as the auth service that actually works
   const citiesUrl = '/api/v0/user/cities/';
   const citiesData = await cityCatalystApiGet<any>(citiesUrl, accessToken);
-  
-  
+
   // Handle different response formats (same logic as authService.ts)
   const cities = citiesData.cities || citiesData.data || citiesData;
-  
+
   if (!Array.isArray(cities)) {
     console.error('Cities data is not in expected format');
     return [];
   }
 
-
   const details = await Promise.all(
-    cities.map(async (item) => {
-      
+    cities.map(async item => {
       // Use same data extraction logic as authService.ts
       const cityData = item.city || item;
-      
+
       if (!cityData) {
         console.log(`⚠️ No city data found in response item`);
-        return { 
-          locode: 'unknown', 
-          name: 'Unknown City', 
-          years: [], 
-          inventories: [] 
+        return {
+          locode: 'unknown',
+          name: 'Unknown City',
+          years: [],
+          inventories: [],
         };
       }
-      
+
       const locode = cityData.locode;
       const cityId = cityData.cityId || cityData.id;
       const name = cityData.name || cityData.cityName || 'Unknown City';
       const years = item.years || [];
-      
+
       // If we have a cityId (UUID format), try to get detailed inventory info
       if (cityId && cityId !== 'undefined' && cityId !== locode) {
         try {
           const detail = await getCityDetail(cityId, accessToken);
           const detailYears = (detail.inventories ?? [])
-            .map((inv) => inv.year)
+            .map(inv => inv.year)
             .filter((y): y is number => Number.isFinite(y))
             .sort((a, b) => b - a);
 
-          return { 
-            locode: locode, 
-            name: detail.name || name, 
-            years: detailYears.length > 0 ? detailYears : years, 
-            inventories: detail.inventories ?? [] 
+          return {
+            locode: locode,
+            name: detail.name || name,
+            years: detailYears.length > 0 ? detailYears : years,
+            inventories: detail.inventories ?? [],
           };
         } catch (error) {
-          console.error(`❌ Failed to get details for city ${name} (${cityId}):`, error);
+          console.error(
+            `❌ Failed to get details for city ${name} (${cityId}):`,
+            error
+          );
         }
       }
-      
+
       // Fallback to basic data from the list response
-      return { 
-        locode: locode || cityId || 'unknown', 
-        name: name, 
-        years: Array.isArray(years) ? years : [], 
-        inventories: [] 
+      return {
+        locode: locode || cityId || 'unknown',
+        name: name,
+        years: Array.isArray(years) ? years : [],
+        inventories: [],
       };
     })
   );
@@ -464,15 +506,15 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
 /**
  * Get CCRA (Climate Change Risk Assessment) dashboard data for a city inventory
  * GET /api/v0/city/{city}/modules/ccra/dashboard
- * 
- * @param cityId - UUID of the city (from inventory.city.cityId)  
+ *
+ * @param cityId - UUID of the city (from inventory.city.cityId)
  * @param inventoryId - UUID of the inventory
  * @param accessToken - User's CityCatalyst access token
  * @returns CCRA dashboard data with climate risk assessment information
- * 
+ *
  * This endpoint provides climate change risk assessment data for a specific city and inventory.
  * The response contains detailed risk analysis including climate hazards, exposure, and vulnerability scores.
- * 
+ *
  * **Response Structure:**
  * ```typescript
  * {
@@ -497,46 +539,55 @@ export async function getInventoriesByCity(accessToken: string): Promise<Array<{
  *   inventoryId: string;          // Associated inventory UUID
  * }
  * ```
- * 
+ *
  * **Frontend Integration:**
  * Use the `useCCRADashboard` hook in React components to fetch and display this data.
  * The frontend automatically formats scores as percentages and displays them in cards.
- * 
+ *
  * Usage example:
  * ```typescript
  * // Backend service usage
  * const inventoryDetails = await getInventoryDetails(inventoryId, userToken);
  * const cityId = inventoryDetails.city.cityId;
  * const ccraData = await getCCRADashboard(cityId, inventoryId, userToken);
- * 
+ *
  * // Frontend hook usage
  * const { data: ccraData, isLoading, error } = useCCRADashboard(inventoryId);
  * ```
- * 
+ *
  * **API Route:** `/api/citycatalyst/inventory/:inventoryId/ccra`
  * - Automatically extracts city UUID from inventory details
  * - Requires authentication via CityCatalyst OAuth
  * - Returns comprehensive climate risk assessment data
- * 
- * Note: The city parameter is the city UUID (not LOCODE), which can be obtained 
+ *
+ * Note: The city parameter is the city UUID (not LOCODE), which can be obtained
  * from inventory.city.cityId when fetching inventory details.
  */
-export async function getCCRADashboard(cityId: string, inventoryId: string, accessToken: string): Promise<any> {
+export async function getCCRADashboard(
+  cityId: string,
+  inventoryId: string,
+  accessToken: string
+): Promise<any> {
   if (!cityId || !inventoryId) {
-    throw new Error('Both cityId and inventoryId are required for CCRA dashboard');
+    throw new Error(
+      'Both cityId and inventoryId are required for CCRA dashboard'
+    );
   }
-  
+
   // Validate UUID formats
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(cityId)) {
     throw new Error(`Invalid cityId format. Expected UUID, got: ${cityId}`);
   }
   if (!uuidRegex.test(inventoryId)) {
-    throw new Error(`Invalid inventoryId format. Expected UUID, got: ${inventoryId}`);
+    throw new Error(
+      `Invalid inventoryId format. Expected UUID, got: ${inventoryId}`
+    );
   }
-  
+
   return cityCatalystApiGet(
-    `/api/v0/city/${encodeURIComponent(cityId)}/modules/ccra/dashboard?inventoryId=${encodeURIComponent(inventoryId)}`, 
+    `/api/v0/city/${encodeURIComponent(cityId)}/modules/ccra/dashboard?inventoryId=${encodeURIComponent(inventoryId)}`,
     accessToken
   );
 }
@@ -544,22 +595,22 @@ export async function getCCRADashboard(cityId: string, inventoryId: string, acce
 /**
  * Get HIAP (Health Impact Assessment and Policy) data for an inventory
  * GET /api/v0/inventory/{inventory}/hiap
- * 
+ *
  * @param inventoryId - UUID of the inventory
  * @param actionType - Type of actions to retrieve ("mitigation" | "adaptation")
  * @param language - Language code (e.g., "en", "pt")
  * @param accessToken - User's CityCatalyst access token
  * @param ignoreExisting - Optional boolean to ignore existing actions
  * @returns HIAP insights with action recommendations
- * 
+ *
  * This endpoint provides health impact assessment and policy recommendations for climate actions.
  * Returns ranked lists of mitigation and adaptation actions tailored to the specific inventory context.
- * 
+ *
  * **Parameters:**
  * - `actionType`: "mitigation" for emission reduction actions, "adaptation" for resilience actions
  * - `language`: ISO language code for localized action descriptions
  * - `ignoreExisting`: Optional flag to exclude actions already implemented
- * 
+ *
  * **Response Structure:**
  * ```typescript
  * {
@@ -609,65 +660,70 @@ export async function getCCRADashboard(cityId: string, inventoryId: string, acce
  *   }>;
  * }
  * ```
- * 
+ *
  * **Frontend Integration:**
  * Use the `useHIAPData` hook to fetch data for both mitigation and adaptation:
  * ```typescript
  * const { data: mitigationData } = useHIAPData(inventoryId, 'mitigation', 'en');
  * const { data: adaptationData } = useHIAPData(inventoryId, 'adaptation', 'en');
  * ```
- * 
+ *
  * **API Route:** `/api/citycatalyst/inventory/:inventoryId/hiap`
  * - Query parameters: actionType, lng, ignoreExisting
  * - Requires authentication via CityCatalyst OAuth
  * - Returns action-specific HIAP insights
- * 
+ *
  * Usage example:
  * ```typescript
  * // Get mitigation actions
  * const mitigationActions = await getHIAPData(inventoryId, 'mitigation', 'en', userToken);
  * console.log(`Found ${mitigationActions.rankedActions.length} mitigation actions`);
- * 
+ *
  * // Access ranked actions
  * mitigationActions.rankedActions.forEach(action => {
  *   console.log(`#${action.rank}: ${action.name}`);
  *   console.log(`Cost: ${action.costInvestmentNeeded}, Timeline: ${action.timelineForImplementation}`);
  *   console.log(`Co-benefits: Air Quality=${action.cobenefits.air_quality}/2`);
  * });
- * 
- * // Get adaptation actions  
+ *
+ * // Get adaptation actions
  * const adaptationActions = await getHIAPData(inventoryId, 'adaptation', 'en', userToken);
  * ```
  */
 export async function getHIAPData(
-  inventoryId: string, 
-  actionType: 'mitigation' | 'adaptation', 
-  language: string, 
+  inventoryId: string,
+  actionType: 'mitigation' | 'adaptation',
+  language: string,
   accessToken: string,
   ignoreExisting?: boolean
 ): Promise<any> {
   if (!inventoryId || !actionType || !language) {
-    throw new Error('inventoryId, actionType, and language are required for HIAP data');
+    throw new Error(
+      'inventoryId, actionType, and language are required for HIAP data'
+    );
   }
-  
+
   // Validate UUID format
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(inventoryId)) {
-    throw new Error(`Invalid inventoryId format. Expected UUID, got: ${inventoryId}`);
+    throw new Error(
+      `Invalid inventoryId format. Expected UUID, got: ${inventoryId}`
+    );
   }
-  
+
   // Build query parameters
   const params = new URLSearchParams({
     actionType,
     lng: language,
   });
-  
+
   if (ignoreExisting !== undefined) {
     params.append('ignoreExisting', ignoreExisting.toString());
   }
-  
+
   return cityCatalystApiGet(
-    `/api/v0/inventory/${encodeURIComponent(inventoryId)}/hiap?${params.toString()}`, 
+    `/api/v0/inventory/${encodeURIComponent(inventoryId)}/hiap?${params.toString()}`,
     accessToken
   );
 }

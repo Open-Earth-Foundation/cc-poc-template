@@ -1,10 +1,10 @@
-import { useEffect } from "react";
-import { useLocation } from "wouter";
-import { Card, CardContent } from "@/core/components/ui/card";
-import { Button } from "@/core/components/ui/button";
-import { useAuth } from "@/core/hooks/useAuth";
-import { initiateOAuth } from "@/core/services/authService";
-import { useToast } from "@/core/hooks/use-toast";
+import { useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { Card, CardContent } from '@/core/components/ui/card';
+import { CCTerraButton, TitleLarge, BodyMedium } from '@oef/components';
+import { useAuth } from '@/core/hooks/useAuth';
+import { initiateOAuth } from '@/core/services/authService';
+import { useToast } from '@/core/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { analytics } from '@/core/lib/analytics';
 import { ArrowRight } from 'lucide-react';
@@ -17,7 +17,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      setLocation("/cities");
+      setLocation('/cities');
     }
   }, [isAuthenticated, setLocation]);
 
@@ -36,7 +36,7 @@ export default function Login() {
       toast({
         title: t('errors.authenticationFailed'),
         description: error.message || t('errors.networkError'),
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   };
@@ -47,54 +47,58 @@ export default function Login() {
       // For development: trigger the sample user creation
       await handleOAuthLogin();
     } catch (error: any) {
-      analytics.auth.loginFailure(error.message || 'validation_error', 'sample');
+      analytics.auth.loginFailure(
+        error.message || 'validation_error',
+        'sample'
+      );
       toast({
         title: t('errors.authenticationFailed'),
         description: error.message || t('errors.validationError'),
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-muted flex items-center justify-center">
-        <div className="h-8 w-24 bg-card animate-pulse rounded"></div>
+      <div className='min-h-screen bg-muted flex items-center justify-center'>
+        <div className='h-8 w-24 bg-card animate-pulse rounded'></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className='min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
+      <div className='max-w-md w-full space-y-8'>
         <Card>
-          <CardContent className="p-8">
-            <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-6 p-0 overflow-hidden">
-                <img 
-                  src="/poc-icon.png" 
-                  alt={t('header.iconAlt')} 
-                  className="w-16 h-16 object-cover"
+          <CardContent className='p-8'>
+            <div className='text-center'>
+              <div className='mx-auto w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-6 p-0 overflow-hidden'>
+                <img
+                  src='/poc-icon.png'
+                  alt={t('header.iconAlt')}
+                  className='w-16 h-16 object-cover'
                 />
               </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2" data-testid="text-login-title">
+              <TitleLarge className='mb-2' data-testid='text-login-title'>
                 {t('login.title')}
-              </h2>
-              <p className="text-muted-foreground mb-8" data-testid="text-login-subtitle">
+              </TitleLarge>
+              <BodyMedium className='mb-8' data-testid='text-login-subtitle'>
                 {t('login.subtitle')}
-              </p>
+              </BodyMedium>
             </div>
-            
-            <div className="space-y-4">
-              <Button 
-                className="w-full"
+
+            <div className='space-y-4'>
+              <CCTerraButton
+                className='w-full'
                 onClick={handleOAuthLogin}
-                data-testid="button-oauth-login"
+                data-testid='button-oauth-login'
+                variant='filled'
+                leftIcon={<ArrowRight className='w-5 h-5' />}
               >
-                <ArrowRight className="w-5 h-5 mr-2" />
                 {t('login.continueButton')}
-              </Button>
-              
+              </CCTerraButton>
+
               {/* Sample User Button - Currently not working properly */}
               {/* TODO: Fix sample user authentication flow */}
               {/*
@@ -109,7 +113,6 @@ export default function Login() {
               </div>
               */}
             </div>
-            
           </CardContent>
         </Card>
       </div>

@@ -35,7 +35,7 @@ export interface GPCSubsector {
 }
 
 export interface CityBoundary {
-  type: "Feature";
+  type: 'Feature';
   properties: Record<string, any>;
   geometry: {
     type: string;
@@ -54,7 +54,7 @@ export interface CityInventorySummary {
 export interface CCRADashboardData {
   // Flexible structure to accommodate various CCRA data formats
   [key: string]: any;
-  
+
   // Common CCRA fields that might be present
   hazards?: ClimateHazard[];
   vulnerabilities?: VulnerabilityAssessment[];

@@ -1,6 +1,6 @@
-import { storage } from "../storage";
-import { randomBytes, createHash } from "crypto";
-import { User } from "@shared/schema";
+import { storage } from '../storage';
+import { randomBytes, createHash } from 'crypto';
+import { User } from '@shared/schema';
 
 const CLIENT_ID = process.env.OAUTH_CLIENT_ID!;
 
@@ -11,12 +11,15 @@ if (!CLIENT_ID) {
 const REDIRECT_URI = process.env.OAUTH_REDIRECT_URI;
 
 if (!REDIRECT_URI) {
-  throw new Error('OAUTH_REDIRECT_URI environment variable is required. Please set it to your app domain + "/api/auth/oauth/callback"');
+  throw new Error(
+    'OAUTH_REDIRECT_URI environment variable is required. Please set it to your app domain + "/api/auth/oauth/callback"'
+  );
 }
 
 // Type assertion for better TypeScript support
 const OAUTH_REDIRECT_URI: string = REDIRECT_URI;
-const AUTH_BASE_URL = process.env.AUTH_BASE_URL || "https://citycatalyst.openearth.dev";
+const AUTH_BASE_URL =
+  process.env.AUTH_BASE_URL || 'https://citycatalyst.openearth.dev';
 
 // Only log in development mode
 if (process.env.NODE_ENV === 'development') {
@@ -46,7 +49,8 @@ export interface CityCatalystUser {
 }
 
 function base64URLEncode(str: Buffer): string {
-  return str.toString('base64')
+  return str
+    .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
@@ -72,7 +76,7 @@ export function generateOAuthState(): OAuthState {
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state,
-    scope: 'read write',  // CityCatalyst valid scopes: read, write
+    scope: 'read write', // CityCatalyst valid scopes: read, write
   });
 
   const authUrl = `${AUTH_BASE_URL}/authorize/?${params.toString()}`;
@@ -90,7 +94,7 @@ export async function exchangeCodeForToken(
   codeVerifier: string
 ): Promise<TokenResponse> {
   const tokenUrl = `${AUTH_BASE_URL}/api/v0/token/`;
-  
+
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: CLIENT_ID,
@@ -109,8 +113,12 @@ export async function exchangeCodeForToken(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`OAuth token exchange failed: ${response.status} ${response.statusText} - ${errorText}`);
-    throw new Error(`Token exchange failed: ${response.statusText} - ${errorText}`);
+    console.error(
+      `OAuth token exchange failed: ${response.status} ${response.statusText} - ${errorText}`
+    );
+    throw new Error(
+      `Token exchange failed: ${response.statusText} - ${errorText}`
+    );
   }
 
   const tokenData = await response.json();
@@ -123,7 +131,10 @@ function decodeJWT(token: string): any {
     const [, payload] = token.split('.');
     // Add padding for base64 decoding
     const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4);
-    const decoded = Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    const decoded = Buffer.from(
+      padded.replace(/-/g, '+').replace(/_/g, '/'),
+      'base64'
+    ).toString('utf8');
     return JSON.parse(decoded);
   } catch (error) {
     console.log('Failed to decode JWT:', error);
@@ -136,8 +147,8 @@ async function fetchJSON(url: string, accessToken: string): Promise<any> {
   const response = await fetch(url, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/json',
       'User-Agent': 'cc-boundary-picker/1.0',
     },
     redirect: 'manual',
@@ -146,14 +157,18 @@ async function fetchJSON(url: string, accessToken: string): Promise<any> {
   // Check for redirects
   if (response.status >= 300 && response.status < 400) {
     const location = response.headers.get('location');
-    throw new Error(`API redirected to: ${location} - likely authentication failed`);
+    throw new Error(
+      `API redirected to: ${location} - likely authentication failed`
+    );
   }
 
   const contentType = response.headers.get('content-type') || '';
   const text = await response.text();
 
   if (!contentType.includes('application/json')) {
-    throw new Error(`Expected JSON but got ${contentType}. Likely hit UI/HTML page. Response: ${text.slice(0, 300)}`);
+    throw new Error(
+      `Expected JSON but got ${contentType}. Likely hit UI/HTML page. Response: ${text.slice(0, 300)}`
+    );
   }
 
   if (!response.ok) {
@@ -169,12 +184,12 @@ async function getUserCities(accessToken: string): Promise<string[]> {
 
   try {
     const citiesData = await fetchJSON(citiesUrl, accessToken);
-    
+
     // Handle different response formats
     const cities = citiesData.cities || citiesData.data || citiesData;
     if (Array.isArray(cities)) {
       const cityIds: string[] = [];
-      
+
       // Process each city and store the full data
       for (const item of cities) {
         const cityData = item.city || item;
@@ -182,7 +197,7 @@ async function getUserCities(accessToken: string): Promise<string[]> {
           const cityId = cityData.cityId || cityData.id || cityData.locode;
           if (cityId) {
             cityIds.push(cityId);
-            
+
             // Store the full city data in our storage
             try {
               await storage.createOrUpdateCity({
@@ -206,52 +221,70 @@ async function getUserCities(accessToken: string): Promise<string[]> {
           }
         }
       }
-      
+
       return cityIds;
     }
-    
+
     return [];
   } catch (error) {
-    console.error(`Failed to fetch user cities:`, error instanceof Error ? error.message : error);
+    console.error(
+      `Failed to fetch user cities:`,
+      error instanceof Error ? error.message : error
+    );
     return [];
   }
 }
 
-export async function getUserProfile(accessToken: string, tokenResponse?: any): Promise<CityCatalystUser> {
+export async function getUserProfile(
+  accessToken: string,
+  tokenResponse?: any
+): Promise<CityCatalystUser> {
   try {
     // Use the known working profile endpoint
     const profileUrl = `${AUTH_BASE_URL}/api/v0/user/`;
-    
+
     const profileData = await fetchJSON(profileUrl, accessToken);
-    
+
     // Handle nested data structure from CityCatalyst API
     const userData = profileData.data || profileData;
-    
+
     // Get user's accessible cities
     const userCities = await getUserCities(accessToken);
-    
+
     // Convert to our expected format
     return {
       id: userData.userId || userData.id || userData.sub || 'unknown',
       email: userData.email || 'unknown@example.com',
-      name: userData.name || userData.display_name || userData.email || 'Unknown User',
+      name:
+        userData.name ||
+        userData.display_name ||
+        userData.email ||
+        'Unknown User',
       title: userData.title || userData.role || 'CityCatalyst User',
-      projects: userCities.length > 0 ? userCities : (userData.defaultCityId ? [userData.defaultCityId] : ['default-project']),
+      projects:
+        userCities.length > 0
+          ? userCities
+          : userData.defaultCityId
+            ? [userData.defaultCityId]
+            : ['default-project'],
     };
   } catch (error) {
-    console.error(`Failed to fetch profile from API:`, error instanceof Error ? error.message : error);
+    console.error(
+      `Failed to fetch profile from API:`,
+      error instanceof Error ? error.message : error
+    );
 
     // Strategy 2: Try to decode ID token if available
     if (tokenResponse?.id_token) {
       const claims = decodeJWT(tokenResponse.id_token);
       if (claims) {
-        
         return {
           id: claims.sub || 'unknown',
           email: claims.email || 'unknown@example.com',
-          name: claims.name || claims.given_name && claims.family_name 
-            ? `${claims.given_name} ${claims.family_name}` 
-            : claims.email || 'Unknown User',
+          name:
+            claims.name || (claims.given_name && claims.family_name)
+              ? `${claims.given_name} ${claims.family_name}`
+              : claims.email || 'Unknown User',
           title: claims.title || claims.role || 'CityCatalyst User',
           projects: claims.projects || ['default-project'],
         };
@@ -261,7 +294,6 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
     // Strategy 3: Try to decode access token (some APIs encode user info in access tokens)
     const accessClaims = decodeJWT(accessToken);
     if (accessClaims && (accessClaims.email || accessClaims.sub)) {
-      
       return {
         id: accessClaims.sub || 'unknown',
         email: accessClaims.email || 'unknown@example.com',
@@ -271,8 +303,10 @@ export async function getUserProfile(accessToken: string, tokenResponse?: any): 
       };
     }
 
-    console.error('All profile retrieval strategies failed, falling back to sample data');
-    
+    console.error(
+      'All profile retrieval strategies failed, falling back to sample data'
+    );
+
     return {
       id: 'sample-user-1',
       email: 'elena.rodriguez@citycatalyst.org',
@@ -289,7 +323,7 @@ export async function createOrUpdateUser(
   refreshToken?: string
 ): Promise<User> {
   let user = await storage.getUserByEmail(cityCatalystUser.email);
-  
+
   if (user) {
     // Update existing user
     user = await storage.updateUser(user.id, {
@@ -312,7 +346,7 @@ export async function createOrUpdateUser(
       tokenExpiry: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
     });
   }
-  
+
   if (!user) {
     throw new Error('Failed to create or update user');
   }

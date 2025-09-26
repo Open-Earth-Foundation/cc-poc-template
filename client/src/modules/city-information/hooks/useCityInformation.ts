@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/core/lib/queryClient";
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/core/lib/queryClient';
 
 export interface CityInformation {
   locode: string;
@@ -17,8 +17,10 @@ export interface CityInformation {
   inventories: any[];
 }
 
-async function getCityInformation(cityId: string): Promise<{ data: CityInformation }> {
-  const res = await apiRequest("GET", `/api/city-information/${cityId}`);
+async function getCityInformation(
+  cityId: string
+): Promise<{ data: CityInformation }> {
+  const res = await apiRequest('GET', `/api/city-information/${cityId}`);
   return await res.json();
 }
 
