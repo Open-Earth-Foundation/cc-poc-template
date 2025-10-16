@@ -2,7 +2,7 @@ export function downloadGeoJSON(geoJson: any, filename: string) {
   const blob = new Blob([JSON.stringify(geoJson, null, 2)], {
     type: 'application/geo+json',
   });
-  
+
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -13,12 +13,16 @@ export function downloadGeoJSON(geoJson: any, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export function calculateBounds(geometry: any): [[number, number], [number, number]] | null {
+export function calculateBounds(
+  geometry: any
+): [[number, number], [number, number]] | null {
   if (!geometry || !geometry.coordinates) return null;
-  
-  let minLat = Infinity, maxLat = -Infinity;
-  let minLng = Infinity, maxLng = -Infinity;
-  
+
+  let minLat = Infinity,
+    maxLat = -Infinity;
+  let minLng = Infinity,
+    maxLng = -Infinity;
+
   const processCoordinates = (coords: any[]) => {
     coords.forEach(coord => {
       if (Array.isArray(coord[0])) {
@@ -32,8 +36,11 @@ export function calculateBounds(geometry: any): [[number, number], [number, numb
       }
     });
   };
-  
+
   processCoordinates(geometry.coordinates);
-  
-  return [[minLat, minLng], [maxLat, maxLng]];
+
+  return [
+    [minLat, minLng],
+    [maxLat, maxLng],
+  ];
 }

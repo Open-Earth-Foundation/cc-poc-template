@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
-import { Skeleton } from "@/core/components/ui/skeleton";
-import { CityBoundary } from "../types/city-info";
-import { MapPin } from "lucide-react";
+import { useEffect, useRef } from 'react';
+import { Skeleton } from '@/core/components/ui/skeleton';
+import { CityBoundary } from '../types/city-info';
+import { MapPin } from 'lucide-react';
 
 interface CityMapProps {
   boundary?: CityBoundary;
@@ -21,18 +21,18 @@ export function CityMap({ boundary, isLoading, cityName }: CityMapProps) {
 
   if (isLoading) {
     return (
-      <div className="w-full h-96">
-        <Skeleton className="w-full h-full rounded-lg" />
+      <div className='w-full h-96'>
+        <Skeleton className='w-full h-full rounded-lg' />
       </div>
     );
   }
 
   if (!boundary) {
     return (
-      <div className="w-full h-96 bg-muted rounded-lg flex items-center justify-center">
-        <div className="text-center">
-          <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">
+      <div className='w-full h-96 bg-muted rounded-lg flex items-center justify-center'>
+        <div className='text-center'>
+          <MapPin className='h-12 w-12 text-muted-foreground mx-auto mb-2' />
+          <p className='text-sm text-muted-foreground'>
             Boundary data not available for {cityName}
           </p>
         </div>
@@ -42,15 +42,15 @@ export function CityMap({ boundary, isLoading, cityName }: CityMapProps) {
 
   // Placeholder map container
   return (
-    <div 
+    <div
       ref={mapRef}
-      className="w-full h-96 bg-muted rounded-lg flex items-center justify-center border"
-      data-testid="city-map-container"
+      className='w-full h-96 bg-muted rounded-lg flex items-center justify-center border'
+      data-testid='city-map-container'
     >
-      <div className="text-center">
-        <MapPin className="h-8 w-8 text-primary mx-auto mb-2" />
-        <p className="text-sm font-medium">{cityName}</p>
-        <p className="text-xs text-muted-foreground">
+      <div className='text-center'>
+        <MapPin className='h-8 w-8 text-primary mx-auto mb-2' />
+        <p className='text-sm font-medium'>{cityName}</p>
+        <p className='text-xs text-muted-foreground'>
           Map will be displayed here
         </p>
       </div>

@@ -13,7 +13,7 @@ i18n
     fallbackLng: 'en',
     supportedLngs: ['en', 'pt'],
     debug: false,
-    
+
     interpolation: {
       escapeValue: false, // React already escapes by default
     },

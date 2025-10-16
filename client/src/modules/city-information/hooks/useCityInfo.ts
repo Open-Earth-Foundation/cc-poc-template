@@ -1,5 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { getCityDetail, getInventory, getCityBoundary } from "../services/cityInfoService";
+import { useQuery } from '@tanstack/react-query';
+import {
+  getCityDetail,
+  getInventory,
+  getCityBoundary,
+} from '../services/cityInfoService';
 
 export function useCityDetail(locode: string) {
   return useQuery({

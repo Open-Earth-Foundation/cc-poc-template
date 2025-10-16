@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/core/lib/queryClient";
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/core/lib/queryClient';
 
 export interface InventoryDetails {
   inventoryId: string;
@@ -73,13 +73,23 @@ export interface InventoryDetailsDownload extends InventoryDetails {
   inventoryValues: InventoryValue[];
 }
 
-async function getInventoryDetails(inventoryId: string): Promise<{ data: InventoryDetails }> {
-  const res = await apiRequest("GET", `/api/citycatalyst/inventory/${inventoryId}`);
+async function getInventoryDetails(
+  inventoryId: string
+): Promise<{ data: InventoryDetails }> {
+  const res = await apiRequest(
+    'GET',
+    `/api/citycatalyst/inventory/${inventoryId}`
+  );
   return await res.json();
 }
 
-async function getInventoryDetailsDownload(inventoryId: string): Promise<{ data: InventoryDetailsDownload }> {
-  const res = await apiRequest("GET", `/api/citycatalyst/inventory/${inventoryId}/download`);
+async function getInventoryDetailsDownload(
+  inventoryId: string
+): Promise<{ data: InventoryDetailsDownload }> {
+  const res = await apiRequest(
+    'GET',
+    `/api/citycatalyst/inventory/${inventoryId}/download`
+  );
   return await res.json();
 }
 
